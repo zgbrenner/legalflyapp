@@ -1,0 +1,231 @@
+{
+  "timestamp": "2026-09-12T07:44:29.213548+00:00",
+  "seed": 42,
+  "model_type": "random_degree_preserving",
+  "encoder": "hashing",
+  "dataset": {
+    "task": "sensitive_information",
+    "train": 800,
+    "validation": 200,
+    "test": 250,
+    "generator": "research.datasets.generate_sensitive_dataset"
+  },
+  "graph": {
+    "reservoir_size": 512,
+    "edge_count": 3910,
+    "control": "random_degree_preserving",
+    "preprocessing": "demo_synthetic_modular_csr_spectral_scaled"
+  },
+  "trainable_parameter_count": 12300,
+  "feature_dim": 1024,
+  "training_time_sec": 24.7614298579997,
+  "inference_time_sec_total": 1.0040257519999614,
+  "inference_time_sec_per_example": 0.004016103007999846,
+  "metrics_test": {
+    "exact_match_accuracy": 0.932,
+    "macro_f1": 0.9496439128867329,
+    "micro_f1": 0.9581749049429658,
+    "precision_macro": 0.9651867944147358,
+    "recall_macro": 0.9369334078660705,
+    "binary_sensitive_accuracy": 0.996,
+    "binary_sensitive_f1": 0.9971988795518207,
+    "confusion_matrix_sensitive": [
+      [
+        71,
+        1
+      ],
+      [
+        0,
+        178
+      ]
+    ],
+    "per_class": {
+      "NONE": {
+        "precision": 1.0,
+        "recall": 0.9861111111111112,
+        "f1": 0.993006993006993,
+        "support": 72
+      },
+      "PERSON": {
+        "precision": 0.9333333333333333,
+        "recall": 0.9333333333333333,
+        "f1": 0.9333333333333333,
+        "support": 15
+      },
+      "EMAIL": {
+        "precision": 1.0,
+        "recall": 0.9411764705882353,
+        "f1": 0.9696969696969697,
+        "support": 17
+      },
+      "PHONE": {
+        "precision": 0.9411764705882353,
+        "recall": 1.0,
+        "f1": 0.9696969696969697,
+        "support": 16
+      },
+      "ADDRESS": {
+        "precision": 0.9375,
+        "recall": 1.0,
+        "f1": 0.967741935483871,
+        "support": 15
+      },
+      "SSN": {
+        "precision": 1.0,
+        "recall": 0.88,
+        "f1": 0.9361702127659575,
+        "support": 25
+      },
+      "CREDIT_CARD": {
+        "precision": 0.9333333333333333,
+        "recall": 0.9333333333333333,
+        "f1": 0.9333333333333333,
+        "support": 15
+      },
+      "DATE_OF_BIRTH": {
+        "precision": 1.0,
+        "recall": 0.9333333333333333,
+        "f1": 0.9655172413793104,
+        "support": 15
+      },
+      "FINANCIAL": {
+        "precision": 1.0,
+        "recall": 0.8947368421052632,
+        "f1": 0.9444444444444444,
+        "support": 19
+      },
+      "MEDICAL": {
+        "precision": 0.9411764705882353,
+        "recall": 0.9411764705882353,
+        "f1": 0.9411764705882353,
+        "support": 17
+      },
+      "CREDENTIAL": {
+        "precision": 0.9411764705882353,
+        "recall": 0.8,
+        "f1": 0.8648648648648649,
+        "support": 20
+      },
+      "OTHER_SENSITIVE": {
+        "precision": 0.9545454545454546,
+        "recall": 1.0,
+        "f1": 0.9767441860465116,
+        "support": 21
+      }
+    },
+    "n_examples": 250
+  },
+  "metrics_validation": {
+    "exact_match_accuracy": 0.91,
+    "macro_f1": 0.9267161447923696,
+    "micro_f1": 0.9436619718309859,
+    "precision_macro": 0.9454571794161577,
+    "recall_macro": 0.9145743145743146,
+    "binary_sensitive_accuracy": 0.995,
+    "binary_sensitive_f1": 0.9965397923875432,
+    "confusion_matrix_sensitive": [
+      [
+        55,
+        0
+      ],
+      [
+        1,
+        144
+      ]
+    ],
+    "per_class": {
+      "NONE": {
+        "precision": 0.9821428571428571,
+        "recall": 1.0,
+        "f1": 0.990990990990991,
+        "support": 55
+      },
+      "PERSON": {
+        "precision": 0.9411764705882353,
+        "recall": 0.8888888888888888,
+        "f1": 0.9142857142857143,
+        "support": 18
+      },
+      "EMAIL": {
+        "precision": 0.9473684210526315,
+        "recall": 0.9,
+        "f1": 0.9230769230769231,
+        "support": 20
+      },
+      "PHONE": {
+        "precision": 1.0,
+        "recall": 0.7272727272727273,
+        "f1": 0.8421052631578947,
+        "support": 11
+      },
+      "ADDRESS": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 14
+      },
+      "SSN": {
+        "precision": 0.9411764705882353,
+        "recall": 1.0,
+        "f1": 0.9696969696969697,
+        "support": 16
+      },
+      "CREDIT_CARD": {
+        "precision": 0.9444444444444444,
+        "recall": 0.9444444444444444,
+        "f1": 0.9444444444444444,
+        "support": 18
+      },
+      "DATE_OF_BIRTH": {
+        "precision": 1.0,
+        "recall": 0.7857142857142857,
+        "f1": 0.88,
+        "support": 14
+      },
+      "FINANCIAL": {
+        "precision": 0.9285714285714286,
+        "recall": 0.9285714285714286,
+        "f1": 0.9285714285714286,
+        "support": 14
+      },
+      "MEDICAL": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 11
+      },
+      "CREDENTIAL": {
+        "precision": 0.7272727272727273,
+        "recall": 0.8,
+        "f1": 0.7619047619047619,
+        "support": 10
+      },
+      "OTHER_SENSITIVE": {
+        "precision": 0.9333333333333333,
+        "recall": 1.0,
+        "f1": 0.9655172413793104,
+        "support": 14
+      }
+    },
+    "n_examples": 200
+  },
+  "hardware": {
+    "platform": "Linux-6.12.94+-x86_64-with-glibc2.39",
+    "python": "3.12.3",
+    "processor": "x86_64"
+  },
+  "config": {
+    "model_type": "random_degree_preserving",
+    "encoder": "hashing-384",
+    "seed": 42,
+    "input_dim": 64,
+    "timesteps": 12,
+    "encoding_mode": "temporal",
+    "demo_mode": true,
+    "reservoir_size": 512,
+    "edge_count": 3910,
+    "graph_control": "random_degree_preserving",
+    "leak": 0.3
+  },
+  "claim": "Measured result on synthetic demo connectome / controls. Do not interpret as anatomical fly-brain competence."
+}

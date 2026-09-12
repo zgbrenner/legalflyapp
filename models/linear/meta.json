@@ -1,0 +1,13 @@
+{
+  "model_type": "linear",
+  "config": {
+    "model_type": "linear",
+    "encoder": "hashing-384",
+    "seed": 42,
+    "input_dim": 64,
+    "timesteps": 12,
+    "encoding_mode": "temporal",
+    "demo_mode": true
+  },
+  "encoder_name": "hashing-384"
+}

@@ -1,0 +1,17 @@
+{
+  "model_type": "random_degree_preserving",
+  "config": {
+    "model_type": "random_degree_preserving",
+    "encoder": "hashing-384",
+    "seed": 42,
+    "input_dim": 64,
+    "timesteps": 12,
+    "encoding_mode": "temporal",
+    "demo_mode": true,
+    "reservoir_size": 512,
+    "edge_count": 3910,
+    "graph_control": "random_degree_preserving",
+    "leak": 0.3
+  },
+  "encoder_name": "hashing-384"
+}

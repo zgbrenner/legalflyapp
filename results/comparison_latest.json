@@ -1,0 +1,59 @@
+{
+  "timestamp": "2026-09-12T07:44:29.870279+00:00",
+  "n_seeds": 2,
+  "seeds": [
+    42,
+    43
+  ],
+  "models": {
+    "connectome": {
+      "macro_f1_mean": 0.930382696217709,
+      "macro_f1_std": 0.0015142988282104142,
+      "macro_f1_ci95_approx": 0.002098711101534036,
+      "binary_sensitive_f1_mean": 0.9957745810188483,
+      "binary_sensitive_f1_std": 0.00142429853297249,
+      "trainable_params": 12300,
+      "reservoir_size": 512,
+      "edge_count": 3944,
+      "n_runs": 2,
+      "status": "measured"
+    },
+    "random_erdos": {
+      "macro_f1_mean": 0.9373905238813056,
+      "macro_f1_std": 0.013753667285705207,
+      "macro_f1_ci95_approx": 0.019061610351655225,
+      "binary_sensitive_f1_mean": 0.9985994397759104,
+      "binary_sensitive_f1_std": 0.0014005602240896309,
+      "trainable_params": 12300,
+      "reservoir_size": 512,
+      "edge_count": 3914,
+      "n_runs": 2,
+      "status": "measured"
+    },
+    "random_degree_preserving": {
+      "macro_f1_mean": 0.9404860777034274,
+      "macro_f1_std": 0.00915783518330554,
+      "macro_f1_ci95_approx": 0.012692112023844028,
+      "binary_sensitive_f1_mean": 0.9971988795518207,
+      "binary_sensitive_f1_std": 0.0,
+      "trainable_params": 12300,
+      "reservoir_size": 512,
+      "edge_count": 3910,
+      "n_runs": 2,
+      "status": "measured"
+    },
+    "linear": {
+      "macro_f1_mean": 0.9761263692522946,
+      "macro_f1_std": 0.004722057453894035,
+      "macro_f1_ci95_approx": 0.006544437739729871,
+      "binary_sensitive_f1_mean": 1.0,
+      "binary_sensitive_f1_std": 0.0,
+      "trainable_params": 4620,
+      "reservoir_size": null,
+      "edge_count": null,
+      "n_runs": 2,
+      "status": "measured"
+    }
+  },
+  "interpretation": "This table reports measured metrics on the LegalFly synthetic sensitive-information benchmark using the demo connectome. Biological topology 'wins' only if measured values show it."
+}
