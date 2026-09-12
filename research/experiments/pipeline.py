@@ -25,7 +25,19 @@ from research.reservoirs.base import ConnectomeReservoir, make_reservoir
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEMO_GRAPH_DIR = REPO_ROOT / "data" / "demo" / "connectome"
+HEMIBRAIN_GRAPH_DIR = REPO_ROOT / "data" / "processed" / "hemibrain"
 MODELS_DIR = REPO_ROOT / "models"
+
+
+def active_graph_dir() -> Path:
+    """Prefer real hemibrain tissue when processed artifacts exist."""
+    if (HEMIBRAIN_GRAPH_DIR / "biological" / "meta.json").exists():
+        return HEMIBRAIN_GRAPH_DIR
+    return DEMO_GRAPH_DIR
+
+
+def connectome_mode() -> str:
+    return "hemibrain" if active_graph_dir() == HEMIBRAIN_GRAPH_DIR else "demo"
 
 
 @dataclass
@@ -43,20 +55,33 @@ class ModelBundle:
         return -1
 
 
-def load_demo_graph(control: str = "biological") -> ConnectomeGraph:
-    path = DEMO_GRAPH_DIR / control
+def load_active_graph(control: str = "biological") -> ConnectomeGraph:
+    graph_dir = active_graph_dir()
+    path = graph_dir / control
     if not path.exists():
         # Fall back to biological + on-the-fly control
-        bio = DEMO_GRAPH_DIR / "biological"
+        bio = graph_dir / "biological"
         if not bio.exists():
+            if graph_dir == HEMIBRAIN_GRAPH_DIR:
+                raise FileNotFoundError(
+                    "Hemibrain graph missing. Run: "
+                    "python scripts/fetch_hemibrain.py && "
+                    "python -m research.graphs.build_hemibrain_connectome"
+                )
             from research.graphs.build_demo_connectome import build_all
 
             build_all(DEMO_GRAPH_DIR)
-        graph = ConnectomeGraph.load(DEMO_GRAPH_DIR / "biological")
+            bio = DEMO_GRAPH_DIR / "biological"
+        graph = ConnectomeGraph.load(bio)
         if control != "biological":
             return apply_control(graph, control, seed=42)  # type: ignore[arg-type]
         return graph
     return ConnectomeGraph.load(path)
+
+
+# Back-compat alias
+def load_demo_graph(control: str = "biological") -> ConnectomeGraph:
+    return load_active_graph(control)
 
 
 def reservoir_features(
@@ -140,14 +165,20 @@ def build_model(
     }
     if model_type not in control_map:
         raise ValueError(f"Unknown model_type: {model_type}")
-    graph = load_demo_graph(control_map[model_type])
+    graph = load_active_graph(control_map[model_type])
     reservoir = make_reservoir(graph, input_dim=input_dim, seed=seed)
+    mode = connectome_mode()
     config.update(
         {
             "reservoir_size": graph.n_nodes,
             "edge_count": graph.n_edges,
             "graph_control": graph.control,
             "leak": reservoir.leak,
+            "demo_mode": mode == "demo",
+            "connectome_mode": mode,
+            "graph_source": graph.metadata.get("source"),
+            "anatomical_edges": bool(graph.metadata.get("anatomical", False)),
+            "graph_license": graph.metadata.get("license"),
         }
     )
     return ModelBundle(

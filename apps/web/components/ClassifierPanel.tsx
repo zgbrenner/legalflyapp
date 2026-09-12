@@ -10,10 +10,10 @@ import { ConnectomeViz } from "@/components/ConnectomeViz";
 import { ActivityCharts } from "@/components/ActivityCharts";
 
 const STAGES = [
-  "ENCODING TEXT",
-  "STIMULATING CONNECTOME",
-  "READING RESERVOIR STATE",
-  "RENDERING VERDICT",
+  "ENCODING THE SPECIMEN",
+  "STIMULATING EXCISED TISSUE",
+  "READING RESERVOIR RESIDUE",
+  "RENDERING THE VERDICT",
 ] as const;
 
 type Stage = (typeof STAGES)[number] | null;
@@ -37,7 +37,7 @@ export function ClassifierPanel({ defaultModel = "connectome" }: { defaultModel?
     setFeedback(null);
     setResult(null);
     if (!text.trim()) {
-      setError("Paste some text for the fly to inspect.");
+      setError("Offer the apparatus some text.");
       return;
     }
     setLoading(true);
@@ -76,27 +76,27 @@ export function ClassifierPanel({ defaultModel = "connectome" }: { defaultModel?
       <div className="animate-rise">
         <form onSubmit={onSubmit} className="border border-ink/15 bg-paper/80 p-5 shadow-soft md:p-6">
           <label className="font-mono text-[11px] uppercase tracking-[0.2em] text-ink/50">
-            Paste text for the fly to inspect
+            Offer a passage to the reanimated wiring
           </label>
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
             rows={7}
-            className="mt-3 w-full resize-y border border-ink/20 bg-white/70 p-3 text-base outline-none ring-accent/30 focus:ring-2"
+            className="mt-3 w-full resize-y border border-ink/20 bg-white/70 p-3 text-base outline-none ring-blood/30 focus:ring-2"
             placeholder="My email is alex@example.com"
           />
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <button
               type="submit"
               disabled={loading}
-              className="bg-ink px-5 py-3 font-mono text-xs uppercase tracking-[0.18em] text-paper transition hover:bg-accent disabled:opacity-60"
+              className="bg-ink px-5 py-3 font-mono text-xs uppercase tracking-[0.18em] text-paper transition hover:bg-blood disabled:opacity-60"
             >
-              {loading ? "Working…" : "Let the fly read it"}
+              {loading ? "The tissue is working…" : "Let the stolen brain read it"}
             </button>
-            <p className="text-xs text-ink/55">Submitted text is not saved by default.</p>
+            <p className="text-xs text-ink/55">Your text is not saved by default. We keep the corpse, not your secrets.</p>
           </div>
           {stage ? (
-            <p className="mt-4 font-mono text-xs uppercase tracking-[0.22em] text-accent animate-pulseSoft">
+            <p className="mt-4 font-mono text-xs uppercase tracking-[0.22em] text-blood animate-pulseSoft">
               {stage}
             </p>
           ) : null}
@@ -110,7 +110,7 @@ export function ClassifierPanel({ defaultModel = "connectome" }: { defaultModel?
         {result ? (
           <div className="mt-6 border border-ink/15 bg-white/70 p-5 animate-rise md:p-6">
             <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-ink/50">
-              The fly has rendered its verdict
+              The tissue has rendered its verdict
             </p>
             <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight">
               {result.contains_sensitive
@@ -132,7 +132,7 @@ export function ClassifierPanel({ defaultModel = "connectome" }: { defaultModel?
               {(result.inference_time_sec * 1000).toFixed(0)} ms
             </p>
             <div className="mt-6 flex flex-wrap items-center gap-3">
-              <span className="text-sm text-ink/60">Was the fly right?</span>
+              <span className="text-sm text-ink/60">Was the stolen wiring right?</span>
               <button
                 type="button"
                 onClick={() => onFeedback(true)}

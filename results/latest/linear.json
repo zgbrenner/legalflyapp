@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-09-12T07:44:29.869458+00:00",
+  "timestamp": "2026-09-12T20:52:24.052861+00:00",
   "seed": 42,
   "model_type": "linear",
   "encoder": "hashing",
@@ -18,9 +18,9 @@
   },
   "trainable_parameter_count": 4620,
   "feature_dim": 384,
-  "training_time_sec": 0.5161297639997429,
-  "inference_time_sec_total": 0.029455377999966004,
-  "inference_time_sec_per_example": 0.00011782151199986401,
+  "training_time_sec": 0.1282265700001517,
+  "inference_time_sec_total": 0.029199321000305645,
+  "inference_time_sec_per_example": 0.00011679728400122258,
   "metrics_test": {
     "exact_match_accuracy": 0.968,
     "macro_f1": 0.9808484267061885,

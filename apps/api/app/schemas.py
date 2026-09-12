@@ -35,7 +35,10 @@ class ClassifyResponse(BaseModel):
     scores: dict[str, float]
     model: str
     demo_mode: bool
+    connectome_mode: str = "demo"
     graph_label: str
+    graph_source: str | None = None
+    anatomical_edges: bool = False
     inference_time_sec: float
     simulation: dict[str, Any]
     disclaimer: str

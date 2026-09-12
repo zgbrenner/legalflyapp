@@ -3,11 +3,13 @@
 @tailwind utilities;
 
 :root {
-  --bg: #f6f4ef;
-  --ink: #0f1210;
+  --bg: #f3efe8;
+  --ink: #140f0e;
   --accent: #c45c26;
-  --mist: #e8e4db;
+  --mist: #e6e0d6;
   --signal: #1f6f5b;
+  --blood: #8c1212;
+  --paper: #f7f2ea;
 }
 
 html,
@@ -19,22 +21,22 @@ body {
 
 body {
   background-image:
-    radial-gradient(circle at 12% 8%, rgba(196, 92, 38, 0.12), transparent 36%),
-    radial-gradient(circle at 88% 0%, rgba(31, 111, 91, 0.1), transparent 32%),
-    linear-gradient(180deg, #f8f6f1 0%, #efebe3 48%, #f6f4ef 100%);
+    radial-gradient(circle at 10% 6%, rgba(140, 18, 18, 0.14), transparent 34%),
+    radial-gradient(circle at 88% 0%, rgba(196, 92, 38, 0.1), transparent 30%),
+    linear-gradient(180deg, #f8f3ec 0%, #ebe4d9 48%, #f3efe8 100%);
   background-attachment: fixed;
 }
 
 ::selection {
-  background: rgba(196, 92, 38, 0.25);
+  background: rgba(140, 18, 18, 0.22);
 }
 
 .grid-fade {
   background-image:
-    linear-gradient(rgba(15, 18, 16, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(15, 18, 16, 0.035) 1px, transparent 1px);
+    linear-gradient(rgba(20, 15, 14, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(20, 15, 14, 0.04) 1px, transparent 1px);
   background-size: 28px 28px;
-  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.7), transparent 85%);
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.75), transparent 85%);
 }
 
 .prose-narrow p {

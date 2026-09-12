@@ -1,4 +1,4 @@
-.PHONY: install install-web dev api web test generate-data train benchmark lint clean docker-up
+.PHONY: install install-web dev api web test generate-data fetch-hemibrain build-hemibrain train train-hemibrain benchmark ablate lint clean docker-up
 
 ROOT := $(shell pwd)
 export PYTHONPATH := $(ROOT)
@@ -19,8 +19,20 @@ generate-data:
 	. .venv/bin/activate && python -m research.datasets.generate_sensitive_dataset
 	. .venv/bin/activate && python -m research.graphs.build_demo_connectome
 
+fetch-hemibrain:
+	. .venv/bin/activate && python scripts/fetch_hemibrain.py
+
+build-hemibrain: fetch-hemibrain
+	. .venv/bin/activate && python -m research.graphs.build_hemibrain_connectome --max-nodes 3072 --min-weight 2
+
 train:
 	. .venv/bin/activate && python -m research.experiments.run --model all --seed 42
+
+train-hemibrain: build-hemibrain
+	. .venv/bin/activate && rm -rf models/connectome models/random_erdos models/random_degree_preserving models/random_weights
+	. .venv/bin/activate && python -m research.experiments.run --model all --seed 42
+	. .venv/bin/activate && python -m research.experiments.compare --seeds 42,43 --models connectome,random_erdos,random_degree_preserving,linear
+	. .venv/bin/activate && python -m research.experiments.ablate --seed 42
 
 benchmark:
 	. .venv/bin/activate && python -m research.experiments.compare --seeds 42,43,44
@@ -37,7 +49,6 @@ web:
 dev:
 	@echo "Start API: make api"
 	@echo "Start Web: make web"
-	@echo "Or: docker compose up"
 
 test:
 	. .venv/bin/activate && pytest -q

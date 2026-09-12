@@ -7,11 +7,15 @@
     "input_dim": 64,
     "timesteps": 12,
     "encoding_mode": "temporal",
-    "demo_mode": true,
-    "reservoir_size": 512,
-    "edge_count": 3944,
+    "demo_mode": false,
+    "reservoir_size": 3072,
+    "edge_count": 293766,
     "graph_control": "biological",
-    "leak": 0.3
+    "leak": 0.3,
+    "connectome_mode": "hemibrain",
+    "graph_source": "janelia_hemibrain_v1.2",
+    "anatomical_edges": true,
+    "graph_license": "CC BY 4.0"
   },
   "encoder_name": "hashing-384"
 }

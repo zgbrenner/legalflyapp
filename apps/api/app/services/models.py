@@ -121,17 +121,25 @@ class ModelService:
             elapsed,
             pred.contains_sensitive,
         )
+        mode = bundle.config.get("connectome_mode", "demo")
+        if bundle.model_type == "connectome":
+            if mode == "hemibrain":
+                graph_label = "HEMIBRAIN v1.2 · SURGICAL TISSUE"
+            else:
+                graph_label = "DEMO CONNECTOME"
+        else:
+            graph_label = bundle.model_type.replace("_", " ").upper()
+
         return {
             "contains_sensitive": pred.contains_sensitive,
             "labels": labels,
             "scores": pred.scores,
             "model": bundle.model_type,
-            "demo_mode": self.settings.legalfly_demo_mode,
-            "graph_label": (
-                "DEMO CONNECTOME"
-                if bundle.model_type == "connectome"
-                else bundle.model_type.replace("_", " ").upper()
-            ),
+            "demo_mode": mode == "demo",
+            "connectome_mode": mode,
+            "graph_label": graph_label,
+            "graph_source": bundle.config.get("graph_source"),
+            "anatomical_edges": bool(bundle.config.get("anatomical_edges", False)),
             "inference_time_sec": elapsed,
             "simulation": sims[0]
             if sims
@@ -143,7 +151,8 @@ class ModelService:
                 "layout": "none",
             },
             "disclaimer": (
-                "LegalFly does not simulate consciousness and does not provide legal advice. "
+                "LegalFly reanimates connectome topology as mathematics. "
+                "It does not restore a mind, simulate consciousness, or provide legal advice. "
                 "Submitted text is not stored by default."
             ),
         }

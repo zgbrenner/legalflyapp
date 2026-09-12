@@ -4,12 +4,13 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        ink: "#0f1210",
-        paper: "#f6f4ef",
-        mist: "#e8e4db",
+        ink: "#140f0e",
+        paper: "#f7f2ea",
+        mist: "#e6e0d6",
         accent: "#c45c26",
         accentsoft: "#f0d5c4",
         signal: "#1f6f5b",
+        blood: "#8c1212",
       },
       fontFamily: {
         display: ["var(--font-display)", "Georgia", "serif"],

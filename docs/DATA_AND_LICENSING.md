@@ -10,9 +10,9 @@ how the repository stays legally and practically usable as an open-source projec
 
 | Resource | Role in LegalFly | License | Redistribution in repo | Commercial use | Demo default |
 |---|---|---|---|---|---|
-| Synthetic demo graph | Interactive demo + CI | MIT (project-generated) | Yes (small) | Yes | **Yes** |
+| Synthetic demo graph | Interactive demo + CI | MIT (project-generated) | Yes (small) | Yes | Fallback |
 | FlyWire FAFB / whole-brain connectome | Optional research-scale reservoir | **CC BY-NC 4.0** | No (download separately) | **No** | No |
-| Janelia hemibrain (neuPrint) | Optional research-scale reservoir | **CC BY 4.0** | No (too large; download separately) | Yes (with attribution) | No |
+| Janelia hemibrain (neuPrint compact adjacency) | Preferred research reservoir | **CC BY 4.0** | No (download ~44MB; process locally) | Yes (with attribution) | **Preferred when built** |
 | Synthetic sensitive-text benchmark | Task #1 dataset | MIT (project-generated) | Yes | Yes | Yes |
 | `all-MiniLM-L6-v2` (optional encoder) | Text embeddings | Apache-2.0 (model card) | Not vendored; downloaded by user | See model card / training-data caveats | Hashing encoder used instead in demo |
 

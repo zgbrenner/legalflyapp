@@ -110,9 +110,17 @@ def test_api_classify_and_limits():
         payload = ok.json()
         assert "contains_sensitive" in payload
         assert "labels" in payload
-        assert payload["demo_mode"] is True
+        assert isinstance(payload["demo_mode"], bool)
+        if payload["demo_mode"]:
+            assert "DEMO" in payload["graph_label"].upper()
+        else:
+            assert payload.get("connectome_mode") == "hemibrain"
+            assert payload.get("anatomical_edges") is True
+            assert "HEMIBRAIN" in payload["graph_label"].upper()
         # Ensure simulation present for connectome
         assert "simulation" in payload
+        assert payload["contains_sensitive"] is True
+        assert any(lbl["name"] == "EMAIL" for lbl in payload["labels"])
         huge = "x" * 5000
         too_big = client.post("/classify", json={"text": huge, "model": "linear"})
         assert too_big.status_code == 422

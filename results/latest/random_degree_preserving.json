@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-09-12T07:44:29.213548+00:00",
+  "timestamp": "2026-09-12T20:52:23.785668+00:00",
   "seed": 42,
   "model_type": "random_degree_preserving",
   "encoder": "hashing",
@@ -11,39 +11,39 @@
     "generator": "research.datasets.generate_sensitive_dataset"
   },
   "graph": {
-    "reservoir_size": 512,
-    "edge_count": 3910,
+    "reservoir_size": 3072,
+    "edge_count": 284686,
     "control": "random_degree_preserving",
     "preprocessing": "demo_synthetic_modular_csr_spectral_scaled"
   },
-  "trainable_parameter_count": 12300,
-  "feature_dim": 1024,
-  "training_time_sec": 24.7614298579997,
-  "inference_time_sec_total": 1.0040257519999614,
-  "inference_time_sec_per_example": 0.004016103007999846,
+  "trainable_parameter_count": 73740,
+  "feature_dim": 6144,
+  "training_time_sec": 24.354062615999283,
+  "inference_time_sec_total": 1.516517835999366,
+  "inference_time_sec_per_example": 0.006066071343997464,
   "metrics_test": {
     "exact_match_accuracy": 0.932,
-    "macro_f1": 0.9496439128867329,
-    "micro_f1": 0.9581749049429658,
-    "precision_macro": 0.9651867944147358,
-    "recall_macro": 0.9369334078660705,
-    "binary_sensitive_accuracy": 0.996,
-    "binary_sensitive_f1": 0.9971988795518207,
+    "macro_f1": 0.9486727621130733,
+    "micro_f1": 0.9547169811320755,
+    "precision_macro": 0.9599936876719184,
+    "recall_macro": 0.9407937019837175,
+    "binary_sensitive_accuracy": 0.988,
+    "binary_sensitive_f1": 0.9915492957746479,
     "confusion_matrix_sensitive": [
       [
         71,
         1
       ],
       [
-        0,
-        178
+        2,
+        176
       ]
     ],
     "per_class": {
       "NONE": {
-        "precision": 1.0,
+        "precision": 0.9726027397260274,
         "recall": 0.9861111111111112,
-        "f1": 0.993006993006993,
+        "f1": 0.9793103448275862,
         "support": 72
       },
       "PERSON": {
@@ -59,15 +59,15 @@
         "support": 17
       },
       "PHONE": {
-        "precision": 0.9411764705882353,
-        "recall": 1.0,
-        "f1": 0.9696969696969697,
+        "precision": 0.8823529411764706,
+        "recall": 0.9375,
+        "f1": 0.9090909090909091,
         "support": 16
       },
       "ADDRESS": {
-        "precision": 0.9375,
+        "precision": 0.8823529411764706,
         "recall": 1.0,
-        "f1": 0.967741935483871,
+        "f1": 0.9375,
         "support": 15
       },
       "SSN": {
@@ -77,33 +77,33 @@
         "support": 25
       },
       "CREDIT_CARD": {
-        "precision": 0.9333333333333333,
-        "recall": 0.9333333333333333,
-        "f1": 0.9333333333333333,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
         "support": 15
       },
       "DATE_OF_BIRTH": {
         "precision": 1.0,
-        "recall": 0.9333333333333333,
-        "f1": 0.9655172413793104,
+        "recall": 0.8666666666666667,
+        "f1": 0.9285714285714286,
         "support": 15
       },
       "FINANCIAL": {
-        "precision": 1.0,
+        "precision": 0.8947368421052632,
         "recall": 0.8947368421052632,
-        "f1": 0.9444444444444444,
+        "f1": 0.8947368421052632,
         "support": 19
       },
       "MEDICAL": {
-        "precision": 0.9411764705882353,
-        "recall": 0.9411764705882353,
-        "f1": 0.9411764705882353,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
         "support": 17
       },
       "CREDENTIAL": {
-        "precision": 0.9411764705882353,
-        "recall": 0.8,
-        "f1": 0.8648648648648649,
+        "precision": 1.0,
+        "recall": 0.85,
+        "f1": 0.918918918918919,
         "support": 20
       },
       "OTHER_SENSITIVE": {
@@ -116,11 +116,11 @@
     "n_examples": 250
   },
   "metrics_validation": {
-    "exact_match_accuracy": 0.91,
-    "macro_f1": 0.9267161447923696,
-    "micro_f1": 0.9436619718309859,
-    "precision_macro": 0.9454571794161577,
-    "recall_macro": 0.9145743145743146,
+    "exact_match_accuracy": 0.92,
+    "macro_f1": 0.9292655042551844,
+    "micro_f1": 0.9453681710213777,
+    "precision_macro": 0.9613965981129294,
+    "recall_macro": 0.903992303992304,
     "binary_sensitive_accuracy": 0.995,
     "binary_sensitive_f1": 0.9965397923875432,
     "confusion_matrix_sensitive": [
@@ -141,9 +141,9 @@
         "support": 55
       },
       "PERSON": {
-        "precision": 0.9411764705882353,
-        "recall": 0.8888888888888888,
-        "f1": 0.9142857142857143,
+        "precision": 0.9375,
+        "recall": 0.8333333333333334,
+        "f1": 0.8823529411764706,
         "support": 18
       },
       "EMAIL": {
@@ -159,9 +159,9 @@
         "support": 11
       },
       "ADDRESS": {
-        "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0,
+        "precision": 0.9285714285714286,
+        "recall": 0.9285714285714286,
+        "f1": 0.9285714285714286,
         "support": 14
       },
       "SSN": {
@@ -171,9 +171,9 @@
         "support": 16
       },
       "CREDIT_CARD": {
-        "precision": 0.9444444444444444,
+        "precision": 1.0,
         "recall": 0.9444444444444444,
-        "f1": 0.9444444444444444,
+        "f1": 0.9714285714285714,
         "support": 18
       },
       "DATE_OF_BIRTH": {
@@ -183,9 +183,9 @@
         "support": 14
       },
       "FINANCIAL": {
-        "precision": 0.9285714285714286,
+        "precision": 1.0,
         "recall": 0.9285714285714286,
-        "f1": 0.9285714285714286,
+        "f1": 0.9629629629629629,
         "support": 14
       },
       "MEDICAL": {
@@ -195,15 +195,15 @@
         "support": 11
       },
       "CREDENTIAL": {
-        "precision": 0.7272727272727273,
+        "precision": 0.8,
         "recall": 0.8,
-        "f1": 0.7619047619047619,
+        "f1": 0.8,
         "support": 10
       },
       "OTHER_SENSITIVE": {
-        "precision": 0.9333333333333333,
+        "precision": 1.0,
         "recall": 1.0,
-        "f1": 0.9655172413793104,
+        "f1": 1.0,
         "support": 14
       }
     },
@@ -221,11 +221,15 @@
     "input_dim": 64,
     "timesteps": 12,
     "encoding_mode": "temporal",
-    "demo_mode": true,
-    "reservoir_size": 512,
-    "edge_count": 3910,
+    "demo_mode": false,
+    "reservoir_size": 3072,
+    "edge_count": 284686,
     "graph_control": "random_degree_preserving",
-    "leak": 0.3
+    "leak": 0.3,
+    "connectome_mode": "hemibrain",
+    "graph_source": "janelia_hemibrain_v1.2",
+    "anatomical_edges": true,
+    "graph_license": "CC BY 4.0"
   },
   "claim": "Measured result on synthetic demo connectome / controls. Do not interpret as anatomical fly-brain competence."
 }

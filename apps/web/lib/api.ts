@@ -32,7 +32,10 @@ export type ClassifyResponse = {
   scores: Record<string, number>;
   model: string;
   demo_mode: boolean;
+  connectome_mode?: string;
   graph_label: string;
+  graph_source?: string | null;
+  anatomical_edges?: boolean;
   inference_time_sec: number;
   simulation: Simulation;
   disclaimer: string;
