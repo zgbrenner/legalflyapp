@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-09-12T23:26:13.009014+00:00",
+  "timestamp": "2026-09-12T23:53:00.520054+00:00",
   "seed": 42,
   "model_type": "random_degree_preserving",
   "encoder": "minilm",
@@ -20,9 +20,9 @@
   },
   "trainable_parameter_count": 73740,
   "feature_dim": 6144,
-  "training_time_sec": 28.87836900900038,
-  "inference_time_sec_total": 2.6371254950008733,
-  "inference_time_sec_per_example": 0.007325348597224648,
+  "training_time_sec": 30.047878597000818,
+  "inference_time_sec_total": 2.6473462529993412,
+  "inference_time_sec_per_example": 0.007353739591664837,
   "metrics_test": {
     "exact_match_accuracy": 0.9722222222222222,
     "macro_f1": 0.9833598727427079,

@@ -47,7 +47,9 @@ results/experiment_*/
 !results/comparison_latest.json
 !results/comparison_fewshot_latest.json
 !results/comparison_fewshot_120.json
+!results/comparison_fewshot_80.json
 !results/comparison_hashing_fewshot.json
+!results/comparison_hashing_fewshot_80.json
 !results/ablation_latest.json
 !results/latest/
 !results/latest/**

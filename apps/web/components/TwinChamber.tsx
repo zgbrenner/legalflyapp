@@ -5,10 +5,10 @@ import { classifyTwin, type ClassifyResponse, type TwinResponse } from "@/lib/ap
 import { ConnectomeViz } from "@/components/ConnectomeViz";
 
 const EXAMPLES = [
-  "Counsel: please route the privilege log to jordan.chen41@corp.example only.",
-  "Call Section 555 of the statute before filing.",
-  "HR packet lists SSN 412-88-2910 for background screening.",
-  "Attorney-client privilege is asserted as to the highlighted passages.",
+  "CONFIDENTIAL — ATTORNEY'S EYES ONLY. Buried in ¶14 of the engagement letter, the only authorized recipient is jordan.chen41@corp.example. Nothing herein waives privilege.",
+  "WITHOUT WAIVING ANY OBJECTION: DO NOT CIRCULATE SSN 412-88-2910 outside the encrypted channel.",
+  "Call Section 555 of the statute before filing the motion in limine.",
+  "Attorney-client privilege is asserted as to the highlighted passages; no identifiers appear herein.",
 ];
 
 function Side({

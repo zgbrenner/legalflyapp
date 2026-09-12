@@ -76,6 +76,16 @@ With scarce labels, the stolen wiring **does** beat random twins — but the thi
 
 With fewer labels, biological topology keeps a thin edge over random twins; linear MiniLM still leads. Reproduce: `make train-fewshot`.
 
+### Few-shot @ 80 labels × 5 seeds (MiniLM)
+| Model | Macro F1 | Binary F1 |
+|---|---|---|
+| Linear | ~0.897 | ~0.949 |
+| Hemibrain connectome | ~0.842 | ~0.925 |
+| Random Erdos–Renyi | ~0.835 | ~0.917 |
+| Degree-matched random | ~0.831 | ~0.912 |
+
+Scarcer labels widen the gap a little: connectome stays ahead of both random twins; linear MiniLM still leads. Artifact: `results/comparison_fewshot_80.json`.
+
 ### Few-shot @ 120 labels × 3 seeds (hashing encoder)
 | Model | Macro F1 |
 |---|---|
@@ -86,6 +96,15 @@ With fewer labels, biological topology keeps a thin edge over random twins; line
 
 With hashing features, random twins beat biology. Topology help is encoder-dependent — not a universal win.
 
+### Few-shot @ 80 labels × 5 seeds (hashing encoder)
+| Model | Macro F1 | Binary F1 |
+|---|---|---|
+| Linear | ~0.893 | ~0.963 |
+| Degree-matched random | ~0.795 | ~0.924 |
+| Random Erdos–Renyi | ~0.792 | ~0.922 |
+| Hemibrain connectome | ~0.774 | ~0.914 |
+
+Same story under scarcity with hashing: random twins beat biology. Artifact: `results/comparison_hashing_fewshot_80.json`.
 
 
 ## Architecture

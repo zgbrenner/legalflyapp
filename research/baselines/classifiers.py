@@ -104,13 +104,10 @@ class MultiLabelReadout:
             sensitive_scores = {k: v for k, v in scores.items() if k != "NONE"}
             ranked = sorted(sensitive_scores.items(), key=lambda kv: kv[1], reverse=True)
             active = [name for name, score in ranked if score >= threshold]
-            # If NONE dominates and no sensitive label clears threshold, abstain to NONE.
+            # Hard threshold: if no sensitive head clears it, abstain to NONE.
+            # (Avoids OOD false positives like MEDICAL @ 0.05.)
             if not active:
-                best_name, best_score = ranked[0] if ranked else ("NONE", 0.0)
-                if none_score >= best_score:
-                    labels = ["NONE"]
-                else:
-                    labels = [best_name]
+                labels = ["NONE"]
             else:
                 # Keep top labels; drop weak extras more than 0.25 behind the leader
                 top = ranked[0][1]

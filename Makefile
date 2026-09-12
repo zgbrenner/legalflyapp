@@ -38,8 +38,9 @@ train-hemibrain: build-hemibrain
 
 train-fewshot:
 	. .venv/bin/activate && python -m research.datasets.generate_harder_legal_dataset
-	. .venv/bin/activate && python -m research.experiments.compare --seeds 42,43 --models connectome,random_erdos,random_degree_preserving,linear --max-train 160 --out comparison_fewshot_latest.json
-	. .venv/bin/activate && python -m research.experiments.compare --seeds 42,43 --models connectome,random_erdos,random_degree_preserving,linear --out comparison_latest.json
+	. .venv/bin/activate && python -m research.experiments.compare --seeds 42,43,44,45,46 --models connectome,random_erdos,random_degree_preserving,linear --max-train 80 --encoder minilm --out comparison_fewshot_80.json
+	cp results/comparison_fewshot_80.json results/comparison_fewshot_latest.json
+	. .venv/bin/activate && LEGALFLY_ENCODER=minilm python -m research.experiments.run --model all --seed 42
 
 benchmark:
 	. .venv/bin/activate && python -m research.experiments.compare --seeds 42,43,44
