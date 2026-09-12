@@ -1,4 +1,4 @@
-.PHONY: install install-web dev api web test generate-data fetch-hemibrain build-hemibrain train train-hemibrain benchmark ablate lint clean docker-up
+.PHONY: install install-web dev api web test generate-data fetch-hemibrain build-hemibrain train train-hemibrain train-fewshot benchmark ablate lint clean docker-up
 
 ROOT := $(shell pwd)
 export PYTHONPATH := $(ROOT)
@@ -18,6 +18,7 @@ install-web:
 generate-data:
 	. .venv/bin/activate && python -m research.datasets.generate_sensitive_dataset
 	. .venv/bin/activate && python -m research.datasets.generate_hard_legal_dataset
+	. .venv/bin/activate && python -m research.datasets.generate_harder_legal_dataset
 	. .venv/bin/activate && python -m research.graphs.build_demo_connectome
 
 fetch-hemibrain:
@@ -34,6 +35,11 @@ train-hemibrain: build-hemibrain
 	. .venv/bin/activate && python -m research.experiments.run --model all --seed 42
 	. .venv/bin/activate && python -m research.experiments.compare --seeds 42,43 --models connectome,random_erdos,random_degree_preserving,linear
 	. .venv/bin/activate && python -m research.experiments.ablate --seed 42
+
+train-fewshot:
+	. .venv/bin/activate && python -m research.datasets.generate_harder_legal_dataset
+	. .venv/bin/activate && python -m research.experiments.compare --seeds 42,43 --models connectome,random_erdos,random_degree_preserving,linear --max-train 160 --out comparison_fewshot_latest.json
+	. .venv/bin/activate && python -m research.experiments.compare --seeds 42,43 --models connectome,random_erdos,random_degree_preserving,linear --out comparison_latest.json
 
 benchmark:
 	. .venv/bin/activate && python -m research.experiments.compare --seeds 42,43,44

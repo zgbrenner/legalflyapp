@@ -1,15 +1,16 @@
 {
-  "timestamp": "2026-09-12T22:17:56.042498+00:00",
+  "timestamp": "2026-09-12T22:46:58.618450+00:00",
   "seed": 42,
   "model_type": "connectome",
   "encoder": "minilm",
   "encoder_name": "st:sentence-transformers/all-MiniLM-L6-v2",
   "dataset": {
-    "task": "sensitive_information_hard",
-    "train": 900,
-    "validation": 220,
-    "test": 280,
-    "generator": "research.datasets.generate_hard_legal_dataset"
+    "task": "sensitive_information_harder",
+    "train": 1200,
+    "validation": 280,
+    "test": 360,
+    "max_train": null,
+    "generator": "research.datasets.generate_harder_legal_dataset"
   },
   "graph": {
     "reservoir_size": 3072,
@@ -19,25 +20,25 @@
   },
   "trainable_parameter_count": 73740,
   "feature_dim": 6144,
-  "training_time_sec": 28.584711704000256,
-  "inference_time_sec_total": 2.0144165789997714,
-  "inference_time_sec_per_example": 0.007194344924999184,
+  "training_time_sec": 31.047978963999412,
+  "inference_time_sec_total": 2.669748685000741,
+  "inference_time_sec_per_example": 0.007415968569446502,
   "metrics_test": {
-    "exact_match_accuracy": 0.975,
-    "macro_f1": 0.9849096119929454,
-    "micro_f1": 0.988313856427379,
+    "exact_match_accuracy": 0.9611111111111111,
+    "macro_f1": 0.9769118358519023,
+    "micro_f1": 0.9814814814814815,
     "precision_macro": 1.0,
-    "recall_macro": 0.9712171592775042,
+    "recall_macro": 0.9566929138165697,
     "binary_sensitive_accuracy": 1.0,
     "binary_sensitive_f1": 1.0,
     "confusion_matrix_sensitive": [
       [
-        76,
+        91,
         0
       ],
       [
         0,
-        204
+        269
       ]
     ],
     "per_class": {
@@ -45,25 +46,119 @@
         "precision": 1.0,
         "recall": 1.0,
         "f1": 1.0,
-        "support": 76
+        "support": 91
       },
       "PERSON": {
         "precision": 1.0,
-        "recall": 0.92,
-        "f1": 0.9583333333333334,
-        "support": 25
+        "recall": 0.9615384615384616,
+        "f1": 0.9803921568627451,
+        "support": 26
       },
       "EMAIL": {
         "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0,
-        "support": 16
+        "recall": 0.9615384615384616,
+        "f1": 0.9803921568627451,
+        "support": 26
       },
       "PHONE": {
         "precision": 1.0,
-        "recall": 0.875,
-        "f1": 0.9333333333333333,
-        "support": 16
+        "recall": 0.7857142857142857,
+        "f1": 0.88,
+        "support": 28
+      },
+      "ADDRESS": {
+        "precision": 1.0,
+        "recall": 0.9230769230769231,
+        "f1": 0.96,
+        "support": 26
+      },
+      "SSN": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 25
+      },
+      "CREDIT_CARD": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 25
+      },
+      "DATE_OF_BIRTH": {
+        "precision": 1.0,
+        "recall": 0.9629629629629629,
+        "f1": 0.9811320754716981,
+        "support": 27
+      },
+      "FINANCIAL": {
+        "precision": 1.0,
+        "recall": 0.9354838709677419,
+        "f1": 0.9666666666666667,
+        "support": 31
+      },
+      "MEDICAL": {
+        "precision": 1.0,
+        "recall": 0.95,
+        "f1": 0.9743589743589743,
+        "support": 20
+      },
+      "CREDENTIAL": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 36
+      },
+      "OTHER_SENSITIVE": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 24
+      }
+    },
+    "n_examples": 360
+  },
+  "metrics_validation": {
+    "exact_match_accuracy": 0.9714285714285714,
+    "macro_f1": 0.983905970555148,
+    "micro_f1": 0.9865319865319865,
+    "precision_macro": 1.0,
+    "recall_macro": 0.968941746659138,
+    "binary_sensitive_accuracy": 1.0,
+    "binary_sensitive_f1": 1.0,
+    "confusion_matrix_sensitive": [
+      [
+        67,
+        0
+      ],
+      [
+        0,
+        213
+      ]
+    ],
+    "per_class": {
+      "NONE": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 67
+      },
+      "PERSON": {
+        "precision": 1.0,
+        "recall": 0.9565217391304348,
+        "f1": 0.9777777777777777,
+        "support": 23
+      },
+      "EMAIL": {
+        "precision": 1.0,
+        "recall": 0.95,
+        "f1": 0.9743589743589743,
+        "support": 20
+      },
+      "PHONE": {
+        "precision": 1.0,
+        "recall": 0.9090909090909091,
+        "f1": 0.9523809523809523,
+        "support": 22
       },
       "ADDRESS": {
         "precision": 1.0,
@@ -73,142 +168,48 @@
       },
       "SSN": {
         "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0,
-        "support": 19
+        "recall": 0.9545454545454546,
+        "f1": 0.9767441860465116,
+        "support": 22
       },
       "CREDIT_CARD": {
         "precision": 1.0,
         "recall": 1.0,
         "f1": 1.0,
-        "support": 20
+        "support": 27
       },
       "DATE_OF_BIRTH": {
         "precision": 1.0,
-        "recall": 0.9310344827586207,
-        "f1": 0.9642857142857143,
-        "support": 29
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 19
       },
       "FINANCIAL": {
         "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0,
+        "recall": 0.9523809523809523,
+        "f1": 0.975609756097561,
         "support": 21
       },
       "MEDICAL": {
         "precision": 1.0,
-        "recall": 0.9285714285714286,
-        "f1": 0.9629629629629629,
-        "support": 14
+        "recall": 0.9047619047619048,
+        "f1": 0.95,
+        "support": 21
       },
       "CREDENTIAL": {
         "precision": 1.0,
         "recall": 1.0,
         "f1": 1.0,
-        "support": 23
+        "support": 19
       },
       "OTHER_SENSITIVE": {
         "precision": 1.0,
         "recall": 1.0,
         "f1": 1.0,
-        "support": 21
+        "support": 17
       }
     },
     "n_examples": 280
-  },
-  "metrics_validation": {
-    "exact_match_accuracy": 0.990909090909091,
-    "macro_f1": 0.9947865754317368,
-    "micro_f1": 0.9957805907172996,
-    "precision_macro": 1.0,
-    "recall_macro": 0.9898897058823529,
-    "binary_sensitive_accuracy": 1.0,
-    "binary_sensitive_f1": 1.0,
-    "confusion_matrix_sensitive": [
-      [
-        70,
-        0
-      ],
-      [
-        0,
-        150
-      ]
-    ],
-    "per_class": {
-      "NONE": {
-        "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0,
-        "support": 70
-      },
-      "PERSON": {
-        "precision": 1.0,
-        "recall": 0.9375,
-        "f1": 0.967741935483871,
-        "support": 16
-      },
-      "EMAIL": {
-        "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0,
-        "support": 19
-      },
-      "PHONE": {
-        "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0,
-        "support": 13
-      },
-      "ADDRESS": {
-        "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0,
-        "support": 17
-      },
-      "SSN": {
-        "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0,
-        "support": 13
-      },
-      "CREDIT_CARD": {
-        "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0,
-        "support": 12
-      },
-      "DATE_OF_BIRTH": {
-        "precision": 1.0,
-        "recall": 0.9411764705882353,
-        "f1": 0.9696969696969697,
-        "support": 17
-      },
-      "FINANCIAL": {
-        "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0,
-        "support": 12
-      },
-      "MEDICAL": {
-        "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0,
-        "support": 17
-      },
-      "CREDENTIAL": {
-        "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0,
-        "support": 19
-      },
-      "OTHER_SENSITIVE": {
-        "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0,
-        "support": 13
-      }
-    },
-    "n_examples": 220
   },
   "hardware": {
     "platform": "Linux-6.12.94+-x86_64-with-glibc2.39",

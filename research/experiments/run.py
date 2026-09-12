@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import platform
+import random
 import time
 from datetime import UTC, datetime
 from pathlib import Path
@@ -40,6 +41,11 @@ def ensure_data() -> None:
         from research.datasets.generate_hard_legal_dataset import write_dataset as write_hard
 
         write_hard(REPO_ROOT / "data" / "demo" / "sensitive_hard")
+    harder_data = REPO_ROOT / "data" / "demo" / "sensitive_harder" / "train.jsonl"
+    if not harder_data.exists():
+        from research.datasets.generate_harder_legal_dataset import write_dataset as write_harder
+
+        write_harder(REPO_ROOT / "data" / "demo" / "sensitive_harder")
     graph = REPO_ROOT / "data" / "demo" / "connectome" / "biological"
     if not graph.exists():
         from research.graphs.build_demo_connectome import build_all
@@ -48,16 +54,36 @@ def ensure_data() -> None:
 
 
 def _active_dataset_name() -> str:
+    harder = REPO_ROOT / "data" / "demo" / "sensitive_harder" / "train.jsonl"
+    if harder.exists():
+        return "sensitive_information_harder"
     hard = REPO_ROOT / "data" / "demo" / "sensitive_hard" / "train.jsonl"
     return "sensitive_information_hard" if hard.exists() else "sensitive_information"
 
 
-def run_one(model: str, seed: int, encoder: str | None = None) -> dict[str, Any]:
+def _subsample_train(train: list, max_train: int | None, seed: int) -> list:
+    if max_train is None or max_train <= 0 or max_train >= len(train):
+        return train
+    rng = random.Random(seed)
+    indexed = list(range(len(train)))
+    rng.shuffle(indexed)
+    chosen = sorted(indexed[:max_train])
+    return [train[i] for i in chosen]
+
+
+def run_one(
+    model: str,
+    seed: int,
+    encoder: str | None = None,
+    *,
+    max_train: int | None = None,
+    save: bool = True,
+) -> dict[str, Any]:
     from research.encoders.text import resolve_encoder_kind
 
     ensure_data()
     encoder = resolve_encoder_kind(encoder)
-    train = load_sensitive_split("train")
+    train = _subsample_train(load_sensitive_split("train"), max_train, seed)
     val = load_sensitive_split("validation")
     test = load_sensitive_split("test")
     dataset_name = _active_dataset_name()
@@ -68,7 +94,8 @@ def run_one(model: str, seed: int, encoder: str | None = None) -> dict[str, Any]
         [ex.text for ex in train],
         [ex.labels for ex in train],
     )
-    save_bundle(bundle, MODELS_DIR / model)
+    if save:
+        save_bundle(bundle, MODELS_DIR / model)
 
     t0 = time.perf_counter()
     preds, _, _ = predict_bundle(bundle, [ex.text for ex in test])
@@ -97,10 +124,15 @@ def run_one(model: str, seed: int, encoder: str | None = None) -> dict[str, Any]
             "train": len(train),
             "validation": len(val),
             "test": len(test),
+            "max_train": max_train,
             "generator": (
-                "research.datasets.generate_hard_legal_dataset"
-                if dataset_name.endswith("_hard")
-                else "research.datasets.generate_sensitive_dataset"
+                "research.datasets.generate_harder_legal_dataset"
+                if dataset_name.endswith("_harder")
+                else (
+                    "research.datasets.generate_hard_legal_dataset"
+                    if dataset_name.endswith("_hard")
+                    else "research.datasets.generate_sensitive_dataset"
+                )
             ),
         },
         "graph": {
@@ -144,10 +176,27 @@ def main() -> None:
     parser.add_argument("--model", default="connectome", help="model or 'all'")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--encoder", default=None, help="hashing|minilm (default: env/LEGALFLY_ENCODER)")
+    parser.add_argument(
+        "--max-train",
+        type=int,
+        default=None,
+        help="Optional few-shot cap on training examples (creates headroom past MiniLM ceiling)",
+    )
+    parser.add_argument(
+        "--no-save",
+        action="store_true",
+        help="Evaluate without overwriting serving checkpoints",
+    )
     args = parser.parse_args()
     models = ALL_MODELS if args.model == "all" else [args.model]
     for model in models:
-        result = run_one(model, seed=args.seed, encoder=args.encoder)
+        result = run_one(
+            model,
+            seed=args.seed,
+            encoder=args.encoder,
+            max_train=args.max_train,
+            save=not args.no_save,
+        )
         print(
             json.dumps(
                 {

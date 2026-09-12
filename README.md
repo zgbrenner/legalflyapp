@@ -44,18 +44,28 @@ make train-hemibrain   # train readout on real tissue + compare/ablate
 
 Processed hemibrain graphs live under `data/processed/hemibrain/` (gitignored; rebuild locally).
 
-## Measured hemibrain snapshot (MiniLM + hard legal set, seeds 42–43)
+## Measured training update (harder set + MiniLM)
 
-After loading real hemibrain tissue, switching the text encoder to MiniLM, and preferring the harder synthetic legal/sensitive task:
-
+### Full-data ceiling (seeds 42–43)
 | Model | Macro F1 |
 |---|---|
-| Random Erdos–Renyi reservoir | ~0.986 |
-| Hemibrain connectome | ~0.984 |
-| Degree-controlled random | ~0.983 |
-| Linear baseline (MiniLM → readout) | ~0.981 |
+| Degree-matched random | ~0.985 |
+| Random Erdos–Renyi | ~0.984 |
+| Linear (MiniLM readout) | ~0.982 |
+| Hemibrain connectome | ~0.981 |
 
-**Measured result:** MiniLM lifts every system near ceiling on this synthetic task. Biological topology does **not** beat matched random graphs; the random twin is slightly ahead. Linear stays competitive. That sharpens the claim: better text features can erase the room where stolen wiring might have mattered.
+On the full harder set, scores are still near ceiling and biology does **not** beat matched random.
+
+### Few-shot headroom (`--max-train 160`, seeds 42–43)
+| Model | Macro F1 | Binary F1 |
+|---|---|---|
+| Linear | ~0.964 | 1.000 |
+| Hemibrain connectome | ~0.947 | 0.983 |
+| Degree-matched random | ~0.937 | 0.974 |
+| Random Erdos–Renyi | ~0.934 | 0.975 |
+
+With scarce labels, the stolen wiring **does** beat random twins — but the thin linear MiniLM readout still wins overall. Use `make train-fewshot` to reproduce.
+
 
 ## Architecture
 

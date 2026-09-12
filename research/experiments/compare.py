@@ -94,6 +94,17 @@ def main() -> None:
     parser.add_argument("--seeds", default="42,43,44")
     parser.add_argument("--models", default="connectome,random_erdos,random_degree_preserving,linear")
     parser.add_argument("--encoder", default=None, help="hashing|minilm (default: env)")
+    parser.add_argument(
+        "--max-train",
+        type=int,
+        default=None,
+        help="Optional few-shot training cap for all compared models",
+    )
+    parser.add_argument(
+        "--out",
+        default="comparison_latest.json",
+        help="Filename under results/ for the summary JSON",
+    )
     args = parser.parse_args()
     seeds = [int(s.strip()) for s in args.seeds.split(",") if s.strip()]
     models = [m.strip() for m in args.models.split(",") if m.strip()]
@@ -104,23 +115,38 @@ def main() -> None:
     for seed in seeds:
         for model in models:
             console.print(f"[bold]Running[/bold] model={model} seed={seed}")
-            rows.append(run_one(model, seed=seed, encoder=args.encoder))
+            rows.append(
+                run_one(
+                    model,
+                    seed=seed,
+                    encoder=args.encoder,
+                    max_train=args.max_train,
+                    save=False,
+                )
+            )
 
     # Restore serving checkpoints at the canonical API seed so interactive demo
     # models are not left pointing at the last comparison seed.
     if SERVING_SEED in seeds:
         console.print(f"[bold]Restoring serving models at seed={SERVING_SEED}[/bold]")
         for model in models:
-            run_one(model, seed=SERVING_SEED, encoder=args.encoder)
+            run_one(
+                model,
+                seed=SERVING_SEED,
+                encoder=args.encoder,
+                max_train=None,  # full data for serving quality
+                save=True,
+            )
 
     summary = summarize(rows)
     if rows:
         summary["encoder"] = rows[0].get("encoder")
         summary["encoder_name"] = rows[0].get("encoder_name")
         summary["dataset"] = rows[0].get("dataset", {}).get("task")
+        summary["max_train"] = args.max_train
         summary["graph_source"] = rows[0].get("config", {}).get("graph_source")
         summary["connectome_mode"] = rows[0].get("config", {}).get("connectome_mode")
-    out = RESULTS_DIR / "comparison_latest.json"
+    out = RESULTS_DIR / args.out
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     print_table(summary)

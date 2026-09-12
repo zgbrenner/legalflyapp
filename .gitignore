@@ -45,6 +45,7 @@ models/mlp/
 results/experiment_*/
 !results/.gitkeep
 !results/comparison_latest.json
+!results/comparison_fewshot_latest.json
 !results/ablation_latest.json
 !results/latest/
 !results/latest/**

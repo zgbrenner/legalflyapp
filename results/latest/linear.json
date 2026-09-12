@@ -1,15 +1,16 @@
 {
-  "timestamp": "2026-09-12T22:19:07.281834+00:00",
+  "timestamp": "2026-09-12T22:48:14.240951+00:00",
   "seed": 42,
   "model_type": "linear",
   "encoder": "minilm",
   "encoder_name": "st:sentence-transformers/all-MiniLM-L6-v2",
   "dataset": {
-    "task": "sensitive_information_hard",
-    "train": 900,
-    "validation": 220,
-    "test": 280,
-    "generator": "research.datasets.generate_hard_legal_dataset"
+    "task": "sensitive_information_harder",
+    "train": 1200,
+    "validation": 280,
+    "test": 360,
+    "max_train": null,
+    "generator": "research.datasets.generate_harder_legal_dataset"
   },
   "graph": {
     "reservoir_size": null,
@@ -19,25 +20,25 @@
   },
   "trainable_parameter_count": 4620,
   "feature_dim": 384,
-  "training_time_sec": 0.870468795999841,
-  "inference_time_sec_total": 0.35781685299843957,
-  "inference_time_sec_per_example": 0.0012779173321372842,
+  "training_time_sec": 4.398990255000172,
+  "inference_time_sec_total": 0.6094165799986513,
+  "inference_time_sec_per_example": 0.001692823833329587,
   "metrics_test": {
-    "exact_match_accuracy": 0.9678571428571429,
-    "macro_f1": 0.9814231466498318,
-    "micro_f1": 0.9849246231155779,
+    "exact_match_accuracy": 0.9694444444444444,
+    "macro_f1": 0.9817168565618766,
+    "micro_f1": 0.9855072463768116,
     "precision_macro": 1.0,
-    "recall_macro": 0.9642076134551772,
+    "recall_macro": 0.9652147583599197,
     "binary_sensitive_accuracy": 1.0,
     "binary_sensitive_f1": 1.0,
     "confusion_matrix_sensitive": [
       [
-        76,
+        91,
         0
       ],
       [
         0,
-        204
+        269
       ]
     ],
     "per_class": {
@@ -45,93 +46,93 @@
         "precision": 1.0,
         "recall": 1.0,
         "f1": 1.0,
-        "support": 76
+        "support": 91
       },
       "PERSON": {
         "precision": 1.0,
-        "recall": 0.88,
-        "f1": 0.9361702127659575,
-        "support": 25
+        "recall": 0.9615384615384616,
+        "f1": 0.9803921568627451,
+        "support": 26
       },
       "EMAIL": {
         "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0,
-        "support": 16
+        "recall": 0.9615384615384616,
+        "f1": 0.9803921568627451,
+        "support": 26
       },
       "PHONE": {
         "precision": 1.0,
-        "recall": 0.9375,
-        "f1": 0.967741935483871,
-        "support": 16
+        "recall": 0.8571428571428571,
+        "f1": 0.9230769230769231,
+        "support": 28
       },
       "ADDRESS": {
         "precision": 1.0,
-        "recall": 0.9565217391304348,
-        "f1": 0.9777777777777777,
-        "support": 23
+        "recall": 0.8846153846153846,
+        "f1": 0.9387755102040817,
+        "support": 26
       },
       "SSN": {
         "precision": 1.0,
         "recall": 1.0,
         "f1": 1.0,
-        "support": 19
+        "support": 25
       },
       "CREDIT_CARD": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 25
+      },
+      "DATE_OF_BIRTH": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 27
+      },
+      "FINANCIAL": {
+        "precision": 1.0,
+        "recall": 0.967741935483871,
+        "f1": 0.9836065573770492,
+        "support": 31
+      },
+      "MEDICAL": {
         "precision": 1.0,
         "recall": 0.95,
         "f1": 0.9743589743589743,
         "support": 20
       },
-      "DATE_OF_BIRTH": {
-        "precision": 1.0,
-        "recall": 0.9655172413793104,
-        "f1": 0.9824561403508771,
-        "support": 29
-      },
-      "FINANCIAL": {
-        "precision": 1.0,
-        "recall": 0.9523809523809523,
-        "f1": 0.975609756097561,
-        "support": 21
-      },
-      "MEDICAL": {
-        "precision": 1.0,
-        "recall": 0.9285714285714286,
-        "f1": 0.9629629629629629,
-        "support": 14
-      },
       "CREDENTIAL": {
         "precision": 1.0,
         "recall": 1.0,
         "f1": 1.0,
-        "support": 23
+        "support": 36
       },
       "OTHER_SENSITIVE": {
         "precision": 1.0,
         "recall": 1.0,
         "f1": 1.0,
-        "support": 21
+        "support": 24
       }
     },
-    "n_examples": 280
+    "n_examples": 360
   },
   "metrics_validation": {
-    "exact_match_accuracy": 0.9863636363636363,
-    "macro_f1": 0.9916161616161615,
-    "micro_f1": 0.9936575052854123,
+    "exact_match_accuracy": 0.975,
+    "macro_f1": 0.9859384908803513,
+    "micro_f1": 0.9882352941176471,
     "precision_macro": 1.0,
-    "recall_macro": 0.9837858220211162,
+    "recall_macro": 0.972910000627392,
     "binary_sensitive_accuracy": 1.0,
     "binary_sensitive_f1": 1.0,
     "confusion_matrix_sensitive": [
       [
-        70,
+        67,
         0
       ],
       [
         0,
-        150
+        213
       ]
     ],
     "per_class": {
@@ -139,61 +140,61 @@
         "precision": 1.0,
         "recall": 1.0,
         "f1": 1.0,
-        "support": 70
+        "support": 67
       },
       "PERSON": {
         "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0,
-        "support": 16
+        "recall": 0.9565217391304348,
+        "f1": 0.9777777777777777,
+        "support": 23
       },
       "EMAIL": {
         "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0,
-        "support": 19
+        "recall": 0.95,
+        "f1": 0.9743589743589743,
+        "support": 20
       },
       "PHONE": {
         "precision": 1.0,
-        "recall": 0.9230769230769231,
-        "f1": 0.96,
-        "support": 13
+        "recall": 0.9090909090909091,
+        "f1": 0.9523809523809523,
+        "support": 22
       },
       "ADDRESS": {
         "precision": 1.0,
         "recall": 1.0,
         "f1": 1.0,
-        "support": 17
+        "support": 23
       },
       "SSN": {
         "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0,
-        "support": 13
+        "recall": 0.9545454545454546,
+        "f1": 0.9767441860465116,
+        "support": 22
       },
       "CREDIT_CARD": {
         "precision": 1.0,
         "recall": 1.0,
         "f1": 1.0,
-        "support": 12
+        "support": 27
       },
       "DATE_OF_BIRTH": {
         "precision": 1.0,
-        "recall": 0.9411764705882353,
-        "f1": 0.9696969696969697,
-        "support": 17
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 19
       },
       "FINANCIAL": {
         "precision": 1.0,
-        "recall": 1.0,
-        "f1": 1.0,
-        "support": 12
+        "recall": 0.9047619047619048,
+        "f1": 0.95,
+        "support": 21
       },
       "MEDICAL": {
         "precision": 1.0,
-        "recall": 0.9411764705882353,
-        "f1": 0.9696969696969697,
-        "support": 17
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 21
       },
       "CREDENTIAL": {
         "precision": 1.0,
@@ -205,10 +206,10 @@
         "precision": 1.0,
         "recall": 1.0,
         "f1": 1.0,
-        "support": 13
+        "support": 17
       }
     },
-    "n_examples": 220
+    "n_examples": 280
   },
   "hardware": {
     "platform": "Linux-6.12.94+-x86_64-with-glibc2.39",
