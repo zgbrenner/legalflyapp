@@ -1,18 +1,18 @@
 # LegalFly
 
-Can a fruit fly's neural wiring detect sensitive information?
+We cut wiring out of a dead fruit fly and asked it to smell secrets in legal text.
 
-LegalFly is an open-source experiment using Drosophila connectome topology as a reservoir computer for legal and compliance text classification.
+LegalFly is an open-source Frankenstein experiment: Drosophila connectome topology, reanimated as a reservoir computer for sensitive-information detection.
 
 ![LegalFly interface](docs/screenshot.svg)
 
-> **Scientific framing:** We are testing whether biological neural connectivity provides useful inductive structure for low-parameter text classification. LegalFly does **not** simulate consciousness, upload a fly mind, understand law, or provide legal advice.
+> **Scientific framing:** This tests whether biological neural connectivity provides useful inductive structure for low-parameter text classification. LegalFly does **not** restore a mind, simulate consciousness, understand law, or provide legal advice. When hemibrain tissue is loaded, edges are real Janelia FlyEM connectivity (CC BY). The gothic tone is aesthetic; the metrics are measured.
 
 ## Why this exists
 
 The strange-but-legitimate research question:
 
-**Can the biological wiring topology of a fruit fly brain help classify legal and compliance text?**
+**If you steal the wiring diagram of a fly brain, freeze most of it, and train only a thin readout — does that stolen biology help classify legal/compliance text better than matched random corpses?**
 
 Pipeline:
 
@@ -21,13 +21,41 @@ Legal text
   → text encoder
   → fixed-dimensional representation
   → temporal / neural input encoding
-  → fruit-fly connectome reservoir
+  → fruit-fly connectome reservoir (mostly fixed)
   → reservoir activity
   → small trainable readout
   → classification
 ```
 
-The first benchmark task is **sensitive-information detection** with labels such as `EMAIL`, `PHONE`, `SSN`, `CREDENTIAL`, and `NONE`.
+Task #1: **sensitive-information detection** (`EMAIL`, `PHONE`, `SSN`, `CREDENTIAL`, `NONE`, …).
+
+## Real tissue vs demo corpse
+
+| Mode | What it is | License |
+|---|---|---|
+| **Hemibrain research** (preferred when built) | Surgical high-degree subgraph (~3072 neurons) from Janelia hemibrain v1.2 traced adjacencies | CC BY 4.0 |
+| **Demo** | Synthetic modular graph | MIT |
+
+```bash
+make fetch-hemibrain   # ~44MB compact adjacency tables
+make build-hemibrain   # surgical subgraph + random controls
+make train-hemibrain   # train readout on real tissue + compare/ablate
+```
+
+Processed hemibrain graphs live under `data/processed/hemibrain/` (gitignored; rebuild locally).
+
+## Measured hemibrain snapshot (seeds 42–43)
+
+After loading real tissue:
+
+| Model | Macro F1 |
+|---|---|
+| Linear baseline | ~0.976 |
+| Degree-controlled random | ~0.943 |
+| Random reservoir | ~0.943 |
+| Hemibrain connectome | ~0.942 |
+
+**Measured result:** on this synthetic PII task, linear still leads; biological topology does **not** clearly beat matched random graphs. That is the sharper biology claim: we used real edges, trained for real, and the gothic fly did not magically win.
 
 ## Architecture
 
@@ -36,41 +64,31 @@ apps/web      Next.js research demo (classify, compare, ablate, benchmark)
 apps/api      FastAPI inference + artifact serving
 research/     datasets, encoders, reservoirs, baselines, experiments
 data/demo     redistributable synthetic graph + synthetic PII benchmark
+data/raw      downloaded hemibrain tables (ignored)
+data/processed  built reservoirs (ignored)
 results/      measured experiment JSON (never fabricated UI numbers)
 ```
-
-**Demo mode** uses a small redistributable modular graph labeled **DEMO CONNECTOME**.
-**Research mode** can import hemibrain (CC BY) or FlyWire (CC BY-NC) separately — see `docs/DATA_AND_LICENSING.md`.
 
 ## Quick start
 
 ```bash
-# Python
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
 cp .env.example .env
 
-# Demo data + models
 make generate-data
-make train
-make benchmark
-make ablate
+# Optional but recommended for the Frankenstein path:
+make train-hemibrain
 
-# API
 make api
 # → http://localhost:8000/health
 
-# Web (second terminal)
 cd apps/web && npm install && npm run dev
 # → http://localhost:3000
 ```
 
-Or with Docker Compose:
-
-```bash
-docker compose up --build
-```
+Or: `docker compose up --build`
 
 ## Research commands
 
@@ -85,22 +103,12 @@ python -m research.experiments.ablate --seed 42
 
 | Route | Purpose |
 |---|---|
-| `/` | Interactive classifier + connectome activity view |
-| `/benchmark` | Measured comparison table/charts |
-| `/compare` | Real fly vs random fly |
-| `/ablate` | Destroy the Brain (precomputed ablations) |
-| `/methodology` | Full experimental write-up |
+| `/` | Feed the apparatus a specimen |
+| `/benchmark` | Autopsy table of measured scores |
+| `/compare` | Real tissue vs randomized twin |
+| `/ablate` | Destroy the brain |
+| `/methodology` | How we borrow the dead |
 | `/about` | What this is / is not |
-
-## API
-
-```bash
-curl -s http://localhost:8000/classify \
-  -H 'content-type: application/json' \
-  -d '{"text":"My email is alex@example.com","model":"connectome"}'
-```
-
-Endpoints: `POST /classify`, `POST /simulate`, `GET /models`, `GET /benchmark`, `GET /experiments`, `GET /ablations`, `POST /feedback`.
 
 ## Privacy
 
@@ -109,41 +117,28 @@ Submitted text is **not saved by default**. Logs store fingerprints/metadata onl
 ## Licensing
 
 - Code: MIT (`LICENSE`)
-- Demo graph + synthetic dataset: generated by this repo (MIT)
-- Optional hemibrain import: CC BY 4.0 (download separately)
-- Optional FlyWire import: CC BY-NC 4.0 (non-commercial; download separately)
+- Demo graph + synthetic dataset: MIT
+- Hemibrain import: CC BY 4.0 (download separately; cite Scheffer / Xu / Plaza et al., Janelia FlyEM)
+- FlyWire import: CC BY-NC 4.0 (non-commercial only)
 
 Full provenance: `docs/DATA_AND_LICENSING.md`.
 
-## Methodology highlights
-
-- Reservoir: leaky tanh dynamical system on sparse connectome-derived `W`
-- Controls: random sparse, degree-preserving, weight-randomized
-- Baselines: linear (and optional MLP) on embeddings
-- Metrics: macro F1, precision/recall, per-class, confusion matrix, timings, parameter counts
-- Integrity rule: UI reads result JSON; until measured, pages say **Not yet measured**
-
 ## Limitations
 
-- Demo topology is synthetic/modular, not anatomical fly morphology
-- Synthetic PII can be easy for linear baselines — biological topology may not “win”
-- Included demo benchmark (seeds 42–43): linear baseline ~0.98 macro F1; connectome/random reservoirs ~0.93 — a measured outcome, not a staged win for biology
-- Browser visualization samples neurons and aggregates activity; it does not render ~10⁸ synapses
-- Dynamics are computational, not biophysically exact spiking models
-
-## Tests
-
-```bash
-make test
-```
+- Hemibrain mode uses a surgical subgraph, not the entire central brain
+- UI node positions are abstract region clusters, not EM coordinates
+- Synthetic PII can be easy for linear baselines
+- Browser visualization samples activity; it does not render every synapse
+- Dynamics are computational, not biophysically exact spiking
 
 ## Brand tone
 
-Serious science, slightly unhinged copy:
+Serious science, macabre theatre:
 
-- Let the fly read it.
+- Feed it the text.
 - Destroy the brain.
-- Real fly vs. random fly.
-- The fly has rendered its verdict.
+- Real tissue vs. randomized twin.
+- The tissue has rendered its verdict.
 
 Never: “the fly understands your contract.”
+Never: “we uploaded a consciousness.”
