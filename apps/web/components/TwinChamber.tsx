@@ -48,12 +48,13 @@ function Side({
               </span>
             ))}
           </div>
-          <div className="mt-4 h-[220px] overflow-hidden border border-ink/10 bg-ink/[0.03]">
+          <div className="mt-4 overflow-hidden border border-ink/10 bg-ink/[0.03]">
             <ConnectomeViz
               simulation={result.simulation}
               playing={Boolean(result)}
-              title={`${title} activity`}
+              title={`${title} firing`}
               className="h-full"
+              heightClass="h-[280px] md:h-[340px]"
             />
           </div>
           <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.16em] text-ink/45">

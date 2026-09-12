@@ -14,6 +14,9 @@ export type Simulation = {
   regions?: string[];
   final_activity?: number[];
   trajectory?: number[][];
+  /** [srcLocal, dstLocal, weight] among sampled neurons */
+  edges?: number[][];
+  input_indices_local?: number[];
   aggregate?: {
     mean_abs?: number;
     max_abs?: number;

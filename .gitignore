@@ -46,6 +46,8 @@ results/experiment_*/
 !results/.gitkeep
 !results/comparison_latest.json
 !results/comparison_fewshot_latest.json
+!results/comparison_fewshot_120.json
+!results/comparison_hashing_fewshot.json
 !results/ablation_latest.json
 !results/latest/
 !results/latest/**

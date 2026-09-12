@@ -114,20 +114,48 @@ class ConnectomeReservoir(Reservoir):
     def read_state(self) -> np.ndarray:
         return self.x
 
-    def sampled_activity(self, max_nodes: int = 180) -> dict[str, Any]:
+    def sampled_activity(self, max_nodes: int = 220) -> dict[str, Any]:
         rng = np.random.default_rng(self.seed)
-        idx = np.sort(rng.choice(self.n_nodes, size=min(max_nodes, self.n_nodes), replace=False))
+        # Prefer high-degree nodes so synaptic edges remain visible in the UI.
+        degrees = np.asarray(self.W.getnnz(axis=1)).ravel()
+        top_k = min(max_nodes, self.n_nodes)
+        if top_k < self.n_nodes:
+            # Mix hubs with a random sample so regions stay represented.
+            hub_n = max(top_k // 2, 1)
+            hubs = np.argsort(degrees)[-hub_n:]
+            remaining = np.setdiff1d(np.arange(self.n_nodes), hubs, assume_unique=True)
+            extra = rng.choice(remaining, size=min(top_k - len(hubs), len(remaining)), replace=False)
+            idx = np.sort(np.concatenate([hubs, extra]))
+        else:
+            idx = np.arange(self.n_nodes)
+
         traj = np.asarray(self.history, dtype=np.float32) if self.history else np.zeros((1, self.n_nodes))
         region_activity = {}
         for region in self.graph.regions:
             mask = np.array([r == region for r in self.graph.node_regions])
             region_activity[region] = float(np.mean(np.abs(self.x[mask]))) if mask.any() else 0.0
+
+        # Sampled synapses among the chosen neurons (local indices into the sample).
+        local = {int(g): i for i, g in enumerate(idx.tolist())}
+        coo = self.W.tocoo()
+        edges: list[list[float]] = []
+        for row, col, weight in zip(coo.row.tolist(), coo.col.tolist(), coo.data.tolist()):
+            if row == col:
+                continue
+            if row in local and col in local:
+                edges.append([local[row], local[col], float(abs(weight))])
+        if len(edges) > 900:
+            pick = rng.choice(len(edges), size=900, replace=False)
+            edges = [edges[i] for i in sorted(pick.tolist())]
+
         return {
             "indices": idx.tolist(),
             "positions": self.graph.positions[idx].tolist(),
             "regions": [self.graph.node_regions[i] for i in idx],
             "final_activity": np.abs(self.x[idx]).tolist(),
             "trajectory": np.abs(traj[:, idx]).astype(np.float32).tolist(),
+            "edges": edges,
+            "input_indices_local": [local[i] for i in self.input_indices.tolist() if i in local],
             "aggregate": {
                 "mean_abs": float(np.mean(np.abs(self.x))),
                 "max_abs": float(np.max(np.abs(self.x))),

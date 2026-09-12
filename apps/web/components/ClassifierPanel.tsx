@@ -158,7 +158,7 @@ export function ClassifierPanel({ defaultModel = "connectome" }: { defaultModel?
       </div>
 
       <div className="space-y-4 animate-rise" style={{ animationDelay: "80ms" }}>
-        <ConnectomeViz simulation={result?.simulation} playing={Boolean(result)} />
+        <ConnectomeViz simulation={result?.simulation} playing={Boolean(result)} heightClass="h-[320px] md:h-[420px]" title="Stolen tissue firing" />
         <ActivityCharts simulation={result?.simulation} />
       </div>
     </div>
