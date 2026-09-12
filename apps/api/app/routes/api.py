@@ -5,7 +5,14 @@ import logging
 from fastapi import APIRouter, HTTPException
 
 from apps.api.app.privacy import text_fingerprint
-from apps.api.app.schemas import ClassifyRequest, ClassifyResponse, FeedbackRequest, SimulateRequest
+from apps.api.app.schemas import (
+    ClassifyRequest,
+    ClassifyResponse,
+    FeedbackRequest,
+    SimulateRequest,
+    TwinRequest,
+    TwinResponse,
+)
 from apps.api.app.services.models import get_model_service
 from apps.api.app.services.results import list_experiments, load_ablations, load_benchmark
 
@@ -36,6 +43,18 @@ def classify(body: ClassifyRequest) -> ClassifyResponse:
         raise HTTPException(status_code=500, detail="Classification failed") from exc
     return ClassifyResponse(**result)
 
+
+
+
+@router.post("/twin", response_model=TwinResponse)
+def twin(body: TwinRequest) -> TwinResponse:
+    service = get_model_service()
+    try:
+        result = service.classify_twin(body.text, with_simulation=body.with_simulation)
+    except Exception as exc:
+        logger.exception("twin failed fingerprint=%s", text_fingerprint(body.text))
+        raise HTTPException(status_code=500, detail="Twin classification failed") from exc
+    return TwinResponse(**result)
 
 @router.post("/simulate")
 def simulate(body: SimulateRequest) -> dict:

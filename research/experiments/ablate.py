@@ -1,4 +1,4 @@
-"""Precompute Destroy the Brain ablation benchmarks."""
+"""Precompute Destroy the Brain ablation benchmarks with live ROI labels."""
 
 from __future__ import annotations
 
@@ -7,14 +7,15 @@ import json
 from datetime import UTC, datetime
 from pathlib import Path
 
-from research.ablation.ops import DEFAULT_ABLATIONS, AblationSpec, apply_ablation
+from research.ablation.ops import AblationSpec, apply_ablation, default_ablations_for_graph
 from research.baselines.classifiers import MultiLabelReadout, labels_to_matrix
 from research.datasets.sensitive import load_sensitive_split
+from research.encoders.text import get_encoder, resolve_encoder_kind
 from research.evaluation.metrics import multilabel_metrics
 from research.experiments.pipeline import (
     build_model,
     featurize,
-    load_demo_graph,
+    load_active_graph,
     predict_bundle,
     train_bundle,
 )
@@ -25,15 +26,17 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 RESULTS_DIR = REPO_ROOT / "results"
 
 
-def run_ablations(seed: int = 42) -> dict:
+def run_ablations(seed: int = 42, encoder: str | None = None) -> dict:
     from research.experiments.run import ensure_data
 
     ensure_data()
-    train = load_sensitive_split("train")
-    test = load_sensitive_split("test")
+    encoder_kind = resolve_encoder_kind(encoder)
+    hard_dir = REPO_ROOT / "data" / "demo" / "sensitive_hard"
+    data_dir = hard_dir if (hard_dir / "train.jsonl").exists() else None
+    train = load_sensitive_split("train", data_dir=data_dir)
+    test = load_sensitive_split("test", data_dir=data_dir)
 
-    # Baseline connectome
-    base_bundle = build_model("connectome", seed=seed)
+    base_bundle = build_model("connectome", encoder_kind=encoder_kind, seed=seed)
     train_bundle(base_bundle, [ex.text for ex in train], [ex.labels for ex in train])
     base_preds, _, _ = predict_bundle(base_bundle, [ex.text for ex in test])
     base_metrics = multilabel_metrics(
@@ -44,30 +47,33 @@ def run_ablations(seed: int = 42) -> dict:
     base_f1 = base_metrics["macro_f1"]
     base_acc = base_metrics["binary_sensitive_accuracy"]
 
-    graph = load_demo_graph("biological")
+    graph = load_active_graph("biological")
+    specs = default_ablations_for_graph(graph)
     results = []
-    for spec in DEFAULT_ABLATIONS:
+    for spec in specs:
         ablated = apply_ablation(graph, AblationSpec(**{**spec.__dict__, "seed": seed}))
         reservoir = make_reservoir(ablated, input_dim=64, seed=seed)
-        # Rebuild features with ablated reservoir; retrain readout only
-        from research.encoders.text import get_encoder
+        enc = get_encoder(encoder_kind, seed=seed)
 
-        encoder = get_encoder("hashing", seed=seed)
-        # Monkey-patch a temporary bundle-like path
         class Tmp:
             pass
 
         tmp = Tmp()
         tmp.model_type = "connectome"
-        tmp.encoder = encoder
+        tmp.encoder = enc
         tmp.reservoir = reservoir
-        tmp.config = {"encoding_mode": "temporal", "timesteps": 12, "seed": seed}
+        tmp.config = {
+            "encoding_mode": "temporal",
+            "timesteps": 12,
+            "seed": seed,
+            "encoder": enc.name,
+        }
 
-        X_train, _ = featurize(tmp, [ex.text for ex in train])  # type: ignore[arg-type]
+        x_train, _ = featurize(tmp, [ex.text for ex in train])  # type: ignore[arg-type]
         y = labels_to_matrix([ex.labels for ex in train])
-        readout = MultiLabelReadout(seed=seed).fit(X_train, y)
-        X_test, _ = featurize(tmp, [ex.text for ex in test])  # type: ignore[arg-type]
-        preds = readout.predict(X_test)
+        readout = MultiLabelReadout(seed=seed).fit(x_train, y)
+        x_test, _ = featurize(tmp, [ex.text for ex in test])  # type: ignore[arg-type]
+        preds = readout.predict(x_test)
         metrics = multilabel_metrics(
             [ex.labels for ex in test],
             [p.labels for p in preds],
@@ -92,13 +98,17 @@ def run_ablations(seed: int = 42) -> dict:
     payload = {
         "timestamp": datetime.now(UTC).isoformat(),
         "seed": seed,
+        "encoder": encoder_kind,
+        "dataset": "sensitive_hard" if data_dir else "sensitive",
         "baseline_model": "connectome",
+        "graph_source": graph.metadata.get("source"),
+        "regions": list(graph.regions),
         "original_macro_f1": base_f1,
         "original_binary_accuracy": base_acc,
         "ablations": results,
         "note": (
             "Ablations retrain only the readout on fixed ablated reservoir features. "
-            "Playful UI copy; scientifically this tests topology robustness."
+            "Region cuts use live ROI labels from the active connectome."
         ),
     }
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -110,9 +120,19 @@ def run_ablations(seed: int = 42) -> dict:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--encoder", default=None)
     args = parser.parse_args()
-    payload = run_ablations(seed=args.seed)
-    print(json.dumps({"n_ablations": len(payload["ablations"]), "out": "results/ablation_latest.json"}, indent=2))
+    payload = run_ablations(seed=args.seed, encoder=args.encoder)
+    print(
+        json.dumps(
+            {
+                "n_ablations": len(payload["ablations"]),
+                "regions": payload["regions"],
+                "out": "results/ablation_latest.json",
+            },
+            indent=2,
+        )
+    )
 
 
 if __name__ == "__main__":

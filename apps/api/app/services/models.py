@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import logging
 from functools import lru_cache
 from typing import Any
@@ -75,6 +76,17 @@ class ModelService:
             return False
         return int(scaler.n_features_in_) == self._feature_dim(bundle)
 
+    def _encoder_compatible(self, bundle: ModelBundle, models_dir) -> bool:
+        meta_path = models_dir / bundle.model_type / "meta.json"
+        if not meta_path.exists():
+            return False
+        try:
+            meta = json.loads(meta_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return False
+        saved = meta.get("encoder_name") or meta.get("config", {}).get("encoder")
+        return saved == bundle.encoder.name
+
     def get_bundle(self, model: str) -> ModelBundle:
         model = self.resolve_model(model)
         if model in self._bundles:
@@ -89,10 +101,13 @@ class ModelService:
         needs_train = True
         if readout_path.exists():
             bundle = maybe_load_trained(bundle, models_dir=models_dir)
-            needs_train = not self._readout_compatible(bundle)
+            needs_train = not (
+                self._readout_compatible(bundle)
+                and self._encoder_compatible(bundle, models_dir)
+            )
         if needs_train:
             train = load_sensitive_split("train")
-            subset = train[:400]
+            subset = train[: min(400, len(train))]
             train_bundle(bundle, [ex.text for ex in subset], [ex.labels for ex in subset])
             from research.experiments.pipeline import save_bundle
 
@@ -154,6 +169,21 @@ class ModelService:
                 "LegalFly reanimates connectome topology as mathematics. "
                 "It does not restore a mind, simulate consciousness, or provide legal advice. "
                 "Submitted text is not stored by default."
+            ),
+        }
+
+    def classify_twin(self, text: str, with_simulation: bool = True) -> dict[str, Any]:
+        tissue = self.classify(text, "connectome", with_simulation=with_simulation)
+        twin = self.classify(text, "random_erdos", with_simulation=with_simulation)
+        agree = tissue["contains_sensitive"] == twin["contains_sensitive"]
+        return {
+            "tissue": tissue,
+            "twin": twin,
+            "agree_on_sensitive": agree,
+            "disclaimer": (
+                "Same text, same encoder family, different graph topology. "
+                "Agreement does not prove biological competence; disagreement "
+                "does not prove a mind. Submitted text is not stored by default."
             ),
         }
 

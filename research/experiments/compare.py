@@ -32,8 +32,9 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "seeds": sorted({r["seed"] for r in rows}),
         "models": {},
         "interpretation": (
-            "This table reports measured metrics on the LegalFly synthetic "
-            "sensitive-information benchmark using the demo connectome. "
+            "Measured metrics on the LegalFly synthetic sensitive-information "
+            "benchmark (hard legal set when present) using the active connectome "
+            "(hemibrain surgical tissue when built, else demo). "
             "Biological topology 'wins' only if measured values show it."
         ),
     }
@@ -92,7 +93,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--seeds", default="42,43,44")
     parser.add_argument("--models", default="connectome,random_erdos,random_degree_preserving,linear")
-    parser.add_argument("--encoder", default="hashing")
+    parser.add_argument("--encoder", default=None, help="hashing|minilm (default: env)")
     args = parser.parse_args()
     seeds = [int(s.strip()) for s in args.seeds.split(",") if s.strip()]
     models = [m.strip() for m in args.models.split(",") if m.strip()]
@@ -113,6 +114,12 @@ def main() -> None:
             run_one(model, seed=SERVING_SEED, encoder=args.encoder)
 
     summary = summarize(rows)
+    if rows:
+        summary["encoder"] = rows[0].get("encoder")
+        summary["encoder_name"] = rows[0].get("encoder_name")
+        summary["dataset"] = rows[0].get("dataset", {}).get("task")
+        summary["graph_source"] = rows[0].get("config", {}).get("graph_source")
+        summary["connectome_mode"] = rows[0].get("config", {}).get("connectome_mode")
     out = RESULTS_DIR / "comparison_latest.json"
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")

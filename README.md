@@ -103,7 +103,7 @@ python -m research.experiments.ablate --seed 42
 
 | Route | Purpose |
 |---|---|
-| `/` | Feed the apparatus a specimen |
+| `/` | Twin chamber: real tissue vs random twin |
 | `/benchmark` | Autopsy table of measured scores |
 | `/compare` | Real tissue vs randomized twin |
 | `/ablate` | Destroy the brain |

@@ -17,6 +17,7 @@ install-web:
 
 generate-data:
 	. .venv/bin/activate && python -m research.datasets.generate_sensitive_dataset
+	. .venv/bin/activate && python -m research.datasets.generate_hard_legal_dataset
 	. .venv/bin/activate && python -m research.graphs.build_demo_connectome
 
 fetch-hemibrain:

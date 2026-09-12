@@ -44,6 +44,23 @@ class ClassifyResponse(BaseModel):
     disclaimer: str
 
 
+class TwinRequest(BaseModel):
+    text: str = Field(..., min_length=1)
+    with_simulation: bool = True
+
+    @field_validator("text")
+    @classmethod
+    def validate_text(cls, value: str) -> str:
+        return ClassifyRequest.validate_text(value)
+
+
+class TwinResponse(BaseModel):
+    tissue: ClassifyResponse
+    twin: ClassifyResponse
+    agree_on_sensitive: bool
+    disclaimer: str
+
+
 class SimulateRequest(BaseModel):
     text: str = Field(..., min_length=1)
     model: Literal[

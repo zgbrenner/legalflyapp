@@ -5,6 +5,8 @@ import { fetchAblations } from "@/lib/api";
 
 type Ablation = {
   ablation: string;
+  kind?: string;
+  region?: string | null;
   macro_f1: number;
   binary_accuracy: number;
   delta_macro_f1: number;
@@ -81,6 +83,15 @@ export default function AblatePage() {
             <div className="border border-ink/15 bg-white/70 p-6">
               <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-ink/50">Impact</p>
               <h2 className="mt-2 font-display text-3xl font-semibold">{current.ablation}</h2>
+              {current.region ? (
+                <p className="mt-2 font-mono text-xs uppercase tracking-[0.18em] text-blood">
+                  ROI · {current.region}
+                </p>
+              ) : current.kind ? (
+                <p className="mt-2 font-mono text-xs uppercase tracking-[0.18em] text-ink/50">
+                  {current.kind}
+                </p>
+              ) : null}
               <dl className="mt-6 grid gap-4 sm:grid-cols-3">
                 <div>
                   <dt className="text-xs uppercase tracking-wider text-ink/50">Original accuracy</dt>
@@ -107,6 +118,16 @@ export default function AblatePage() {
                 {current.delta_macro_f1.toFixed(3)})
               </p>
               <p className="mt-4 text-xs text-ink/50">{data.note}</p>
+              {Array.isArray(data.regions) && data.regions.length ? (
+                <p className="mt-2 text-xs text-ink/45">
+                  Live ROIs in this tissue: {data.regions.join(", ")}
+                </p>
+              ) : null}
+              {data.dataset ? (
+                <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.16em] text-ink/40">
+                  Dataset · {data.dataset} · encoder · {data.encoder ?? "n/a"}
+                </p>
+              ) : null}
             </div>
           ) : null}
         </div>

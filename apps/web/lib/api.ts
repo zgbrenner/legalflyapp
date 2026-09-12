@@ -58,6 +58,29 @@ export async function classifyText(
   return res.json();
 }
 
+export type TwinResponse = {
+  tissue: ClassifyResponse;
+  twin: ClassifyResponse;
+  agree_on_sensitive: boolean;
+  disclaimer: string;
+};
+
+export async function classifyTwin(
+  text: string,
+  withSimulation = true,
+): Promise<TwinResponse> {
+  const res = await fetch(`${API_URL}/twin`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text, with_simulation: withSimulation }),
+  });
+  if (!res.ok) {
+    const detail = await res.text();
+    throw new Error(detail || `API error ${res.status}`);
+  }
+  return res.json();
+}
+
 export async function fetchBenchmark() {
   const res = await fetch(`${API_URL}/benchmark`, { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to load benchmark");

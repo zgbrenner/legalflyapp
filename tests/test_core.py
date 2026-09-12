@@ -154,3 +154,44 @@ def test_ablation_changes_graph():
     g = build_synthetic_connectome(n_nodes=80, seed=5)
     ab = apply_ablation(g, AblationSpec(kind="remove_fraction", fraction=0.25, seed=1))
     assert ab.n_edges < g.n_edges
+
+
+def test_hard_legal_dataset_preferred():
+    from pathlib import Path
+
+    from research.datasets.generate_hard_legal_dataset import write_dataset
+    from research.datasets.sensitive import load_sensitive_split
+
+    hard = Path(__file__).resolve().parents[1] / "data" / "demo" / "sensitive_hard"
+    if not (hard / "train.jsonl").exists():
+        write_dataset(hard, train_n=40, val_n=10, test_n=10)
+    rows = load_sensitive_split("train")
+    assert rows
+    assert any(ex.metadata.get("task") == 'sensitive_information_hard' for ex in rows)
+
+
+def test_default_ablations_include_regions():
+    from research.ablation.ops import default_ablations_for_graph
+    from research.graphs.connectome import build_synthetic_connectome
+
+    graph = build_synthetic_connectome(n_nodes=96, seed=7)
+    specs = default_ablations_for_graph(graph)
+    assert any(spec.kind == "remove_region" for spec in specs)
+    assert any(spec.kind == "randomize_region" for spec in specs)
+
+
+def test_twin_endpoint():
+    from apps.api.app.main import create_app
+
+    app = create_app()
+    with TestClient(app) as client:
+        res = client.post(
+            "/twin",
+            json={"text": "Please email the draft to alex@example.com", "with_simulation": True},
+        )
+        assert res.status_code == 200
+        body = res.json()
+        assert "tissue" in body and "twin" in body
+        assert "agree_on_sensitive" in body
+        assert body["tissue"]["model"] == "connectome"
+        assert body["twin"]["model"] == "random_erdos"

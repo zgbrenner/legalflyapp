@@ -3,11 +3,18 @@
 from __future__ import annotations
 
 import hashlib
+import os
 import re
 import struct
+import warnings
 from abc import ABC, abstractmethod
 
 import numpy as np
+
+try:
+    from sentence_transformers import SentenceTransformer
+except ImportError:  # optional research extra
+    SentenceTransformer = None  # type: ignore[misc, assignment]
 
 
 class TextEncoder(ABC):
@@ -109,15 +116,25 @@ class SentenceTransformerEncoder(TextEncoder):
     name = "sentence-transformers"
 
     def __init__(self, model_name: str = "sentence-transformers/all-MiniLM-L6-v2"):
-        from sentence_transformers import SentenceTransformer
-
+        if SentenceTransformer is None:
+            raise ImportError(
+                "sentence-transformers is not installed. "
+                'Install with: pip install -e ".[research]"'
+            )
         self.model_name = model_name
         self._model = SentenceTransformer(model_name)
-        self.dim = int(self._model.get_sentence_embedding_dimension())
+        dim_fn = getattr(self._model, "get_embedding_dimension", None) or getattr(
+            self._model, "get_sentence_embedding_dimension", None
+        )
+        self.dim = int(dim_fn())
         self.name = f"st:{model_name}"
 
     def encode(self, text: str) -> np.ndarray:
         emb = self._model.encode([text], normalize_embeddings=True)[0]
+        return np.asarray(emb, dtype=np.float32)
+
+    def encode_batch(self, texts: list[str]) -> np.ndarray:
+        emb = self._model.encode(texts, normalize_embeddings=True, show_progress_bar=False)
         return np.asarray(emb, dtype=np.float32)
 
 
@@ -125,7 +142,23 @@ def get_encoder(kind: str = "hashing", **kwargs) -> TextEncoder:
     if kind in {"hashing", "demo", "hashing-384"}:
         return HashingTextEncoder(**{k: v for k, v in kwargs.items() if k in {"dim", "seed"}})
     if kind in {"sentence-transformers", "st", "minilm"}:
-        return SentenceTransformerEncoder(
-            model_name=kwargs.get("model_name", "sentence-transformers/all-MiniLM-L6-v2")
-        )
+        try:
+            return SentenceTransformerEncoder(
+                model_name=kwargs.get("model_name", "sentence-transformers/all-MiniLM-L6-v2")
+            )
+        except Exception as exc:  # noqa: BLE001 — fall back for offline/demo
+            warnings.warn(
+                f"MiniLM unavailable ({exc}); falling back to hashing encoder.",
+                RuntimeWarning,
+                stacklevel=2,
+            )
+            return HashingTextEncoder(seed=int(kwargs.get("seed", 42)))
     raise ValueError(f"Unknown encoder: {kind}")
+
+
+def resolve_encoder_kind(preferred: str | None = None) -> str:
+    """Pick encoder from env / preference."""
+    kind = (preferred or os.getenv("LEGALFLY_ENCODER") or "minilm").strip().lower()
+    if kind in {"auto", "research"}:
+        kind = "minilm"
+    return kind

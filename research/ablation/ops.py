@@ -136,6 +136,28 @@ DEFAULT_ABLATIONS: list[AblationSpec] = [
     AblationSpec(kind="remove_high_degree", fraction=0.05, label="Remove highest-degree neurons (5%)"),
     AblationSpec(kind="remove_low_degree", fraction=0.05, label="Remove lowest-degree neurons (5%)"),
     AblationSpec(kind="randomize_weights", label="Randomize edge weights"),
-    AblationSpec(kind="remove_region", region="mushroom_body", label="Disable mushroom_body"),
-    AblationSpec(kind="randomize_region", region="central_complex", label="Randomize central_complex"),
 ]
+
+
+def default_ablations_for_graph(graph: ConnectomeGraph) -> list[AblationSpec]:
+    """Build ablation list including every non-trivial ROI present in the graph."""
+    specs = list(DEFAULT_ABLATIONS)
+    for region in graph.regions:
+        count = sum(1 for r in graph.node_regions if r == region)
+        if count < 8:
+            continue
+        specs.append(
+            AblationSpec(
+                kind="remove_region",
+                region=region,
+                label=f"Excise ROI: {region} ({count} neurons)",
+            )
+        )
+        specs.append(
+            AblationSpec(
+                kind="randomize_region",
+                region=region,
+                label=f"Scramble ROI: {region} ({count} neurons)",
+            )
+        )
+    return specs

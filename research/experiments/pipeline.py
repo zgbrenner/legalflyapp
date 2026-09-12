@@ -19,7 +19,7 @@ from research.baselines.classifiers import (
     labels_to_matrix,
 )
 from research.encoders.input_encoding import encode_for_reservoir
-from research.encoders.text import TextEncoder, get_encoder
+from research.encoders.text import TextEncoder, get_encoder, resolve_encoder_kind
 from research.graphs.connectome import ConnectomeGraph, apply_control
 from research.reservoirs.base import ConnectomeReservoir, make_reservoir
 
@@ -94,10 +94,10 @@ def reservoir_features(
     seed: int = 42,
     collect_sim: bool = False,
 ) -> tuple[np.ndarray, list[dict[str, Any]]]:
+    embeddings = encoder.encode_batch(texts)
     feats = []
     sims: list[dict[str, Any]] = []
-    for text in texts:
-        emb = encoder.encode(text)
+    for emb in embeddings:
         drive = encode_for_reservoir(
             emb,
             mode=encoding_mode,  # type: ignore[arg-type]
@@ -121,12 +121,13 @@ def embedding_features(texts: list[str], encoder: TextEncoder) -> np.ndarray:
 def build_model(
     model_type: str,
     *,
-    encoder_kind: str = "hashing",
+    encoder_kind: str | None = None,
     seed: int = 42,
     input_dim: int = 64,
     timesteps: int = 12,
     encoding_mode: str = "temporal",
 ) -> ModelBundle:
+    encoder_kind = resolve_encoder_kind(encoder_kind)
     encoder = get_encoder(encoder_kind, seed=seed)
     config = {
         "model_type": model_type,

@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     legalfly_data_dir: str = "data"
     legalfly_models_dir: str = "models"
     legalfly_results_dir: str = "results"
-    legalfly_encoder: str = "hashing"
+    legalfly_encoder: str = "minilm"
 
     @property
     def cors_origin_list(self) -> list[str]:

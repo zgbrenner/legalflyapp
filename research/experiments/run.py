@@ -35,6 +35,11 @@ def ensure_data() -> None:
         from research.datasets.generate_sensitive_dataset import write_dataset
 
         write_dataset(REPO_ROOT / "data" / "demo" / "sensitive")
+    hard_data = REPO_ROOT / "data" / "demo" / "sensitive_hard" / "train.jsonl"
+    if not hard_data.exists():
+        from research.datasets.generate_hard_legal_dataset import write_dataset as write_hard
+
+        write_hard(REPO_ROOT / "data" / "demo" / "sensitive_hard")
     graph = REPO_ROOT / "data" / "demo" / "connectome" / "biological"
     if not graph.exists():
         from research.graphs.build_demo_connectome import build_all
@@ -42,11 +47,20 @@ def ensure_data() -> None:
         build_all(REPO_ROOT / "data" / "demo" / "connectome")
 
 
-def run_one(model: str, seed: int, encoder: str = "hashing") -> dict[str, Any]:
+def _active_dataset_name() -> str:
+    hard = REPO_ROOT / "data" / "demo" / "sensitive_hard" / "train.jsonl"
+    return "sensitive_information_hard" if hard.exists() else "sensitive_information"
+
+
+def run_one(model: str, seed: int, encoder: str | None = None) -> dict[str, Any]:
+    from research.encoders.text import resolve_encoder_kind
+
     ensure_data()
+    encoder = resolve_encoder_kind(encoder)
     train = load_sensitive_split("train")
     val = load_sensitive_split("validation")
     test = load_sensitive_split("test")
+    dataset_name = _active_dataset_name()
 
     bundle = build_model(model, encoder_kind=encoder, seed=seed)
     train_info = train_bundle(
@@ -77,12 +91,17 @@ def run_one(model: str, seed: int, encoder: str = "hashing") -> dict[str, Any]:
         "seed": seed,
         "model_type": model,
         "encoder": encoder,
+        "encoder_name": bundle.encoder.name,
         "dataset": {
-            "task": "sensitive_information",
+            "task": dataset_name,
             "train": len(train),
             "validation": len(val),
             "test": len(test),
-            "generator": "research.datasets.generate_sensitive_dataset",
+            "generator": (
+                "research.datasets.generate_hard_legal_dataset"
+                if dataset_name.endswith("_hard")
+                else "research.datasets.generate_sensitive_dataset"
+            ),
         },
         "graph": {
             "reservoir_size": bundle.config.get("reservoir_size"),
@@ -124,7 +143,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Run LegalFly experiment")
     parser.add_argument("--model", default="connectome", help="model or 'all'")
     parser.add_argument("--seed", type=int, default=42)
-    parser.add_argument("--encoder", default="hashing")
+    parser.add_argument("--encoder", default=None, help="hashing|minilm (default: env/LEGALFLY_ENCODER)")
     args = parser.parse_args()
     models = ALL_MODELS if args.model == "all" else [args.model]
     for model in models:
