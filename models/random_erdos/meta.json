@@ -2,7 +2,7 @@
   "model_type": "random_erdos",
   "config": {
     "model_type": "random_erdos",
-    "encoder": "hashing-384",
+    "encoder": "st:sentence-transformers/all-MiniLM-L6-v2",
     "seed": 42,
     "input_dim": 64,
     "timesteps": 12,
@@ -17,5 +17,5 @@
     "anatomical_edges": true,
     "graph_license": "CC BY 4.0"
   },
-  "encoder_name": "hashing-384"
+  "encoder_name": "st:sentence-transformers/all-MiniLM-L6-v2"
 }

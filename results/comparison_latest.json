@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-09-12T20:52:24.053721+00:00",
+  "timestamp": "2026-09-12T22:19:07.283154+00:00",
   "n_seeds": 2,
   "seeds": [
     42,
@@ -7,11 +7,11 @@
   ],
   "models": {
     "connectome": {
-      "macro_f1_mean": 0.9416038376359266,
-      "macro_f1_std": 0.013615158343392386,
-      "macro_f1_ci95_approx": 0.018869646751421058,
-      "binary_sensitive_f1_mean": 0.9958061436865249,
-      "binary_sensitive_f1_std": 0.0013927358652958688,
+      "macro_f1_mean": 0.9840923052473145,
+      "macro_f1_std": 0.0008173067456308525,
+      "macro_f1_ci95_approx": 0.0011327293586043655,
+      "binary_sensitive_f1_mean": 1.0,
+      "binary_sensitive_f1_std": 0.0,
       "trainable_params": 73740,
       "reservoir_size": 3072,
       "edge_count": 293766,
@@ -19,11 +19,11 @@
       "status": "measured"
     },
     "random_erdos": {
-      "macro_f1_mean": 0.9428520015331963,
-      "macro_f1_std": 0.0045960250198419095,
-      "macro_f1_ci95_approx": 0.006369765697745171,
-      "binary_sensitive_f1_mean": 0.9943977151465695,
-      "binary_sensitive_f1_std": 1.569267465945101e-05,
+      "macro_f1_mean": 0.9859064690873804,
+      "macro_f1_std": 0.0001619939070933718,
+      "macro_f1_ci95_approx": 0.00022451210082458843,
+      "binary_sensitive_f1_mean": 1.0,
+      "binary_sensitive_f1_std": 0.0,
       "trainable_params": 73740,
       "reservoir_size": 3072,
       "edge_count": 289248,
@@ -31,11 +31,11 @@
       "status": "measured"
     },
     "random_degree_preserving": {
-      "macro_f1_mean": 0.9432858044971733,
-      "macro_f1_std": 0.005386957615900023,
-      "macro_f1_ci95_approx": 0.0074659423499281495,
-      "binary_sensitive_f1_mean": 0.9929813517979384,
-      "binary_sensitive_f1_std": 0.001432056023290551,
+      "macro_f1_mean": 0.983444722281537,
+      "macro_f1_std": 0.002518789139291655,
+      "macro_f1_ci95_approx": 0.0034908636463134267,
+      "binary_sensitive_f1_mean": 1.0,
+      "binary_sensitive_f1_std": 0.0,
       "trainable_params": 73740,
       "reservoir_size": 3072,
       "edge_count": 284686,
@@ -43,9 +43,9 @@
       "status": "measured"
     },
     "linear": {
-      "macro_f1_mean": 0.9761263692522946,
-      "macro_f1_std": 0.004722057453894035,
-      "macro_f1_ci95_approx": 0.006544437739729871,
+      "macro_f1_mean": 0.9814231466498318,
+      "macro_f1_std": 0.0,
+      "macro_f1_ci95_approx": 0.0,
       "binary_sensitive_f1_mean": 1.0,
       "binary_sensitive_f1_std": 0.0,
       "trainable_params": 4620,
@@ -55,5 +55,10 @@
       "status": "measured"
     }
   },
-  "interpretation": "This table reports measured metrics on the LegalFly synthetic sensitive-information benchmark using the demo connectome. Biological topology 'wins' only if measured values show it."
+  "interpretation": "Measured metrics on the LegalFly synthetic sensitive-information benchmark (hard legal set when present) using the active connectome (hemibrain surgical tissue when built, else demo). Biological topology 'wins' only if measured values show it.",
+  "encoder": "minilm",
+  "encoder_name": "st:sentence-transformers/all-MiniLM-L6-v2",
+  "dataset": "sensitive_information_hard",
+  "graph_source": "janelia_hemibrain_v1.2",
+  "connectome_mode": "hemibrain"
 }
