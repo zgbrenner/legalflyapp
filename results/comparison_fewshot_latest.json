@@ -1,0 +1,65 @@
+{
+  "timestamp": "2026-09-12T22:42:13.623969+00:00",
+  "n_seeds": 2,
+  "seeds": [
+    42,
+    43
+  ],
+  "models": {
+    "connectome": {
+      "macro_f1_mean": 0.9465264927737722,
+      "macro_f1_std": 0.0012194204319205815,
+      "macro_f1_ci95_approx": 0.0016900304947958047,
+      "binary_sensitive_f1_mean": 0.9826492213667115,
+      "binary_sensitive_f1_std": 0.0008973965491933522,
+      "trainable_params": 73740,
+      "reservoir_size": 3072,
+      "edge_count": 293766,
+      "n_runs": 2,
+      "status": "measured"
+    },
+    "random_erdos": {
+      "macro_f1_mean": 0.933734683680737,
+      "macro_f1_std": 0.011792963275481239,
+      "macro_f1_ci95_approx": 0.016344213232658337,
+      "binary_sensitive_f1_mean": 0.9746874639698253,
+      "binary_sensitive_f1_std": 0.008798774562284895,
+      "trainable_params": 73740,
+      "reservoir_size": 3072,
+      "edge_count": 289248,
+      "n_runs": 2,
+      "status": "measured"
+    },
+    "random_degree_preserving": {
+      "macro_f1_mean": 0.9370376655309673,
+      "macro_f1_std": 0.005447296141186386,
+      "macro_f1_ci95_approx": 0.007549567279505844,
+      "binary_sensitive_f1_mean": 0.973786835546261,
+      "binary_sensitive_f1_std": 0.00789814613872064,
+      "trainable_params": 73740,
+      "reservoir_size": 3072,
+      "edge_count": 284686,
+      "n_runs": 2,
+      "status": "measured"
+    },
+    "linear": {
+      "macro_f1_mean": 0.9639399632741891,
+      "macro_f1_std": 0.00460935487152625,
+      "macro_f1_ci95_approx": 0.006388239929640859,
+      "binary_sensitive_f1_mean": 1.0,
+      "binary_sensitive_f1_std": 0.0,
+      "trainable_params": 4620,
+      "reservoir_size": null,
+      "edge_count": null,
+      "n_runs": 2,
+      "status": "measured"
+    }
+  },
+  "interpretation": "Measured metrics on the LegalFly synthetic sensitive-information benchmark (hard legal set when present) using the active connectome (hemibrain surgical tissue when built, else demo). Biological topology 'wins' only if measured values show it.",
+  "encoder": "minilm",
+  "encoder_name": "st:sentence-transformers/all-MiniLM-L6-v2",
+  "dataset": "sensitive_information_harder",
+  "max_train": 160,
+  "graph_source": "janelia_hemibrain_v1.2",
+  "connectome_mode": "hemibrain"
+}

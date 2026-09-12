@@ -1,0 +1,106 @@
+{
+  "demo": true,
+  "anatomical": false,
+  "n_nodes": 512,
+  "seed": 42,
+  "variants": {
+    "biological": {
+      "n_nodes": 512,
+      "n_edges": 3944,
+      "control": "biological",
+      "regions": [
+        "optic_lobe",
+        "antennal_lobe",
+        "mushroom_body",
+        "central_complex",
+        "lateral_horn",
+        "protocerebrum",
+        "gnathal_ganglia",
+        "descending"
+      ],
+      "metadata": {
+        "source": "synthetic_demo",
+        "license": "MIT (project-generated)",
+        "anatomical": false,
+        "description": "Abstract modular graph for LegalFly demo mode. Not derived from FlyWire or hemibrain edge lists.",
+        "seed": 42,
+        "mean_degree_target": 8.0
+      }
+    },
+    "random_erdos": {
+      "n_nodes": 512,
+      "n_edges": 3914,
+      "control": "random_erdos",
+      "regions": [
+        "optic_lobe",
+        "antennal_lobe",
+        "mushroom_body",
+        "central_complex",
+        "lateral_horn",
+        "protocerebrum",
+        "gnathal_ganglia",
+        "descending"
+      ],
+      "metadata": {
+        "source": "synthetic_demo",
+        "license": "MIT (project-generated)",
+        "anatomical": false,
+        "description": "Abstract modular graph for LegalFly demo mode. Not derived from FlyWire or hemibrain edge lists.",
+        "seed": 42,
+        "mean_degree_target": 8.0,
+        "randomized": "erdos",
+        "parent_control": "biological"
+      }
+    },
+    "random_degree_preserving": {
+      "n_nodes": 512,
+      "n_edges": 3910,
+      "control": "random_degree_preserving",
+      "regions": [
+        "optic_lobe",
+        "antennal_lobe",
+        "mushroom_body",
+        "central_complex",
+        "lateral_horn",
+        "protocerebrum",
+        "gnathal_ganglia",
+        "descending"
+      ],
+      "metadata": {
+        "source": "synthetic_demo",
+        "license": "MIT (project-generated)",
+        "anatomical": false,
+        "description": "Abstract modular graph for LegalFly demo mode. Not derived from FlyWire or hemibrain edge lists.",
+        "seed": 42,
+        "mean_degree_target": 8.0,
+        "randomized": "degree_preserving",
+        "swaps": 7888
+      }
+    },
+    "random_weights": {
+      "n_nodes": 512,
+      "n_edges": 3944,
+      "control": "random_weights",
+      "regions": [
+        "optic_lobe",
+        "antennal_lobe",
+        "mushroom_body",
+        "central_complex",
+        "lateral_horn",
+        "protocerebrum",
+        "gnathal_ganglia",
+        "descending"
+      ],
+      "metadata": {
+        "source": "synthetic_demo",
+        "license": "MIT (project-generated)",
+        "anatomical": false,
+        "description": "Abstract modular graph for LegalFly demo mode. Not derived from FlyWire or hemibrain edge lists.",
+        "seed": 42,
+        "mean_degree_target": 8.0,
+        "randomized": "weights"
+      }
+    }
+  },
+  "layout_note": "Node positions are abstract region clusters, not fly anatomy."
+}
