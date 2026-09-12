@@ -1,0 +1,66 @@
+{
+  "timestamp": "2026-09-12T23:20:23.505434+00:00",
+  "n_seeds": 3,
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "models": {
+    "connectome": {
+      "macro_f1_mean": 0.8391337474655962,
+      "macro_f1_std": 0.019262653731779003,
+      "macro_f1_ci95_approx": 0.021797744702004348,
+      "binary_sensitive_f1_mean": 0.9622002756535367,
+      "binary_sensitive_f1_std": 0.007621018488440108,
+      "trainable_params": 73740,
+      "reservoir_size": 3072,
+      "edge_count": 293766,
+      "n_runs": 3,
+      "status": "measured"
+    },
+    "random_erdos": {
+      "macro_f1_mean": 0.8576412729597153,
+      "macro_f1_std": 0.009521147675587798,
+      "macro_f1_ci95_approx": 0.010774192860049797,
+      "binary_sensitive_f1_mean": 0.9721967505453744,
+      "binary_sensitive_f1_std": 0.010311308196213375,
+      "trainable_params": 73740,
+      "reservoir_size": 3072,
+      "edge_count": 289248,
+      "n_runs": 3,
+      "status": "measured"
+    },
+    "random_degree_preserving": {
+      "macro_f1_mean": 0.8491823356334373,
+      "macro_f1_std": 0.007997489864641853,
+      "macro_f1_ci95_approx": 0.009050011735336864,
+      "binary_sensitive_f1_mean": 0.9709486883352582,
+      "binary_sensitive_f1_std": 0.005324936451914887,
+      "trainable_params": 73740,
+      "reservoir_size": 3072,
+      "edge_count": 284686,
+      "n_runs": 3,
+      "status": "measured"
+    },
+    "linear": {
+      "macro_f1_mean": 0.9260457155846568,
+      "macro_f1_std": 0.006520328074483359,
+      "macro_f1_ci95_approx": 0.007378445811254977,
+      "binary_sensitive_f1_mean": 0.9887721407846037,
+      "binary_sensitive_f1_std": 0.0055556669096452,
+      "trainable_params": 4620,
+      "reservoir_size": null,
+      "edge_count": null,
+      "n_runs": 3,
+      "status": "measured"
+    }
+  },
+  "interpretation": "Measured metrics on the LegalFly synthetic sensitive-information benchmark (hard legal set when present) using the active connectome (hemibrain surgical tissue when built, else demo). Biological topology 'wins' only if measured values show it.",
+  "encoder": "hashing",
+  "encoder_name": "hashing-384",
+  "dataset": "sensitive_information_harder",
+  "max_train": 120,
+  "graph_source": "janelia_hemibrain_v1.2",
+  "connectome_mode": "hemibrain"
+}
