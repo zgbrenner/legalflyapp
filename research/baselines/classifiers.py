@@ -35,31 +35,64 @@ class MultiLabelReadout:
 
     def __init__(self, C: float = 1.0, max_iter: int = 400, seed: int = 42):
         self.scaler = StandardScaler()
-        self.model = MultiOutputClassifier(
-            LogisticRegression(
-                C=C,
-                max_iter=max_iter,
-                solver="lbfgs",
-                random_state=seed,
-            )
-        )
+        self.C = C
+        self.max_iter = max_iter
+        self.seed = seed
+        self.estimators_: list[LogisticRegression | None] = []
+        self.constants_: list[float | None] = []
         self.fitted = False
+        # Kept for older checkpoints that pickled MultiOutputClassifier.
+        self.model: MultiOutputClassifier | None = None
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> MultiLabelReadout:
         Xs = self.scaler.fit_transform(X)
-        self.model.fit(Xs, y)
+        self.estimators_ = []
+        self.constants_ = []
+        for col in range(y.shape[1]):
+            yi = y[:, col]
+            classes = np.unique(yi)
+            if classes.size < 2:
+                # Few-shot edge case: label never appears (or always appears).
+                self.estimators_.append(None)
+                self.constants_.append(float(classes[0]) if classes.size else 0.0)
+                continue
+            est = LogisticRegression(
+                C=self.C,
+                max_iter=self.max_iter,
+                solver="lbfgs",
+                random_state=self.seed,
+            )
+            est.fit(Xs, yi)
+            self.estimators_.append(est)
+            self.constants_.append(None)
         self.fitted = True
         return self
 
     def predict_proba(self, X: np.ndarray) -> np.ndarray:
         Xs = self.scaler.transform(X)
+        if self.model is not None and not self.estimators_:
+            # Legacy unpickled MultiOutputClassifier path.
+            probas = []
+            for est in self.model.estimators_:
+                if hasattr(est, "predict_proba"):
+                    p = est.predict_proba(Xs)
+                    probas.append(p[:, 1] if p.shape[1] == 2 else p[:, 0])
+                else:
+                    probas.append(est.decision_function(Xs))
+            return np.vstack(probas).T
+
         probas = []
-        for est in self.model.estimators_:
-            if hasattr(est, "predict_proba"):
-                p = est.predict_proba(Xs)
-                probas.append(p[:, 1] if p.shape[1] == 2 else p[:, 0])
+        for est, constant in zip(self.estimators_, self.constants_):
+            if est is None:
+                probas.append(np.full(Xs.shape[0], float(constant or 0.0)))
+                continue
+            p = est.predict_proba(Xs)
+            if p.shape[1] == 2:
+                probas.append(p[:, 1])
             else:
-                probas.append(est.decision_function(Xs))
+                # Single-class sklearn estimator after partial fit quirks.
+                cls = int(est.classes_[0])
+                probas.append(np.full(Xs.shape[0], float(cls)))
         return np.vstack(probas).T
 
     def predict(self, X: np.ndarray, threshold: float = 0.5) -> list[Prediction]:
@@ -90,7 +123,10 @@ class MultiLabelReadout:
 
     def trainable_params(self) -> int:
         total = 0
-        for est in self.model.estimators_:
+        estimators = self.estimators_ or (self.model.estimators_ if self.model is not None else [])
+        for est in estimators:
+            if est is None:
+                continue
             if hasattr(est, "coef_"):
                 total += int(np.prod(est.coef_.shape))
                 if est.intercept_ is not None:

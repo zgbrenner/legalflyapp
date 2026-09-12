@@ -114,7 +114,7 @@ class ConnectomeReservoir(Reservoir):
     def read_state(self) -> np.ndarray:
         return self.x
 
-    def sampled_activity(self, max_nodes: int = 220) -> dict[str, Any]:
+    def sampled_activity(self, max_nodes: int = 360) -> dict[str, Any]:
         rng = np.random.default_rng(self.seed)
         # Prefer high-degree nodes so synaptic edges remain visible in the UI.
         degrees = np.asarray(self.W.getnnz(axis=1)).ravel()
@@ -136,6 +136,7 @@ class ConnectomeReservoir(Reservoir):
             region_activity[region] = float(np.mean(np.abs(self.x[mask]))) if mask.any() else 0.0
 
         # Sampled synapses among the chosen neurons (local indices into the sample).
+        # Prefer stronger weights so the UI shows dense, bright firing corridors.
         local = {int(g): i for i, g in enumerate(idx.tolist())}
         coo = self.W.tocoo()
         edges: list[list[float]] = []
@@ -144,8 +145,11 @@ class ConnectomeReservoir(Reservoir):
                 continue
             if row in local and col in local:
                 edges.append([local[row], local[col], float(abs(weight))])
-        if len(edges) > 900:
-            pick = rng.choice(len(edges), size=900, replace=False)
+        edge_cap = 1600
+        if len(edges) > edge_cap:
+            weights = np.asarray([e[2] for e in edges], dtype=np.float64)
+            weights = weights / (weights.sum() + 1e-12)
+            pick = rng.choice(len(edges), size=edge_cap, replace=False, p=weights)
             edges = [edges[i] for i in sorted(pick.tolist())]
 
         return {

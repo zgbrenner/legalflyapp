@@ -61,14 +61,55 @@ def _active_dataset_name() -> str:
     return "sensitive_information_hard" if hard.exists() else "sensitive_information"
 
 
+def _primary_label(labels: list[str]) -> str:
+    for label in labels:
+        upper = label.upper()
+        if upper != "NONE":
+            return upper
+    return "NONE"
+
+
 def _subsample_train(train: list, max_train: int | None, seed: int) -> list:
+    """
+    Few-shot subsample with label coverage.
+
+    Round-robin across primary labels so each head still sees both
+    positive and negative examples when the budget allows. Plain random
+    draws can leave a rare label all-negative and crash logistic heads.
+    """
     if max_train is None or max_train <= 0 or max_train >= len(train):
         return train
     rng = random.Random(seed)
-    indexed = list(range(len(train)))
-    rng.shuffle(indexed)
-    chosen = sorted(indexed[:max_train])
-    return [train[i] for i in chosen]
+    buckets: dict[str, list[int]] = {}
+    for i, ex in enumerate(train):
+        buckets.setdefault(_primary_label(list(ex.labels)), []).append(i)
+    for key in buckets:
+        rng.shuffle(buckets[key])
+
+    chosen: list[int] = []
+    keys = sorted(buckets.keys())
+    while len(chosen) < max_train and keys:
+        progressed = False
+        next_keys: list[str] = []
+        for key in keys:
+            if buckets[key]:
+                chosen.append(buckets[key].pop())
+                progressed = True
+                if buckets[key]:
+                    next_keys.append(key)
+                if len(chosen) >= max_train:
+                    break
+            # empty buckets are dropped
+        keys = next_keys
+        if not progressed:
+            break
+
+    if len(chosen) < max_train:
+        remaining = [i for i in range(len(train)) if i not in set(chosen)]
+        rng.shuffle(remaining)
+        chosen.extend(remaining[: max_train - len(chosen)])
+
+    return [train[i] for i in sorted(chosen)]
 
 
 def run_one(

@@ -54,7 +54,7 @@ function Side({
               playing={Boolean(result)}
               title={`${title} firing`}
               className="h-full"
-              heightClass="h-[280px] md:h-[340px]"
+              heightClass="h-[320px] md:h-[420px]"
             />
           </div>
           <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.16em] text-ink/45">

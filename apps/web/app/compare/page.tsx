@@ -51,7 +51,7 @@ export default function ComparePage() {
               {top ? `${Math.round(top.confidence * 100)}%` : "—"}
             </p>
             <div className="mt-4">
-              <ConnectomeViz simulation={result.simulation} title={`${title} firing`} heightClass="h-[260px] md:h-[320px]" playing />
+              <ConnectomeViz simulation={result.simulation} title={`${title} firing`} heightClass="h-[300px] md:h-[380px]" playing />
             </div>
           </>
         ) : (
