@@ -66,6 +66,16 @@ On the full harder set, scores are still near ceiling and biology does **not** b
 
 With scarce labels, the stolen wiring **does** beat random twins — but the thin linear MiniLM readout still wins overall. Use `make train-fewshot` to reproduce.
 
+### Few-shot @ 120 labels × 3 seeds (MiniLM)
+| Model | Macro F1 | Binary F1 |
+|---|---|---|
+| Linear | ~0.935 | ~0.991 |
+| Hemibrain connectome | ~0.902 | ~0.969 |
+| Random Erdos–Renyi | ~0.898 | ~0.968 |
+| Degree-matched random | ~0.893 | ~0.962 |
+
+With fewer labels, biological topology keeps a thin edge over random twins; linear MiniLM still leads. Reproduce: `make train-fewshot`.
+
 
 ## Architecture
 

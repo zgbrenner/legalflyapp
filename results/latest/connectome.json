@@ -1,9 +1,9 @@
 {
-  "timestamp": "2026-09-12T23:04:31.778643+00:00",
-  "seed": 42,
+  "timestamp": "2026-09-12T23:14:21.771261+00:00",
+  "seed": 44,
   "model_type": "connectome",
-  "encoder": "minilm",
-  "encoder_name": "st:sentence-transformers/all-MiniLM-L6-v2",
+  "encoder": "hashing",
+  "encoder_name": "hashing-384",
   "dataset": {
     "task": "sensitive_information_harder",
     "train": 120,
@@ -20,192 +20,192 @@
   },
   "trainable_parameter_count": 73740,
   "feature_dim": 6144,
-  "training_time_sec": 19.635008039998866,
-  "inference_time_sec_total": 2.659717286000159,
-  "inference_time_sec_per_example": 0.007388103572222664,
+  "training_time_sec": 17.89549150199855,
+  "inference_time_sec_total": 2.2277753250000387,
+  "inference_time_sec_per_example": 0.006188264791666774,
   "metrics_test": {
-    "exact_match_accuracy": 0.8555555555555555,
-    "macro_f1": 0.876407857807901,
-    "micro_f1": 0.8891855807743658,
-    "precision_macro": 0.9147126407543075,
-    "recall_macro": 0.8630600960170852,
-    "binary_sensitive_accuracy": 0.9638888888888889,
-    "binary_sensitive_f1": 0.97632058287796,
+    "exact_match_accuracy": 0.8166666666666667,
+    "macro_f1": 0.8317191914028482,
+    "micro_f1": 0.8404255319148937,
+    "precision_macro": 0.8596091756710035,
+    "recall_macro": 0.8313295346628681,
+    "binary_sensitive_accuracy": 0.9361111111111111,
+    "binary_sensitive_f1": 0.9587073608617595,
     "confusion_matrix_sensitive": [
       [
-        79,
-        12
+        70,
+        21
       ],
       [
-        1,
-        268
+        2,
+        267
       ]
     ],
     "per_class": {
       "NONE": {
-        "precision": 0.9875,
-        "recall": 0.8681318681318682,
-        "f1": 0.9239766081871345,
+        "precision": 0.9722222222222222,
+        "recall": 0.7692307692307693,
+        "f1": 0.8588957055214724,
         "support": 91
       },
       "PERSON": {
-        "precision": 1.0,
-        "recall": 0.9230769230769231,
-        "f1": 0.96,
-        "support": 26
-      },
-      "EMAIL": {
         "precision": 0.75,
         "recall": 0.8076923076923077,
         "f1": 0.7777777777777778,
         "support": 26
       },
+      "EMAIL": {
+        "precision": 0.8333333333333334,
+        "recall": 0.38461538461538464,
+        "f1": 0.5263157894736842,
+        "support": 26
+      },
       "PHONE": {
-        "precision": 1.0,
+        "precision": 0.8076923076923077,
         "recall": 0.75,
-        "f1": 0.8571428571428571,
+        "f1": 0.7777777777777778,
         "support": 28
       },
       "ADDRESS": {
         "precision": 0.8,
-        "recall": 0.9230769230769231,
-        "f1": 0.8571428571428571,
+        "recall": 0.7692307692307693,
+        "f1": 0.7843137254901961,
         "support": 26
       },
       "SSN": {
-        "precision": 0.9615384615384616,
+        "precision": 0.9259259259259259,
         "recall": 1.0,
-        "f1": 0.9803921568627451,
+        "f1": 0.9615384615384616,
         "support": 25
       },
       "CREDIT_CARD": {
-        "precision": 1.0,
-        "recall": 0.44,
-        "f1": 0.6111111111111112,
+        "precision": 0.5714285714285714,
+        "recall": 0.96,
+        "f1": 0.7164179104477612,
         "support": 25
       },
       "DATE_OF_BIRTH": {
-        "precision": 0.8148148148148148,
-        "recall": 0.8148148148148148,
-        "f1": 0.8148148148148148,
+        "precision": 0.9583333333333334,
+        "recall": 0.8518518518518519,
+        "f1": 0.9019607843137255,
         "support": 27
       },
       "FINANCIAL": {
-        "precision": 0.8055555555555556,
-        "recall": 0.9354838709677419,
-        "f1": 0.8656716417910447,
+        "precision": 0.8611111111111112,
+        "recall": 1.0,
+        "f1": 0.9253731343283582,
         "support": 31
       },
       "MEDICAL": {
-        "precision": 1.0,
-        "recall": 0.95,
-        "f1": 0.9743589743589743,
+        "precision": 0.9444444444444444,
+        "recall": 0.85,
+        "f1": 0.8947368421052632,
         "support": 20
       },
       "CREDENTIAL": {
-        "precision": 1.0,
-        "recall": 0.9444444444444444,
-        "f1": 0.9714285714285714,
+        "precision": 0.967741935483871,
+        "recall": 0.8333333333333334,
+        "f1": 0.8955223880597015,
         "support": 36
       },
       "OTHER_SENSITIVE": {
-        "precision": 0.8571428571428571,
+        "precision": 0.9230769230769231,
         "recall": 1.0,
-        "f1": 0.9230769230769231,
+        "f1": 0.96,
         "support": 24
       }
     },
     "n_examples": 360
   },
   "metrics_validation": {
-    "exact_match_accuracy": 0.8357142857142857,
-    "macro_f1": 0.8586696333380387,
-    "micro_f1": 0.8683760683760684,
-    "precision_macro": 0.9037506624985402,
-    "recall_macro": 0.8515489969058795,
-    "binary_sensitive_accuracy": 0.9607142857142857,
-    "binary_sensitive_f1": 0.974477958236659,
+    "exact_match_accuracy": 0.7964285714285714,
+    "macro_f1": 0.8320810792016223,
+    "micro_f1": 0.8273504273504273,
+    "precision_macro": 0.87994769026019,
+    "recall_macro": 0.8228673773899589,
+    "binary_sensitive_accuracy": 0.9107142857142857,
+    "binary_sensitive_f1": 0.9435665914221218,
     "confusion_matrix_sensitive": [
       [
-        59,
-        8
+        46,
+        21
       ],
       [
-        3,
-        210
+        4,
+        209
       ]
     ],
     "per_class": {
       "NONE": {
-        "precision": 0.9516129032258065,
-        "recall": 0.8805970149253731,
-        "f1": 0.9147286821705426,
+        "precision": 0.92,
+        "recall": 0.6865671641791045,
+        "f1": 0.7863247863247863,
         "support": 67
       },
       "PERSON": {
-        "precision": 1.0,
-        "recall": 0.9565217391304348,
-        "f1": 0.9777777777777777,
+        "precision": 0.65625,
+        "recall": 0.9130434782608695,
+        "f1": 0.7636363636363637,
         "support": 23
       },
       "EMAIL": {
-        "precision": 0.85,
-        "recall": 0.85,
-        "f1": 0.85,
+        "precision": 1.0,
+        "recall": 0.4,
+        "f1": 0.5714285714285714,
         "support": 20
       },
       "PHONE": {
-        "precision": 0.9473684210526315,
-        "recall": 0.8181818181818182,
-        "f1": 0.8780487804878049,
+        "precision": 0.85,
+        "recall": 0.7727272727272727,
+        "f1": 0.8095238095238095,
         "support": 22
       },
       "ADDRESS": {
-        "precision": 0.7096774193548387,
-        "recall": 0.9565217391304348,
-        "f1": 0.8148148148148148,
+        "precision": 0.7727272727272727,
+        "recall": 0.7391304347826086,
+        "f1": 0.7555555555555555,
         "support": 23
       },
       "SSN": {
         "precision": 1.0,
-        "recall": 0.9090909090909091,
-        "f1": 0.9523809523809523,
+        "recall": 0.8636363636363636,
+        "f1": 0.926829268292683,
         "support": 22
       },
       "CREDIT_CARD": {
-        "precision": 1.0,
-        "recall": 0.2962962962962963,
-        "f1": 0.45714285714285713,
+        "precision": 0.7027027027027027,
+        "recall": 0.9629629629629629,
+        "f1": 0.8125,
         "support": 27
       },
       "DATE_OF_BIRTH": {
-        "precision": 0.7619047619047619,
-        "recall": 0.8421052631578947,
-        "f1": 0.8,
+        "precision": 1.0,
+        "recall": 0.7894736842105263,
+        "f1": 0.8823529411764706,
         "support": 19
       },
       "FINANCIAL": {
-        "precision": 0.68,
-        "recall": 0.8095238095238095,
-        "f1": 0.7391304347826086,
+        "precision": 0.8076923076923077,
+        "recall": 1.0,
+        "f1": 0.8936170212765957,
         "support": 21
       },
       "MEDICAL": {
         "precision": 1.0,
-        "recall": 0.9523809523809523,
-        "f1": 0.975609756097561,
+        "recall": 0.9047619047619048,
+        "f1": 0.95,
         "support": 21
       },
       "CREDENTIAL": {
         "precision": 1.0,
-        "recall": 0.9473684210526315,
-        "f1": 0.972972972972973,
+        "recall": 0.8421052631578947,
+        "f1": 0.9142857142857143,
         "support": 19
       },
       "OTHER_SENSITIVE": {
-        "precision": 0.9444444444444444,
+        "precision": 0.85,
         "recall": 1.0,
-        "f1": 0.9714285714285714,
+        "f1": 0.918918918918919,
         "support": 17
       }
     },
@@ -218,8 +218,8 @@
   },
   "config": {
     "model_type": "connectome",
-    "encoder": "st:sentence-transformers/all-MiniLM-L6-v2",
-    "seed": 42,
+    "encoder": "hashing-384",
+    "seed": 44,
     "input_dim": 64,
     "timesteps": 12,
     "encoding_mode": "temporal",
