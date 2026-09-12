@@ -127,6 +127,7 @@ Full provenance: `docs/DATA_AND_LICENSING.md`.
 
 - Demo topology is synthetic/modular, not anatomical fly morphology
 - Synthetic PII can be easy for linear baselines — biological topology may not “win”
+- Included demo benchmark (seeds 42–43): linear baseline ~0.98 macro F1; connectome/random reservoirs ~0.93 — a measured outcome, not a staged win for biology
 - Browser visualization samples neurons and aggregates activity; it does not render ~10⁸ synapses
 - Dynamics are computational, not biophysically exact spiking models
 
