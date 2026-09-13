@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { fetchAblations } from "@/lib/api";
+import { DownloadIcon } from "@/components/ActionIcon";
 type Mode="hybrid"|"activity_only";
 type Measure={macro_f1:number;delta_macro_f1:number;binary_accuracy:number};
 type Lesion={ablation:string;kind:string;region?:string;removed_neurons:number;remaining_edges:number;measurements:Record<Mode,Measure>};
@@ -19,5 +20,5 @@ export default function AblatePage(){
  {current&&after?<section className="effects-panel surgery-panel" aria-live="polite"><p className="section-label">Recorded intervention</p><h2>{current.ablation}</h2><p>{current.removed_neurons.toLocaleString()} neurons disabled · {current.remaining_edges.toLocaleString()} connections remain</p>
  <svg viewBox="0 0 520 145" className="lesion-meter" role="img" aria-label={`Macro F1 before ${before.toFixed(3)}, after ${after.macro_f1.toFixed(3)}`}><text x="0" y="32">Intact</text><text x="0" y="91">After lesion</text><rect x="110" y="10" width="320" height="30" fill="#e0e3d7"/><rect x="110" y="10" width={before*320} height="30" fill="#375e45"/><rect x="110" y="70" width="320" height="30" fill="#e0e3d7"/><rect x="110" y="70" width={after.macro_f1*320} height="30" fill="#823d32"/><text x="445" y="32">{before.toFixed(3)}</text><text x="445" y="92">{after.macro_f1.toFixed(3)}</text><text x="110" y="135">Macro F1, from 0 to 1</text></svg>
  <p className="effect-number">{after.delta_macro_f1>0?"+":""}{(after.delta_macro_f1*100).toFixed(2)} <small>F1 points</small></p><p>{mode==="hybrid"?"A small change can mean the text features carry the prediction. It does not prove that the damaged fly circuitry is resilient.":"This measures dependence on a computational circuit. It is not an experiment on a living fly."}</p></section>:null}</div>
- <div className="research-notes"><h2>What stays fixed</h2><p>{data.protocol} Disabled neurons receive no input. Remaining connections are not amplified to compensate for the cut. Results here are precomputed measurements, not a new training run in your browser.</p><p>{data.note}</p><a href="/research/ablation_v2.json" download>Download the measured lesions ↗</a></div></>:null}</div>;
+ <div className="research-notes"><h2>What stays fixed</h2><p>{data.protocol} Disabled neurons receive no input. Remaining connections are not amplified to compensate for the cut. Results here are precomputed measurements, not a new training run in your browser.</p><p>{data.note}</p><a href="/research/ablation_v2.json" download className="with-icon">Download the measured lesions <DownloadIcon/></a></div></>:null}</div>;
 }
