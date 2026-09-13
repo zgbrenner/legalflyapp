@@ -53,10 +53,17 @@ export function TwinChamber() {
     try {
       const response=await classifyTwin(passage,true,controller.current.signal);
       if(id!==requestId.current)return;
+      if (response.tissue?.science_version!=="2.0-directed-controls" || response.twin?.science_version!=="2.0-directed-controls") {
+        throw new Error("The live server is running an older model. The recorded experiment remains available; the backend needs the corrected release.");
+      }
       setPayload(response);setShownText(passage);setSource("live");clock.current.time=0;
     } catch(e) {
       if(id===requestId.current && !(e instanceof DOMException && e.name==="AbortError"))setError(e instanceof Error?e.message:"The request failed. Please retry.");
     } finally {if(id===requestId.current)setLoading(false);}
+  }
+  function cancelRequest() {
+    controller.current?.abort();requestId.current+=1;setLoading(false);
+    setError("Request cancelled. The display has not been replaced.");
   }
   function submit(event:FormEvent) {event.preventDefault();void run(text);}
   const tissue=payload?.tissue ?? null,twin=payload?.twin ?? null;
@@ -67,7 +74,7 @@ export function TwinChamber() {
     <form onSubmit={submit} className="input-workbench">
       <div className="input-topline"><label htmlFor="passage">Your passage, or one of ours</label><div className="sample-buttons" aria-label="Example passages">{EXAMPLES.map(ex=><button key={ex.name} type="button" onClick={()=>{edited.current=true;setText(ex.text);void run(ex.text);}}>{ex.name}</button>)}</div></div>
       <textarea id="passage" value={text} onChange={e=>{edited.current=true;setText(e.target.value);}} maxLength={MAX_TEXT_CHARS} rows={3} aria-describedby="privacy-warning" placeholder="Use an invented or redacted passage…"/>
-      <div className="input-footer"><button type="submit" className="button button-dark" disabled={loading}>{loading?"Testing the passage…":"Run the experiment"}<span aria-hidden>↗</span></button><p id="privacy-warning">Public research demo. Your text is sent to a server. Do not enter real client information, passwords, or privileged material.</p><span className="character-count">{text.length.toLocaleString()} / 4,000</span></div>
+      <div className="input-footer"><button type="submit" className="button button-dark" disabled={loading}>{loading?"Testing the passage…":"Run the experiment"}<span aria-hidden>↗</span></button>{loading ? <button type="button" className="button button-cancel" onClick={cancelRequest}>Cancel request</button> : null}<p id="privacy-warning">Public research demo. Your text is sent to a server. Do not enter real client information, passwords, or privileged material.</p><span className="character-count">{text.length.toLocaleString()} / 4,000</span></div>
       {error ? <p role="alert" className="form-error">{error}</p> : null}
     </form>
     <div className="brain-workbench" aria-busy={loading}>

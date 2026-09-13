@@ -1,0 +1,38 @@
+{
+  "encoder": "sentence-transformers/all-MiniLM-L6-v2",
+  "files": {
+    "train": "49a956d14e141c712d2d388bb68da953bea21e268d5a19d288ef3bc30a12b9e2",
+    "validation": "09db4be6f50b0cb5b662f43db3e2a6182c9174fcdd7f35132c3e93148928ee6c",
+    "test": "140e88319ea45667854c1ec76126345ff4ede03aa6a9e453e73b092ab10ad406"
+  },
+  "array_sha256": {
+    "train": "7f561ca719fd117c50ee3579369832ec2337b39938f0c835665616eedc5b9c63",
+    "validation": "c8a59e8e988356c92ca235ff9c9608e59210ce2eb718da1f76f2c01c513f652b",
+    "test": "33af36b0daaf633434f62704cf4d062e57d0414f89a66c6d4a3f3e8671d8d241"
+  },
+  "producer": {
+    "repository": "zgbrenner/legalflyapp",
+    "commit": "4019f07ebb26208b5b136d54109636b01d7db4d7",
+    "run_id": 34731746744,
+    "artifact_id": 10310380460,
+    "texts_manifest": {
+      "encoder": "st:sentence-transformers/all-MiniLM-L6-v2",
+      "splits": {
+        "train": {
+          "count": 1200,
+          "texts_sha256": "55a7d9675920f7c3e95a62ec0b9d38b1e49844c71e49e096b39105a872899947"
+        },
+        "validation": {
+          "count": 280,
+          "texts_sha256": "1d6455c9f229518d67de9c3ea0d6c7683454961ffb9b0e1c94306310e3118669"
+        },
+        "test": {
+          "count": 360,
+          "texts_sha256": "01b70fa524ccfce9ad5faf5849a4e553e62b2c0e15fd48253486cbbfe382c51c"
+        }
+      }
+    }
+  },
+  "normalized": true,
+  "model_revision": "not recorded by original producer"
+}

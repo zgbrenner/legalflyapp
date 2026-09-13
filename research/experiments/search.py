@@ -61,7 +61,7 @@ def paired_statistics(rows: list[dict], reference: str, *, seed: int = 2026) -> 
         p = (1 + np.sum(np.abs(perm) >= abs(means.mean()))) / 10001
     return {'reference': reference, 'delta': float(np.mean(deltas)), 'ci95': [float(low), float(high)],
             'p_value_unadjusted': float(p), 'n_pairs': len(deltas), 'n_data_clusters': len(means),
-            'status': 'inconclusive' if low <= 0 <= high else ('fly_ahead' if low > 0 else 'baseline_ahead'),
+            'status': 'inconclusive' if low <= 0 <= high or p > .05 else ('fly_ahead' if low > 0 else 'baseline_ahead'),
             'method': 'paired data-seed cluster bootstrap; two-sided cluster sign permutation; exploratory, unadjusted for multiple comparisons'}
 
 def batch_features(embeddings, graph, *, seed, profile, batch_size=128):
@@ -105,12 +105,19 @@ def load_embeddings(cache: Path, dataset: Path):
         arrays = {s: encoder.encode_batch([json.loads(l)['text'] for l in p.read_text().splitlines()]) for s,p in paths.items()}
         cache.mkdir(parents=True, exist_ok=True)
         np.savez_compressed(cache/'minilm_embeddings.npz', **arrays)
-        (cache/'embedding_manifest.json').write_text(json.dumps({'encoder':'sentence-transformers/all-MiniLM-L6-v2', 'files':expected}))
+        (cache/'embedding_manifest.json').write_text(json.dumps({'encoder':'sentence-transformers/all-MiniLM-L6-v2', 'files':expected, 'array_sha256':{s:hashlib.sha256(x.astype('<f4').tobytes()).hexdigest() for s,x in arrays.items()}}))
     manifest = json.loads((cache/'embedding_manifest.json').read_text())
     if manifest.get('files') != expected or manifest.get('encoder') != 'sentence-transformers/all-MiniLM-L6-v2':
         raise ValueError('Embedding provenance mismatch; refusing the comparison')
     with np.load(cache/'minilm_embeddings.npz', allow_pickle=False) as stored:
         arrays = {s: stored[s].copy() for s in paths}
+    for split, array in arrays.items():
+        count = sum(bool(line.strip()) for line in paths[split].read_text().splitlines())
+        if array.shape != (count, 384) or not np.isfinite(array).all():
+            raise ValueError(f'Embedding shape or values invalid for {split}')
+        expected_hash = manifest.get('array_sha256', {}).get(split)
+        if not expected_hash or hashlib.sha256(array.astype('<f4').tobytes()).hexdigest() != expected_hash:
+            raise ValueError(f'Embedding checksum mismatch for {split}; regenerate or verify the cache')
     return arrays, manifest
 
 def main():
@@ -121,7 +128,7 @@ def main():
     parser.add_argument('--max-train', type=int, default=120)
     parser.add_argument('--out', type=Path, default=ROOT/'results/comparison_v2.json')
     args=parser.parse_args()
-    warnings.filterwarnings('ignore', category=ConvergenceWarning)
+    started_at = time.perf_counter()
     ds=[int(x) for x in args.data_seeds.split(',')]; gs=[int(x) for x in args.graph_seeds.split(',')]
     if len(set(ds)) != len(ds) or len(set(gs)) != len(gs) or not ds or not gs or args.max_train < 1:
         raise ValueError('Use distinct, nonempty seed lists and a positive training budget.')
@@ -167,10 +174,12 @@ def main():
                 else:
                     hidden=[32,64,128][candidate//6]; alpha=float(np.logspace(-4,1,6)[candidate%6])
                     scaler=StandardScaler().fit(embeddings['train'][idx])
-                    fitted=MLPClassifier(hidden_layer_sizes=(hidden,),alpha=alpha,solver='lbfgs',max_iter=150,random_state=data_seed)
-                    fitted.fit(scaler.transform(embeddings['train'][idx]),y[idx])
+                    fitted=MLPClassifier(hidden_layer_sizes=(hidden,),alpha=alpha,solver='lbfgs',max_iter=1000,random_state=data_seed)
+                    with warnings.catch_warnings(record=True) as fit_warnings:
+                        warnings.simplefilter('always', ConvergenceWarning)
+                        fitted.fit(scaler.transform(embeddings['train'][idx]),y[idx])
                     preds=mlp_labels(fitted.predict_proba(scaler.transform(embeddings['validation'])))
-                    config={'hidden':hidden,'alpha':alpha}
+                    config={'hidden':hidden,'alpha':alpha,'max_iter':1000,'iterations':int(fitted.n_iter_), 'converged':not any(issubclass(w.category, ConvergenceWarning) for w in fit_warnings)}
                 score=metrics(val_labels,preds)['macro_f1']
                 trace.append({'data_seed':data_seed,'model':model,'candidate':config,'validation_f1':score})
                 if best is None or score>best['validation_f1']:
@@ -245,6 +254,7 @@ def main():
             'max_train':args.max_train,'n_validation':len(val_labels),'n_test':len(test_labels),
             'data_seeds':ds,'graph_seeds':gs,'n_seeds':len(ds),'seeds':ds,'n_pairs':len(ds)*len(gs),
             'models':models,'pairs':rows,'comparisons':[paired_statistics(rows,m) for m in ['linear','mlp','random_erdos','random_degree_preserving']],
+            'embedding_provenance':manifest,'elapsed_sec':time.perf_counter()-started_at,
             'dataset_hashes':manifest['files'],'selection_sha256':hashlib.sha256(selection_path.read_bytes()).hexdigest(),
             'interpretation':'Exploratory results on a synthetic legal-text benchmark. Fly models retain the same MiniLM embeddings and add compact reservoir activity features. All models receive 18 validation candidates. Training and validation label budgets are reported separately. Intervals cluster by data seed and condition on the same test set. A hybrid win is not proof of a topology-specific advantage; compare both randomized controls.',
             'limitations':['Two graph/input seeds do not cover all graph randomness.','Synthetic templates can share structure across splits.','This test set was used in earlier project experiments; independent external replication is still required.','Training accuracy is not evidence of legal competence.','Confidence scores are not calibrated probabilities of safety.']}

@@ -82,8 +82,8 @@ class MultiLabelReadout:
 
 class LinearBaseline:
     name = "linear"
-    def __init__(self, seed=42):
-        self.readout = MultiLabelReadout(seed=seed)
+    def __init__(self, seed=42, C=1.):
+        self.readout = MultiLabelReadout(seed=seed, C=C)
         self.seed = seed
     def fit(self, X, y):
         self.readout.fit(X, y)

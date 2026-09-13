@@ -104,5 +104,15 @@ def test_paired_statistics_cluster_duplicates():
                 rows.append({'pair_id':f'{d}:{g}','data_seed':d,'model':model,'macro_f1':value})
     stats=paired_statistics(rows,'linear')
     assert stats['n_pairs']==8 and stats['n_data_clusters']==4
-    assert stats['status']=='baseline_ahead'
+    assert stats['status']=='inconclusive'  # four clusters do not resolve the paired sign test
     np.testing.assert_allclose(stats['ci95'],[-.01,-.01])
+
+def test_small_paired_sample_does_not_claim_a_win_from_interval_alone():
+    from research.experiments.search import paired_statistics
+    rows=[]
+    for d in range(4):
+        for model,score in [('connectome',.9),('linear',.8)]:
+            rows.append({'pair_id':str(d),'data_seed':d,'model':model,'macro_f1':score})
+    result=paired_statistics(rows,'linear')
+    assert result['p_value_unadjusted'] > .05
+    assert result['status']=='inconclusive'

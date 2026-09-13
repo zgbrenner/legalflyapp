@@ -18,7 +18,9 @@ def ready():
 @router.get("/models")
 def models():
     service=get_model_service()
-    return {"models":service.list_models(),"demo_mode":service.settings.legalfly_demo_mode}
+    items = service.list_models()
+    active = next((item for item in items if item["id"] == "connectome" and item["loaded"]), None)
+    return {"models":items,"demo_mode":active.get("demo_mode") if active else None}
 
 @router.post("/classify",response_model=ClassifyResponse)
 def classify(body:ClassifyRequest):

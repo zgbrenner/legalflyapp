@@ -116,7 +116,8 @@ def _control_graph(graph, adjacency, kind, seed, **details):
                            graph.positions.copy(), {**graph.metadata,
                            "anatomical": kind == "random_weights" and bool(graph.metadata.get("anatomical")),
                            "randomized": kind, "parent_source": graph.metadata.get("source"), "source": kind,
-                           "control_seed": seed, "science_version": SCIENCE_VERSION, **details}, kind)
+                           "control_seed": seed, "science_version": SCIENCE_VERSION,
+                           "parent_graph_hash": graph.fingerprint(), **details}, kind)
 
 
 def randomize_erdos(graph, seed=0):

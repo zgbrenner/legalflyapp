@@ -50,7 +50,9 @@ def load_active_graph(control="biological", graph_seed=42):
     expected_seed = graph_seed + CONTROL_SEEDS[control]
     if (path / "meta.json").exists():
         candidate = ConnectomeGraph.load(path)
-        if candidate.metadata.get("science_version") == SCIENCE_VERSION and candidate.metadata.get("control_seed") == expected_seed:
+        if (candidate.metadata.get("science_version") == SCIENCE_VERSION
+                and candidate.metadata.get("control_seed") == expected_seed
+                and candidate.metadata.get("parent_graph_hash") == graph.fingerprint()):
             return candidate
     return apply_control(graph, control, seed=expected_seed)
 
@@ -86,7 +88,7 @@ def build_model(model_type, *, encoder_kind=None, seed=42, input_dim=64, timeste
               "readout_c": readout_c, "encoder": encoder.name, "seed": seed, "input_dim": input_dim,
               "timesteps": timesteps, "encoding_mode": encoding_mode, "demo_mode": True}
     if model_type in {"linear", "mlp"}:
-        readout = LinearBaseline(seed=seed) if model_type == "linear" else MLPBaseline(seed=seed)
+        readout = LinearBaseline(seed=seed, C=readout_c) if model_type == "linear" else MLPBaseline(seed=seed)
         return ModelBundle(model_type, encoder, readout, None, None, config)
     controls = {"connectome": "biological", "random_erdos": "random_erdos",
                 "random_degree_preserving": "random_degree_preserving", "random_weights": "random_weights"}

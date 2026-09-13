@@ -43,3 +43,20 @@ describe("comparison display",()=>{
   expect(displayActivity(0)).toBe(0);expect(displayActivity(1)).toBe(1);expect(displayActivity(.01)).toBeCloseTo(.18);
  });
 });
+
+describe("inference integrity",()=>{
+ it("does not display old-science API output as a current live result",async()=>{
+  vi.mocked(classifyTwin).mockResolvedValue({tissue:{science_version:"old"},twin:{science_version:"old"}} as any);
+  render(<TwinChamber/>);fireEvent.click(screen.getByRole("button",{name:/Run the experiment/}));
+  expect((await screen.findByRole("alert")).textContent).toMatch(/older model/);
+  expect(screen.queryByText("Live result")).toBeNull();
+ });
+ it("lets the user cancel a pending request",async()=>{
+  vi.mocked(classifyTwin).mockImplementation((_text,_sim,signal)=>new Promise((_resolve,reject)=>signal?.addEventListener("abort",()=>reject(new DOMException("Cancelled","AbortError")))));
+  render(<TwinChamber/>);fireEvent.click(screen.getByRole("button",{name:/Run the experiment/}));
+  fireEvent.click(await screen.findByRole("button",{name:"Cancel request"}));
+  await waitFor(()=>expect(screen.getByRole("button",{name:/Run the experiment/})).toBeDefined());
+  expect(vi.mocked(classifyTwin).mock.calls[0][2]?.aborted).toBe(true);
+  expect(screen.queryByText("Live result")).toBeNull();
+ });
+});
