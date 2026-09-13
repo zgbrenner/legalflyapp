@@ -1,242 +1,411 @@
 {
-  "timestamp": "2026-09-13T00:11:24.257309+00:00",
+  "science_version": "2.0-directed-controls",
+  "status": "measured",
+  "timestamp": "2026-09-13T03:59:11.408852+00:00",
+  "protocol": "Frozen readouts, no retraining after lesion; surviving synaptic strengths unchanged. Direct drive; seed 42; C=0.1.",
+  "encoder": "sentence-transformers/all-MiniLM-L6-v2",
+  "dataset": "sensitive_information_harder",
+  "n_train": 1200,
+  "n_test": 360,
   "seed": 42,
-  "encoder": "minilm",
-  "dataset": "sensitive_hard",
-  "baseline_model": "connectome",
-  "graph_source": "janelia_hemibrain_v1.2",
-  "regions": [
-    "antennal_lobe_like",
-    "central_brain",
-    "central_complex",
-    "descending",
-    "mushroom_body",
-    "optic_lobe_like"
-  ],
-  "original_macro_f1": 0.9849096119929454,
-  "original_binary_accuracy": 1.0,
+  "original": {
+    "hybrid": {
+      "exact_match_accuracy": 0.9527777777777777,
+      "macro_f1": 0.9724673372418667,
+      "micro_f1": 0.9774236387782205,
+      "precision_macro": 1.0,
+      "recall_macro": 0.9478576133146025,
+      "binary_sensitive_accuracy": 1.0,
+      "binary_sensitive_f1": 1.0,
+      "confusion_matrix_sensitive": [
+        [
+          91,
+          0
+        ],
+        [
+          0,
+          269
+        ]
+      ],
+      "per_class": {
+        "NONE": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 91
+        },
+        "PERSON": {
+          "precision": 1.0,
+          "recall": 0.9230769230769231,
+          "f1": 0.96,
+          "support": 26
+        },
+        "EMAIL": {
+          "precision": 1.0,
+          "recall": 0.9615384615384616,
+          "f1": 0.9803921568627451,
+          "support": 26
+        },
+        "PHONE": {
+          "precision": 1.0,
+          "recall": 0.8214285714285714,
+          "f1": 0.9019607843137255,
+          "support": 28
+        },
+        "ADDRESS": {
+          "precision": 1.0,
+          "recall": 0.8846153846153846,
+          "f1": 0.9387755102040817,
+          "support": 26
+        },
+        "SSN": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 25
+        },
+        "CREDIT_CARD": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 25
+        },
+        "DATE_OF_BIRTH": {
+          "precision": 1.0,
+          "recall": 0.9259259259259259,
+          "f1": 0.9615384615384616,
+          "support": 27
+        },
+        "FINANCIAL": {
+          "precision": 1.0,
+          "recall": 0.9354838709677419,
+          "f1": 0.9666666666666667,
+          "support": 31
+        },
+        "MEDICAL": {
+          "precision": 1.0,
+          "recall": 0.95,
+          "f1": 0.9743589743589743,
+          "support": 20
+        },
+        "CREDENTIAL": {
+          "precision": 1.0,
+          "recall": 0.9722222222222222,
+          "f1": 0.9859154929577465,
+          "support": 36
+        },
+        "OTHER_SENSITIVE": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 24
+        }
+      },
+      "n_examples": 360
+    },
+    "activity_only": {
+      "exact_match_accuracy": 0.9416666666666667,
+      "macro_f1": 0.9619678617058373,
+      "micro_f1": 0.9666221628838452,
+      "precision_macro": 0.9982078853046595,
+      "recall_macro": 0.9302535546890384,
+      "binary_sensitive_accuracy": 0.9944444444444445,
+      "binary_sensitive_f1": 0.996268656716418,
+      "confusion_matrix_sensitive": [
+        [
+          91,
+          0
+        ],
+        [
+          2,
+          267
+        ]
+      ],
+      "per_class": {
+        "NONE": {
+          "precision": 0.978494623655914,
+          "recall": 1.0,
+          "f1": 0.9891304347826086,
+          "support": 91
+        },
+        "PERSON": {
+          "precision": 1.0,
+          "recall": 0.8846153846153846,
+          "f1": 0.9387755102040817,
+          "support": 26
+        },
+        "EMAIL": {
+          "precision": 1.0,
+          "recall": 0.9230769230769231,
+          "f1": 0.96,
+          "support": 26
+        },
+        "PHONE": {
+          "precision": 1.0,
+          "recall": 0.7857142857142857,
+          "f1": 0.88,
+          "support": 28
+        },
+        "ADDRESS": {
+          "precision": 1.0,
+          "recall": 0.9230769230769231,
+          "f1": 0.96,
+          "support": 26
+        },
+        "SSN": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 25
+        },
+        "CREDIT_CARD": {
+          "precision": 1.0,
+          "recall": 0.96,
+          "f1": 0.9795918367346939,
+          "support": 25
+        },
+        "DATE_OF_BIRTH": {
+          "precision": 1.0,
+          "recall": 0.8888888888888888,
+          "f1": 0.9411764705882353,
+          "support": 27
+        },
+        "FINANCIAL": {
+          "precision": 1.0,
+          "recall": 0.9032258064516129,
+          "f1": 0.9491525423728814,
+          "support": 31
+        },
+        "MEDICAL": {
+          "precision": 1.0,
+          "recall": 0.95,
+          "f1": 0.9743589743589743,
+          "support": 20
+        },
+        "CREDENTIAL": {
+          "precision": 1.0,
+          "recall": 0.9444444444444444,
+          "f1": 0.9714285714285714,
+          "support": 36
+        },
+        "OTHER_SENSITIVE": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "support": 24
+        }
+      },
+      "n_examples": 360
+    }
+  },
   "ablations": [
     {
       "ablation": "Remove 1% of neurons",
       "kind": "remove_fraction",
-      "fraction": 0.01,
       "region": null,
-      "macro_f1": 0.9859635114208286,
-      "binary_accuracy": 1.0,
-      "delta_macro_f1": 0.0010538994278832536,
-      "delta_binary_accuracy": 0.0,
-      "original_macro_f1": 0.9849096119929454,
-      "original_binary_accuracy": 1.0,
-      "status": "measured"
+      "removed_neurons": 30,
+      "remaining_edges": 288925,
+      "measurements": {
+        "hybrid": {
+          "macro_f1": 0.9724673372418667,
+          "binary_accuracy": 1.0,
+          "delta_macro_f1": 0.0
+        },
+        "activity_only": {
+          "macro_f1": 0.9586908585969013,
+          "binary_accuracy": 0.9944444444444445,
+          "delta_macro_f1": -0.003277003108935972
+        }
+      },
+      "graph_hash": "874b09683086843b7a4b1579f4d069b08ee3a7529952ab38ee89a6473246b95a"
     },
     {
       "ablation": "Remove 5% of neurons",
       "kind": "remove_fraction",
-      "fraction": 0.05,
       "region": null,
-      "macro_f1": 0.9849096119929454,
-      "binary_accuracy": 1.0,
-      "delta_macro_f1": 0.0,
-      "delta_binary_accuracy": 0.0,
-      "original_macro_f1": 0.9849096119929454,
-      "original_binary_accuracy": 1.0,
-      "status": "measured"
-    },
-    {
-      "ablation": "Remove 10% of neurons",
-      "kind": "remove_fraction",
-      "fraction": 0.1,
-      "region": null,
-      "macro_f1": 0.9859635114208286,
-      "binary_accuracy": 1.0,
-      "delta_macro_f1": 0.0010538994278832536,
-      "delta_binary_accuracy": 0.0,
-      "original_macro_f1": 0.9849096119929454,
-      "original_binary_accuracy": 1.0,
-      "status": "measured"
+      "removed_neurons": 153,
+      "remaining_edges": 265480,
+      "measurements": {
+        "hybrid": {
+          "macro_f1": 0.9724673372418667,
+          "binary_accuracy": 1.0,
+          "delta_macro_f1": 0.0
+        },
+        "activity_only": {
+          "macro_f1": 0.9238865507979522,
+          "binary_accuracy": 0.9527777777777777,
+          "delta_macro_f1": -0.038081310907885024
+        }
+      },
+      "graph_hash": "21029b76af8da7bcaa9d45aa81f9c0da944e4fff90c9e8e2fe40396ed26231f8"
     },
     {
       "ablation": "Remove 25% of neurons",
       "kind": "remove_fraction",
-      "fraction": 0.25,
       "region": null,
-      "macro_f1": 0.9859635114208286,
-      "binary_accuracy": 1.0,
-      "delta_macro_f1": 0.0010538994278832536,
-      "delta_binary_accuracy": 0.0,
-      "original_macro_f1": 0.9849096119929454,
-      "original_binary_accuracy": 1.0,
-      "status": "measured"
+      "removed_neurons": 768,
+      "remaining_edges": 165981,
+      "measurements": {
+        "hybrid": {
+          "macro_f1": 0.9724673372418667,
+          "binary_accuracy": 1.0,
+          "delta_macro_f1": 0.0
+        },
+        "activity_only": {
+          "macro_f1": 0.27340545413567724,
+          "binary_accuracy": 0.4222222222222222,
+          "delta_macro_f1": -0.68856240757016
+        }
+      },
+      "graph_hash": "a10e19f9c87944986b5108d8e8db6a4f51104109114d20084cc8c13b2d341d49"
     },
     {
-      "ablation": "Remove highest-degree neurons (5%)",
+      "ablation": "Remove 100% of neurons",
+      "kind": "remove_fraction",
+      "region": null,
+      "removed_neurons": 3072,
+      "remaining_edges": 0,
+      "measurements": {
+        "hybrid": {
+          "macro_f1": 0.9724673372418667,
+          "binary_accuracy": 1.0,
+          "delta_macro_f1": 0.0
+        },
+        "activity_only": {
+          "macro_f1": 0.0336289726533629,
+          "binary_accuracy": 0.25277777777777777,
+          "delta_macro_f1": -0.9283388890524744
+        }
+      },
+      "graph_hash": "55807a788d56cc414ba4f0d4ebdc144e719a2a12346bfd83f3e824d796b10313"
+    },
+    {
+      "ablation": "Remove the most connected 5%",
       "kind": "remove_high_degree",
-      "fraction": 0.05,
       "region": null,
-      "macro_f1": 0.9828770916677422,
-      "binary_accuracy": 1.0,
-      "delta_macro_f1": -0.00203252032520318,
-      "delta_binary_accuracy": 0.0,
-      "original_macro_f1": 0.9849096119929454,
-      "original_binary_accuracy": 1.0,
-      "status": "measured"
+      "removed_neurons": 153,
+      "remaining_edges": 218354,
+      "measurements": {
+        "hybrid": {
+          "macro_f1": 0.9724673372418667,
+          "binary_accuracy": 1.0,
+          "delta_macro_f1": 0.0
+        },
+        "activity_only": {
+          "macro_f1": 0.8897226477473127,
+          "binary_accuracy": 0.9138888888888889,
+          "delta_macro_f1": -0.07224521395852457
+        }
+      },
+      "graph_hash": "043df8da7abc34ee7c47ce6d46585f2a815ca43d1c117cefb1d4eef62123e9a7"
     },
     {
-      "ablation": "Remove lowest-degree neurons (5%)",
+      "ablation": "Remove the least connected 5%",
       "kind": "remove_low_degree",
-      "fraction": 0.05,
       "region": null,
-      "macro_f1": 0.9828770916677422,
-      "binary_accuracy": 1.0,
-      "delta_macro_f1": -0.00203252032520318,
-      "delta_binary_accuracy": 0.0,
-      "original_macro_f1": 0.9849096119929454,
-      "original_binary_accuracy": 1.0,
-      "status": "measured"
+      "removed_neurons": 153,
+      "remaining_edges": 286722,
+      "measurements": {
+        "hybrid": {
+          "macro_f1": 0.9724673372418667,
+          "binary_accuracy": 1.0,
+          "delta_macro_f1": 0.0
+        },
+        "activity_only": {
+          "macro_f1": 0.94887380598177,
+          "binary_accuracy": 0.9805555555555555,
+          "delta_macro_f1": -0.0130940557240673
+        }
+      },
+      "graph_hash": "6e0873f70ad969926e5ace8715b8039ea1e0da28bc8c2d410cd9bb23cc4124e5"
     },
     {
-      "ablation": "Randomize edge weights",
+      "ablation": "Shuffle connection strengths",
       "kind": "randomize_weights",
-      "fraction": 0.05,
       "region": null,
-      "macro_f1": 0.9879960317460318,
-      "binary_accuracy": 1.0,
-      "delta_macro_f1": 0.0030864197530864335,
-      "delta_binary_accuracy": 0.0,
-      "original_macro_f1": 0.9849096119929454,
-      "original_binary_accuracy": 1.0,
-      "status": "measured"
+      "removed_neurons": 0,
+      "remaining_edges": 293766,
+      "measurements": {
+        "hybrid": {
+          "macro_f1": 0.9724673372418667,
+          "binary_accuracy": 1.0,
+          "delta_macro_f1": 0.0
+        },
+        "activity_only": {
+          "macro_f1": 0.5278076706843091,
+          "binary_accuracy": 0.7722222222222223,
+          "delta_macro_f1": -0.43416019102152814
+        }
+      },
+      "graph_hash": "e8c6737fad8acea0b518a97fe985cf2650c265f433a157cda7e761520207cf82"
     },
     {
-      "ablation": "Excise ROI: central_brain (2680 neurons)",
+      "ablation": "Disable central complex",
       "kind": "remove_region",
-      "fraction": 0.05,
-      "region": "central_brain",
-      "macro_f1": 0.9828770916677422,
-      "binary_accuracy": 1.0,
-      "delta_macro_f1": -0.00203252032520318,
-      "delta_binary_accuracy": 0.0,
-      "original_macro_f1": 0.9849096119929454,
-      "original_binary_accuracy": 1.0,
-      "status": "measured"
-    },
-    {
-      "ablation": "Scramble ROI: central_brain (2680 neurons)",
-      "kind": "randomize_region",
-      "fraction": 0.05,
-      "region": "central_brain",
-      "macro_f1": 0.9857444751802871,
-      "binary_accuracy": 1.0,
-      "delta_macro_f1": 0.0008348631873417167,
-      "delta_binary_accuracy": 0.0,
-      "original_macro_f1": 0.9849096119929454,
-      "original_binary_accuracy": 1.0,
-      "status": "measured"
-    },
-    {
-      "ablation": "Excise ROI: central_complex (247 neurons)",
-      "kind": "remove_region",
-      "fraction": 0.05,
       "region": "central_complex",
-      "macro_f1": 0.9849096119929454,
-      "binary_accuracy": 1.0,
-      "delta_macro_f1": 0.0,
-      "delta_binary_accuracy": 0.0,
-      "original_macro_f1": 0.9849096119929454,
-      "original_binary_accuracy": 1.0,
-      "status": "measured"
+      "removed_neurons": 247,
+      "remaining_edges": 249468,
+      "measurements": {
+        "hybrid": {
+          "macro_f1": 0.9724673372418667,
+          "binary_accuracy": 1.0,
+          "delta_macro_f1": 0.0
+        },
+        "activity_only": {
+          "macro_f1": 0.9382091875223186,
+          "binary_accuracy": 0.9722222222222222,
+          "delta_macro_f1": -0.023758674183518624
+        }
+      },
+      "graph_hash": "8033e10b19a471edf19569b2c5c1c86d6d6dec9629f96847a6ba9c9302ac4a2f"
     },
     {
-      "ablation": "Scramble ROI: central_complex (247 neurons)",
-      "kind": "randomize_region",
-      "fraction": 0.05,
-      "region": "central_complex",
-      "macro_f1": 0.9846486336178555,
-      "binary_accuracy": 1.0,
-      "delta_macro_f1": -0.0002609783750898709,
-      "delta_binary_accuracy": 0.0,
-      "original_macro_f1": 0.9849096119929454,
-      "original_binary_accuracy": 1.0,
-      "status": "measured"
-    },
-    {
-      "ablation": "Excise ROI: descending (32 neurons)",
+      "ablation": "Disable descending",
       "kind": "remove_region",
-      "fraction": 0.05,
       "region": "descending",
-      "macro_f1": 0.9859635114208286,
-      "binary_accuracy": 1.0,
-      "delta_macro_f1": 0.0010538994278832536,
-      "delta_binary_accuracy": 0.0,
-      "original_macro_f1": 0.9849096119929454,
-      "original_binary_accuracy": 1.0,
-      "status": "measured"
+      "removed_neurons": 32,
+      "remaining_edges": 289612,
+      "measurements": {
+        "hybrid": {
+          "macro_f1": 0.9724673372418667,
+          "binary_accuracy": 1.0,
+          "delta_macro_f1": 0.0
+        },
+        "activity_only": {
+          "macro_f1": 0.9641189656732022,
+          "binary_accuracy": 0.9972222222222222,
+          "delta_macro_f1": 0.0021511039673649535
+        }
+      },
+      "graph_hash": "ebf87ddfd5d84fc50983b104aecbd7abb620bb51c3b7744ef70322870d461d4a"
     },
     {
-      "ablation": "Scramble ROI: descending (32 neurons)",
-      "kind": "randomize_region",
-      "fraction": 0.05,
-      "region": "descending",
-      "macro_f1": 0.9849096119929454,
-      "binary_accuracy": 1.0,
-      "delta_macro_f1": 0.0,
-      "delta_binary_accuracy": 0.0,
-      "original_macro_f1": 0.9849096119929454,
-      "original_binary_accuracy": 1.0,
-      "status": "measured"
-    },
-    {
-      "ablation": "Excise ROI: mushroom_body (74 neurons)",
+      "ablation": "Disable mushroom body",
       "kind": "remove_region",
-      "fraction": 0.05,
       "region": "mushroom_body",
-      "macro_f1": 0.9828770916677422,
-      "binary_accuracy": 1.0,
-      "delta_macro_f1": -0.00203252032520318,
-      "delta_binary_accuracy": 0.0,
-      "original_macro_f1": 0.9849096119929454,
-      "original_binary_accuracy": 1.0,
-      "status": "measured"
-    },
-    {
-      "ablation": "Scramble ROI: mushroom_body (74 neurons)",
-      "kind": "randomize_region",
-      "fraction": 0.05,
-      "region": "mushroom_body",
-      "macro_f1": 0.9879960317460318,
-      "binary_accuracy": 1.0,
-      "delta_macro_f1": 0.0030864197530864335,
-      "delta_binary_accuracy": 0.0,
-      "original_macro_f1": 0.9849096119929454,
-      "original_binary_accuracy": 1.0,
-      "status": "measured"
-    },
-    {
-      "ablation": "Excise ROI: optic_lobe_like (36 neurons)",
-      "kind": "remove_region",
-      "fraction": 0.05,
-      "region": "optic_lobe_like",
-      "macro_f1": 0.9859635114208286,
-      "binary_accuracy": 1.0,
-      "delta_macro_f1": 0.0010538994278832536,
-      "delta_binary_accuracy": 0.0,
-      "original_macro_f1": 0.9849096119929454,
-      "original_binary_accuracy": 1.0,
-      "status": "measured"
-    },
-    {
-      "ablation": "Scramble ROI: optic_lobe_like (36 neurons)",
-      "kind": "randomize_region",
-      "fraction": 0.05,
-      "region": "optic_lobe_like",
-      "macro_f1": 0.9859635114208286,
-      "binary_accuracy": 1.0,
-      "delta_macro_f1": 0.0010538994278832536,
-      "delta_binary_accuracy": 0.0,
-      "original_macro_f1": 0.9849096119929454,
-      "original_binary_accuracy": 1.0,
-      "status": "measured"
+      "removed_neurons": 74,
+      "remaining_edges": 277146,
+      "measurements": {
+        "hybrid": {
+          "macro_f1": 0.9724673372418667,
+          "binary_accuracy": 1.0,
+          "delta_macro_f1": 0.0
+        },
+        "activity_only": {
+          "macro_f1": 0.9619678617058373,
+          "binary_accuracy": 0.9944444444444445,
+          "delta_macro_f1": 0.0
+        }
+      },
+      "graph_hash": "590af008325cc78190bea4a635f3b2a73e28bf665326403e9cffd419a8f18bc8"
     }
   ],
-  "note": "Ablations retrain only the readout on fixed ablated reservoir features. Region cuts use live ROI labels from the active connectome."
+  "total_neurons": 3072,
+  "total_edges": 293766,
+  "dataset_hashes": {
+    "train": "49a956d14e141c712d2d388bb68da953bea21e268d5a19d288ef3bc30a12b9e2",
+    "validation": "09db4be6f50b0cb5b662f43db3e2a6182c9174fcdd7f35132c3e93148928ee6c",
+    "test": "140e88319ea45667854c1ec76126345ff4ede03aa6a9e453e73b092ab10ad406"
+  },
+  "note": "Single-seed diagnostic on a synthetic dataset. Not a biological lesion experiment. Region names use coarse cell-type heuristics. Hybrid classifiers retain the original text features, even when every simulated neuron is silenced."
 }

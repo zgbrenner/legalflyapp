@@ -1,0 +1,87 @@
+name: Verify The Legal Fly
+on:
+  push:
+    branches: [main, 'feat/**']
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      LEGALFLY_ENCODER: hashing
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install fastapi uvicorn pydantic-settings numpy scipy scikit-learn httpx rich joblib typer pytest pytest-asyncio
+      - run: pip install --no-deps -e .
+      - run: pytest -q
+  web:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run test:dream
+      - run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: '1'
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      LEGALFLY_ENCODER: hashing
+      LEGALFLY_CORS_ORIGINS: http://127.0.0.1:3000
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      NEXT_PUBLIC_API_URL: http://127.0.0.1:8000
+      NEXT_TELEMETRY_DISABLED: '1'
+      QA_ARTIFACTS_DIR: /tmp/legalfly-qa
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - run: pip install fastapi uvicorn pydantic-settings numpy scipy scikit-learn httpx rich joblib typer playwright
+      - run: pip install --no-deps -e . && python -m playwright install --with-deps chromium
+      - run: mkdir -p data/processed && cp -R deploy/data/processed/hemibrain data/processed/
+      - run: cd apps/web && npm ci && npm run build
+      - name: Run real API and frontend
+        run: |
+          mkdir -p /tmp/legalfly-qa
+          uvicorn apps.api.app.main:app --host 127.0.0.1 --port 8000 > /tmp/legalfly-qa/api.log 2>&1 &
+          (cd apps/web && npm start -- --hostname 127.0.0.1 > /tmp/legalfly-qa/web.log 2>&1) &
+          for i in $(seq 1 90); do
+            if curl -fsS http://127.0.0.1:8000/ready >/dev/null && curl -fsS http://127.0.0.1:3000 >/dev/null; then break; fi
+            sleep 2
+          done
+          python -m scripts.browser_smoke
+          python -m scripts.dream_browser_smoke
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-evidence
+          path: /tmp/legalfly-qa
+          retention-days: 14

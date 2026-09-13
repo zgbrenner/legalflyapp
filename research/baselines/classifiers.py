@@ -1,27 +1,14 @@
-"""Trainable readouts and baseline classifiers."""
-
+"""Small trained readouts shared by text and reservoir baselines."""
 from __future__ import annotations
-
 from dataclasses import dataclass
 from typing import Literal
-
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import StandardScaler
-
 from research.labels import INDEX_TO_LABEL, LABELS, multilabel_vector
-
-ModelKind = Literal[
-    "connectome",
-    "random_erdos",
-    "random_degree_preserving",
-    "random_weights",
-    "linear",
-    "mlp",
-]
-
+ModelKind = Literal["connectome", "random_erdos", "random_degree_preserving", "random_weights", "linear", "mlp"]
 
 @dataclass
 class Prediction:
@@ -29,181 +16,113 @@ class Prediction:
     scores: dict[str, float]
     contains_sensitive: bool
 
-
 class MultiLabelReadout:
-    """Independent logistic heads on reservoir features / embeddings."""
-
-    def __init__(self, C: float = 1.0, max_iter: int = 400, seed: int = 42):
+    def __init__(self, C=1., max_iter=400, seed=42, feature_weights=None):
         self.scaler = StandardScaler()
-        self.C = C
-        self.max_iter = max_iter
-        self.seed = seed
-        self.estimators_: list[LogisticRegression | None] = []
-        self.constants_: list[float | None] = []
+        self.feature_weights = feature_weights
+        self.C, self.max_iter, self.seed = C, max_iter, seed
+        self.estimators_, self.constants_ = [], []
         self.fitted = False
-        # Kept for older checkpoints that pickled MultiOutputClassifier.
-        self.model: MultiOutputClassifier | None = None
+        self.model = None
 
-    def fit(self, X: np.ndarray, y: np.ndarray) -> MultiLabelReadout:
+    def fit(self, X, y):
         Xs = self.scaler.fit_transform(X)
-        self.estimators_ = []
-        self.constants_ = []
+        if self.feature_weights is not None:
+            Xs = Xs * self.feature_weights
+        self.estimators_, self.constants_ = [], []
         for col in range(y.shape[1]):
             yi = y[:, col]
             classes = np.unique(yi)
             if classes.size < 2:
-                # Few-shot edge case: label never appears (or always appears).
                 self.estimators_.append(None)
-                self.constants_.append(float(classes[0]) if classes.size else 0.0)
+                self.constants_.append(float(classes[0]) if classes.size else 0.)
                 continue
-            est = LogisticRegression(
-                C=self.C,
-                max_iter=self.max_iter,
-                solver="lbfgs",
-                random_state=self.seed,
-            )
+            est = LogisticRegression(C=self.C, max_iter=self.max_iter, solver="lbfgs", random_state=self.seed)
             est.fit(Xs, yi)
             self.estimators_.append(est)
             self.constants_.append(None)
         self.fitted = True
         return self
 
-    def predict_proba(self, X: np.ndarray) -> np.ndarray:
+    def predict_proba(self, X):
         Xs = self.scaler.transform(X)
+        if getattr(self, "feature_weights", None) is not None:
+            Xs = Xs * self.feature_weights
         if self.model is not None and not self.estimators_:
-            # Legacy unpickled MultiOutputClassifier path.
-            probas = []
-            for est in self.model.estimators_:
-                if hasattr(est, "predict_proba"):
-                    p = est.predict_proba(Xs)
-                    probas.append(p[:, 1] if p.shape[1] == 2 else p[:, 0])
-                else:
-                    probas.append(est.decision_function(Xs))
-            return np.vstack(probas).T
-
-        probas = []
+            return np.vstack([est.predict_proba(Xs)[:, 1] if len(est.classes_) == 2 else
+                              np.full(len(Xs), float(est.classes_[0])) for est in self.model.estimators_]).T
+        probabilities = []
         for est, constant in zip(self.estimators_, self.constants_):
             if est is None:
-                probas.append(np.full(Xs.shape[0], float(constant or 0.0)))
-                continue
-            p = est.predict_proba(Xs)
-            if p.shape[1] == 2:
-                probas.append(p[:, 1])
+                probabilities.append(np.full(Xs.shape[0], float(constant or 0.)))
             else:
-                # Single-class sklearn estimator after partial fit quirks.
-                cls = int(est.classes_[0])
-                probas.append(np.full(Xs.shape[0], float(cls)))
-        return np.vstack(probas).T
+                p = est.predict_proba(Xs)
+                probabilities.append(p[:, 1] if p.shape[1] == 2 else np.full(Xs.shape[0], float(est.classes_[0])))
+        return np.vstack(probabilities).T
 
-    def predict(self, X: np.ndarray, threshold: float = 0.5) -> list[Prediction]:
-        probs = self.predict_proba(X)
-        out: list[Prediction] = []
-        for row in probs:
+    def predict(self, X, threshold=.5):
+        out = []
+        for row in self.predict_proba(X):
             scores = {INDEX_TO_LABEL[i]: float(row[i]) for i in range(len(LABELS))}
-            none_score = scores["NONE"]
-            sensitive_scores = {k: v for k, v in scores.items() if k != "NONE"}
-            ranked = sorted(sensitive_scores.items(), key=lambda kv: kv[1], reverse=True)
+            ranked = sorted(((k,v) for k,v in scores.items() if k != "NONE"), key=lambda kv: kv[1], reverse=True)
             active = [name for name, score in ranked if score >= threshold]
-            # Hard threshold: if no sensitive head clears it, abstain to NONE.
-            # (Avoids OOD false positives like MEDICAL @ 0.05.)
-            if not active:
-                labels = ["NONE"]
-            else:
-                # Keep top labels; drop weak extras more than 0.25 behind the leader
-                top = ranked[0][1]
-                labels = [name for name, score in ranked if score >= threshold and score >= top - 0.25][
-                    :3
-                ]
-            contains = labels != ["NONE"]
-            out.append(Prediction(labels=labels, scores=scores, contains_sensitive=contains))
+            labels = [name for name, score in ranked if score >= threshold and score >= ranked[0][1]-.25][:3] if active else ["NONE"]
+            out.append(Prediction(labels, scores, labels != ["NONE"]))
         return out
 
-    def trainable_params(self) -> int:
+    def trainable_params(self):
         total = 0
         estimators = self.estimators_ or (self.model.estimators_ if self.model is not None else [])
         for est in estimators:
-            if est is None:
-                continue
-            if hasattr(est, "coef_"):
+            if est is not None and hasattr(est, "coef_"):
                 total += int(np.prod(est.coef_.shape))
                 if est.intercept_ is not None:
                     total += int(np.prod(est.intercept_.shape))
         return total
 
-
 class LinearBaseline:
     name = "linear"
-
-    def __init__(self, seed: int = 42):
-        self.readout = MultiLabelReadout(seed=seed)
+    def __init__(self, seed=42, C=1.):
+        self.readout = MultiLabelReadout(seed=seed, C=C)
         self.seed = seed
-
-    def fit(self, X: np.ndarray, y: np.ndarray) -> LinearBaseline:
+    def fit(self, X, y):
         self.readout.fit(X, y)
         return self
-
-    def predict(self, X: np.ndarray) -> list[Prediction]:
+    def predict(self, X):
         return self.readout.predict(X)
-
-    def trainable_params(self) -> int:
+    def trainable_params(self):
         return self.readout.trainable_params()
-
 
 class MLPBaseline:
     name = "mlp"
-
-    def __init__(self, seed: int = 42, hidden=(128, 64)):
+    def __init__(self, seed=42, hidden=(128,64)):
         self.scaler = StandardScaler()
-        self.model = MultiOutputClassifier(
-            MLPClassifier(
-                hidden_layer_sizes=hidden,
-                max_iter=200,
-                random_state=seed,
-                early_stopping=True,
-                validation_fraction=0.1,
-            )
-        )
+        self.model = MultiOutputClassifier(MLPClassifier(hidden_layer_sizes=hidden, max_iter=200,
+                   random_state=seed, early_stopping=True, validation_fraction=.1))
         self.fitted = False
-
-    def fit(self, X: np.ndarray, y: np.ndarray) -> MLPBaseline:
-        Xs = self.scaler.fit_transform(X)
-        self.model.fit(Xs, y)
+    def fit(self, X, y):
+        self.model.fit(self.scaler.fit_transform(X), y)
         self.fitted = True
         return self
-
-    def predict_proba(self, X: np.ndarray) -> np.ndarray:
+    def predict_proba(self, X):
         Xs = self.scaler.transform(X)
-        probas = []
+        values = []
         for est in self.model.estimators_:
             p = est.predict_proba(Xs)
-            probas.append(p[:, 1] if p.shape[1] == 2 else p[:, 0])
-        return np.vstack(probas).T
-
-    def predict(self, X: np.ndarray, threshold: float = 0.5) -> list[Prediction]:
-        probs = self.predict_proba(X)
-        out: list[Prediction] = []
-        for row in probs:
+            values.append(p[:,1] if p.shape[1] == 2 else p[:,0])
+        return np.vstack(values).T
+    def predict(self, X, threshold=.5):
+        out = []
+        for row in self.predict_proba(X):
             scores = {INDEX_TO_LABEL[i]: float(row[i]) for i in range(len(LABELS))}
-            active = [LABELS[i] for i, p in enumerate(row) if p >= threshold and LABELS[i] != "NONE"]
-            if not active:
+            labels = [LABELS[i] for i,p in enumerate(row) if p >= threshold and LABELS[i] != "NONE"]
+            if not labels:
                 best = int(np.argmax(row))
                 labels = ["NONE"] if LABELS[best] == "NONE" else [LABELS[best]]
-            else:
-                labels = active
-            out.append(
-                Prediction(labels=labels, scores=scores, contains_sensitive=labels != ["NONE"])
-            )
+            out.append(Prediction(labels, scores, labels != ["NONE"]))
         return out
+    def trainable_params(self):
+        return sum(int(np.prod(v.shape)) for est in self.model.estimators_ for v in est.coefs_+est.intercepts_)
 
-    def trainable_params(self) -> int:
-        total = 0
-        for est in self.model.estimators_:
-            for coef in est.coefs_:
-                total += int(np.prod(coef.shape))
-            for intercept in est.intercepts_:
-                total += int(np.prod(intercept.shape))
-        return total
-
-
-def labels_to_matrix(label_lists: list[list[str]]) -> np.ndarray:
+def labels_to_matrix(label_lists):
     return np.asarray([multilabel_vector(labels) for labels in label_lists], dtype=np.int32)

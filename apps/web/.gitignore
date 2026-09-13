@@ -4,3 +4,6 @@ node_modules
 out
 .env*.local
 npm-debug.log*
+# Generated, checksummed exports of the packaged biological graph
+/public/dream/*.bin
+/public/dream/manifest.json

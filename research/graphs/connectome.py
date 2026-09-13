@@ -1,27 +1,20 @@
 """Connectome graph structures and randomization controls."""
-
 from __future__ import annotations
-
+import hashlib
 import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
-
 import numpy as np
 from scipy import sparse
 
-ControlType = Literal[
-    "biological",
-    "random_erdos",
-    "random_degree_preserving",
-    "random_weights",
-]
-
+SCIENCE_VERSION = "2.0-directed-controls"
+CONTROL_SEEDS = {"random_erdos": 101, "random_degree_preserving": 211, "random_weights": 307}
+ControlType = Literal["biological", "random_erdos", "random_degree_preserving", "random_weights"]
 
 @dataclass
 class ConnectomeGraph:
-    """Sparse directed graph used as reservoir connectivity."""
-
+    """Sparse directed graph; adjacency[source, destination]."""
     adjacency: sparse.csr_matrix
     node_ids: list[str]
     regions: list[str]
@@ -31,248 +24,158 @@ class ConnectomeGraph:
     control: ControlType = "biological"
 
     @property
-    def n_nodes(self) -> int:
+    def n_nodes(self):
         return int(self.adjacency.shape[0])
 
     @property
-    def n_edges(self) -> int:
+    def n_edges(self):
         return int(self.adjacency.nnz)
 
-    def degree(self) -> np.ndarray:
-        return np.asarray(self.adjacency.sum(axis=1)).ravel() + np.asarray(
-            self.adjacency.sum(axis=0)
-        ).ravel()
+    def fingerprint(self):
+        matrix = self.adjacency.copy().tocsr()
+        matrix.sort_indices()
+        digest = hashlib.sha256()
+        digest.update(json.dumps(self.node_ids, separators=(",", ":")).encode())
+        digest.update(np.asarray(matrix.shape, dtype="<i8").tobytes())
+        for values, dtype in ((matrix.indptr, "<i8"), (matrix.indices, "<i8"), (matrix.data, "<f4")):
+            digest.update(np.asarray(values, dtype=dtype).tobytes())
+        return digest.hexdigest()
 
-    def save(self, path: Path) -> None:
+    def degree(self):
+        return np.asarray(self.adjacency.sum(axis=1)).ravel() + np.asarray(self.adjacency.sum(axis=0)).ravel()
+
+    def save(self, path: Path):
         path.mkdir(parents=True, exist_ok=True)
         sparse.save_npz(path / "adjacency.npz", self.adjacency)
         np.save(path / "positions.npy", self.positions)
-        payload = {
-            "node_ids": self.node_ids,
-            "regions": self.regions,
-            "node_regions": self.node_regions,
-            "metadata": self.metadata,
-            "control": self.control,
-        }
+        payload = {"node_ids": self.node_ids, "regions": self.regions, "node_regions": self.node_regions,
+                   "metadata": self.metadata, "control": self.control}
         (path / "meta.json").write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
 
     @classmethod
-    def load(cls, path: Path) -> ConnectomeGraph:
-        adjacency = sparse.load_npz(path / "adjacency.npz").tocsr()
-        positions = np.load(path / "positions.npy")
+    def load(cls, path: Path):
         payload = json.loads((path / "meta.json").read_text(encoding="utf-8"))
-        return cls(
-            adjacency=adjacency,
-            node_ids=payload["node_ids"],
-            regions=payload["regions"],
-            node_regions=payload["node_regions"],
-            positions=positions,
-            metadata=payload.get("metadata", {}),
-            control=payload.get("control", "biological"),
-        )
+        return cls(sparse.load_npz(path / "adjacency.npz").tocsr(), payload["node_ids"],
+                   payload["regions"], payload["node_regions"], np.load(path / "positions.npy"),
+                   payload.get("metadata", {}), payload.get("control", "biological"))
 
-    def summary(self) -> dict[str, Any]:
-        return {
-            "n_nodes": self.n_nodes,
-            "n_edges": self.n_edges,
-            "control": self.control,
-            "regions": self.regions,
-            "metadata": self.metadata,
-        }
+    def summary(self):
+        return {"n_nodes": self.n_nodes, "n_edges": self.n_edges, "control": self.control,
+                "regions": self.regions, "metadata": self.metadata}
 
 
-def spectral_radius_scale(matrix: sparse.spmatrix, target: float = 0.9) -> sparse.csr_matrix:
-    """Scale sparse matrix so spectral radius approximates target (power iteration)."""
+def spectral_radius_scale(matrix, target=0.9):
+    """Approximate spectral normalization by deterministic power iteration."""
     mat = matrix.tocsr().astype(np.float64)
     if mat.nnz == 0:
         return mat
-    rng = np.random.default_rng(0)
-    vec = rng.normal(size=mat.shape[0])
+    vec = np.random.default_rng(0).normal(size=mat.shape[0])
     vec /= np.linalg.norm(vec) + 1e-12
     for _ in range(40):
         vec = mat @ vec
-        norm = np.linalg.norm(vec) + 1e-12
-        vec /= norm
+        vec /= np.linalg.norm(vec) + 1e-12
     radius = float(np.linalg.norm(mat @ vec))
-    if radius < 1e-12:
-        return mat
-    return (mat * (target / radius)).tocsr()
+    return mat if radius < 1e-12 else (mat * (target / radius)).tocsr()
 
 
-def build_synthetic_connectome(
-    n_nodes: int = 512,
-    mean_degree: float = 8.0,
-    seed: int = 42,
-    n_regions: int = 8,
-) -> ConnectomeGraph:
-    """
-    Build a small redistributable demo graph with modular regional structure.
-
-    This is NOT anatomical fly data. It is a demo topology with community
-    structure loosely inspired by multi-region connectomes.
-    """
+def build_synthetic_connectome(n_nodes=512, mean_degree=8.0, seed=42, n_regions=8):
+    """Synthetic modular control data, not anatomical fly connectivity."""
     rng = np.random.default_rng(seed)
-    regions = [
-        "optic_lobe",
-        "antennal_lobe",
-        "mushroom_body",
-        "central_complex",
-        "lateral_horn",
-        "protocerebrum",
-        "gnathal_ganglia",
-        "descending",
-    ][:n_regions]
+    regions = ["optic_lobe", "antennal_lobe", "mushroom_body", "central_complex", "lateral_horn",
+               "protocerebrum", "gnathal_ganglia", "descending"][:n_regions]
     node_regions = [regions[i % n_regions] for i in range(n_nodes)]
     node_ids = [f"n{i:04d}" for i in range(n_nodes)]
-
-    # Place nodes in region clusters (abstract layout — not fly anatomy).
     positions = np.zeros((n_nodes, 3), dtype=np.float64)
-    region_centers = rng.normal(size=(n_regions, 3)) * 3.0
+    centers = rng.normal(size=(n_regions, 3)) * 3.0
     for i in range(n_nodes):
-        r = i % n_regions
-        positions[i] = region_centers[r] + rng.normal(scale=0.55, size=3)
-
-    rows: list[int] = []
-    cols: list[int] = []
-    data: list[float] = []
-
-    n_edges = int(n_nodes * mean_degree)
-    # Prefer intra-region edges to create modular biological-like structure.
-    for _ in range(n_edges):
+        positions[i] = centers[i % n_regions] + rng.normal(scale=0.55, size=3)
+    rows, cols, data = [], [], []
+    for _ in range(int(n_nodes * mean_degree)):
         src = int(rng.integers(0, n_nodes))
         if rng.random() < 0.72:
             candidates = [j for j in range(n_nodes) if node_regions[j] == node_regions[src] and j != src]
-            if not candidates:
-                dst = int(rng.integers(0, n_nodes))
-            else:
-                dst = int(rng.choice(candidates))
+            dst = int(rng.choice(candidates)) if candidates else int(rng.integers(0, n_nodes))
         else:
             dst = int(rng.integers(0, n_nodes))
             if dst == src:
                 dst = (dst + 1) % n_nodes
         weight = float(rng.lognormal(mean=0.0, sigma=0.35))
-        # Mix excitatory / inhibitory-like signs
         if rng.random() < 0.2:
             weight *= -1.0
-        rows.append(src)
-        cols.append(dst)
-        data.append(weight)
-
-    adjacency = sparse.csr_matrix((data, (rows, cols)), shape=(n_nodes, n_nodes))
-    adjacency = spectral_radius_scale(adjacency, target=0.9)
-    return ConnectomeGraph(
-        adjacency=adjacency,
-        node_ids=node_ids,
-        regions=regions,
-        node_regions=node_regions,
-        positions=positions,
-        metadata={
-            "source": "synthetic_demo",
-            "license": "MIT (project-generated)",
-            "anatomical": False,
-            "description": (
-                "Abstract modular graph for LegalFly demo mode. "
-                "Not derived from FlyWire or hemibrain edge lists."
-            ),
-            "seed": seed,
-            "mean_degree_target": mean_degree,
-        },
-        control="biological",
-    )
+        rows.append(src); cols.append(dst); data.append(weight)
+    adjacency = spectral_radius_scale(sparse.csr_matrix((data, (rows, cols)), shape=(n_nodes, n_nodes)))
+    return ConnectomeGraph(adjacency, node_ids, regions, node_regions, positions,
+                           {"source": "synthetic_demo", "license": "MIT (project-generated)", "anatomical": False,
+                            "description": "Abstract modular demo, not traced anatomical connectivity.",
+                            "seed": seed, "mean_degree_target": mean_degree})
 
 
-def randomize_erdos(graph: ConnectomeGraph, seed: int = 0) -> ConnectomeGraph:
-    """Random A: same node/edge count, fully randomized connectivity."""
+def _control_graph(graph, adjacency, kind, seed, **details):
+    assert adjacency.nnz == graph.n_edges
+    return ConnectomeGraph(adjacency, list(graph.node_ids), list(graph.regions), list(graph.node_regions),
+                           graph.positions.copy(), {**graph.metadata,
+                           "anatomical": kind == "random_weights" and bool(graph.metadata.get("anatomical")),
+                           "randomized": kind, "parent_source": graph.metadata.get("source"), "source": kind,
+                           "control_seed": seed, "science_version": SCIENCE_VERSION,
+                           "parent_graph_hash": graph.fingerprint(), **details}, kind)
+
+
+def randomize_erdos(graph, seed=0):
+    """Exact directed G(n,m), no loops/duplicates, original weight multiset."""
     rng = np.random.default_rng(seed)
-    n = graph.n_nodes
-    m = graph.n_edges
-    weights = graph.adjacency.data.copy()
-    rng.shuffle(weights)
-    rows = rng.integers(0, n, size=m)
-    cols = rng.integers(0, n, size=m)
-    mask = rows != cols
-    rows, cols, weights = rows[mask], cols[mask], weights[mask]
-    # Top up if self-loops removed
-    while len(rows) < m:
-        r = int(rng.integers(0, n))
-        c = int(rng.integers(0, n))
-        if r == c:
-            continue
-        rows = np.append(rows, r)
-        cols = np.append(cols, c)
-        weights = np.append(weights, float(rng.normal()))
-    adjacency = sparse.csr_matrix((weights[:m], (rows[:m], cols[:m])), shape=(n, n))
-    adjacency = spectral_radius_scale(adjacency, target=0.9)
-    return ConnectomeGraph(
-        adjacency=adjacency,
-        node_ids=list(graph.node_ids),
-        regions=list(graph.regions),
-        node_regions=list(graph.node_regions),
-        positions=graph.positions.copy(),
-        metadata={**graph.metadata, "randomized": "erdos", "parent_control": graph.control},
-        control="random_erdos",
-    )
+    n, m = graph.n_nodes, graph.n_edges
+    if m > n * (n - 1):
+        raise ValueError("Loop-free control requires m <= n*(n-1)")
+    pairs = rng.choice(n * (n - 1), size=m, replace=False)
+    rows = pairs // max(1, n - 1)
+    cols = pairs % max(1, n - 1)
+    cols += cols >= rows
+    adjacency = sparse.csr_matrix((rng.permutation(graph.adjacency.data), (rows, cols)), shape=(n, n))
+    return _control_graph(graph, adjacency, "random_erdos", seed)
 
 
-def randomize_degree_preserving(graph: ConnectomeGraph, seed: int = 0, swaps: int | None = None) -> ConnectomeGraph:
-    """Random B: approximate degree-preserving rewiring via edge swaps."""
+def randomize_degree_preserving(graph, seed=0, swaps=None):
+    """Directed edge swaps preserve in/out degree, weight multiset, and source strength.
+
+    Duplicate-edge rejection prevents CSR merging. Incoming weighted strength is not preserved.
+    """
     rng = np.random.default_rng(seed)
     coo = graph.adjacency.tocoo()
-    edges = list(zip(coo.row.tolist(), coo.col.tolist(), coo.data.tolist()))
-    if len(edges) < 2:
-        return randomize_erdos(graph, seed=seed)
-    n_swaps = swaps if swaps is not None else max(100, len(edges) * 2)
-    for _ in range(n_swaps):
-        i, j = rng.choice(len(edges), size=2, replace=False)
-        a, b, wa = edges[i]
-        c, d, wb = edges[j]
-        if len({a, b, c, d}) < 4:
-            continue
-        # Swap destinations
-        if a == d or c == b:
-            continue
-        edges[i] = (a, d, wa)
-        edges[j] = (c, b, wb)
-    rows, cols, data = zip(*edges)
-    adjacency = sparse.csr_matrix((data, (rows, cols)), shape=graph.adjacency.shape)
-    adjacency = spectral_radius_scale(adjacency, target=0.9)
-    return ConnectomeGraph(
-        adjacency=adjacency,
-        node_ids=list(graph.node_ids),
-        regions=list(graph.regions),
-        node_regions=list(graph.node_regions),
-        positions=graph.positions.copy(),
-        metadata={**graph.metadata, "randomized": "degree_preserving", "swaps": n_swaps},
-        control="random_degree_preserving",
-    )
+    rows, cols = coo.row.copy(), coo.col.copy()
+    present = set(zip(rows.tolist(), cols.tolist()))
+    attempts = swaps if swaps is not None else max(100, graph.n_edges * 2)
+    accepted = 0
+    if len(rows) >= 2:
+        for _ in range(attempts):
+            i, j = rng.integers(0, len(rows), size=2)
+            a, b, c, d = int(rows[i]), int(cols[i]), int(rows[j]), int(cols[j])
+            if i == j or a == c or b == d or a == d or c == b:
+                continue
+            if (a, d) in present or (c, b) in present:
+                continue
+            present.remove((a, b)); present.remove((c, d))
+            present.add((a, d)); present.add((c, b))
+            cols[i], cols[j] = d, b
+            accepted += 1
+    adjacency = sparse.csr_matrix((coo.data.copy(), (rows, cols)), shape=graph.adjacency.shape)
+    for axis in (0, 1):
+        np.testing.assert_array_equal(adjacency.getnnz(axis=axis), graph.adjacency.getnnz(axis=axis))
+    return _control_graph(graph, adjacency, "random_degree_preserving", seed,
+                          swap_attempts=attempts, accepted_swaps=accepted)
 
 
-def randomize_weights(graph: ConnectomeGraph, seed: int = 0) -> ConnectomeGraph:
-    """Random C: keep topology, shuffle / redraw weights."""
-    rng = np.random.default_rng(seed)
-    adjacency = graph.adjacency.copy().tocsr().astype(np.float64)
-    new_weights = rng.lognormal(mean=0.0, sigma=0.35, size=adjacency.nnz)
-    signs = np.where(rng.random(adjacency.nnz) < 0.2, -1.0, 1.0)
-    adjacency.data = new_weights * signs
-    adjacency = spectral_radius_scale(adjacency, target=0.9)
-    return ConnectomeGraph(
-        adjacency=adjacency,
-        node_ids=list(graph.node_ids),
-        regions=list(graph.regions),
-        node_regions=list(graph.node_regions),
-        positions=graph.positions.copy(),
-        metadata={**graph.metadata, "randomized": "weights"},
-        control="random_weights",
-    )
+def randomize_weights(graph, seed=0):
+    """Keep every directed edge and permute original signed weights exactly."""
+    adjacency = graph.adjacency.copy().tocsr()
+    adjacency.data = np.random.default_rng(seed).permutation(adjacency.data)
+    return _control_graph(graph, adjacency, "random_weights", seed)
 
 
-def apply_control(graph: ConnectomeGraph, control: ControlType, seed: int = 0) -> ConnectomeGraph:
+def apply_control(graph, control, seed=0):
     if control == "biological":
         return graph
-    if control == "random_erdos":
-        return randomize_erdos(graph, seed=seed)
-    if control == "random_degree_preserving":
-        return randomize_degree_preserving(graph, seed=seed)
-    if control == "random_weights":
-        return randomize_weights(graph, seed=seed)
-    raise ValueError(f"Unknown control: {control}")
+    functions = {"random_erdos": randomize_erdos, "random_degree_preserving": randomize_degree_preserving,
+                 "random_weights": randomize_weights}
+    if control not in functions:
+        raise ValueError(f"Unknown control: {control}")
+    return functions[control](graph, seed=seed)

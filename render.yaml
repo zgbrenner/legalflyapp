@@ -1,6 +1,3 @@
-# LegalFly public API — hashing encoder (lightweight).
-# Connect the GitHub repo in Render, or: render blueprint apply
-
 services:
   - type: web
     name: legalfly-api
@@ -8,15 +5,21 @@ services:
     dockerfilePath: ./Dockerfile.api
     dockerContext: .
     plan: free
-    healthCheckPath: /health
+    healthCheckPath: /ready
     envVars:
       - key: LEGALFLY_ENCODER
         value: hashing
       - key: LEGALFLY_DEMO_MODE
         value: "false"
       - key: LEGALFLY_CORS_ORIGINS
-        value: "*"
+        value: "https://thelegalfly.vercel.app"
       - key: LEGALFLY_LOG_RAW_TEXT
         value: "false"
+      - key: LEGALFLY_ALLOW_AUTO_TRAIN
+        value: "false"
+      - key: OPENBLAS_NUM_THREADS
+        value: "1"
+      - key: OMP_NUM_THREADS
+        value: "1"
       - key: PYTHONUNBUFFERED
         value: "1"

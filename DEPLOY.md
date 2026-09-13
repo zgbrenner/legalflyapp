@@ -1,98 +1,58 @@
-# Deploy LegalFly
+# Deploy Legal Dreaming
 
-LegalFly is two processes:
+The new homepage is a browser-local laboratory. It needs only the Next.js site, not the Python inference server. Build a full repository checkout with `cd apps/web && npm ci && npm run build`; the prebuild step exports and checksum-verifies the existing packaged biological graph.
 
-1. **Web** (Next.js + Three.js brain viz) → **Vercel** or Cloudflare Pages
-2. **API** (FastAPI + connectome reservoir) → **Render** or **Fly.io** (needs a container; not Vercel serverless)
+For a Vercel project rooted at `apps/web`, ensure the build has access to the root-level `deploy/data/processed/hemibrain/biological` and `deploy/research-inputs` source files. Do not replace missing graph input with a synthetic fallback. Verify the preview loads `/dream/manifest.json` and both graph binary assets. HTTPS is required for browser SHA-256 checks outside localhost.
 
-Vercel alone cannot host the Python reservoir + sklearn readouts. Cloudflare Workers also cannot — use Cloudflare Containers / Render / Fly for the API.
+No API keys or `NEXT_PUBLIC_API_URL` are needed for dreaming. The existing `/classification` route still needs the separate Python API described below. Keep those two privacy and deployment boundaries distinct.
 
-## Fastest path (recommended)
+Before promotion run `npm test`, `npm run test:dream`, `npm run build`, and `python -m scripts.dream_browser_smoke` against the production build. Test downloads, imports, cancellation, controls, and mobile layout. Do not enable analytics that capture entered text, session replay, request-body logging, or third-party script injection. This repository change does not itself certify or promote the existing production deployment.
 
-### 1. API on Render — use **Web Service** (not Blueprint)
+---
 
-Blueprints are easy to miss on mobile. Do this instead:
+## Retained classifier deployment
 
-1. Open [https://dashboard.render.com](https://dashboard.render.com)
-2. Tap **New Web Service →** (under **Web Services**)
-3. Connect GitHub and pick **`zgbrenner/legalflyapp`**
-4. Settings:
 
-| Field | Value |
-|---|---|
-| Name | `legalfly-api` |
-| Language / Runtime | **Docker** |
-| Branch | `main` |
-| Dockerfile path | `Dockerfile.api` |
-| Instance type | **Free** |
+The Next.js website and Python inference service are separate deployments. Updating the website does not update the trained server models. Deploy both from the same reviewed release.
 
-5. Environment variables (Add):
+## API
 
-| Key | Value |
-|---|---|
-| `LEGALFLY_ENCODER` | `hashing` |
-| `LEGALFLY_DEMO_MODE` | `false` |
-| `LEGALFLY_CORS_ORIGINS` | `*` |
-| `LEGALFLY_LOG_RAW_TEXT` | `false` |
-
-6. Create Web Service and wait for the first deploy (can take several minutes on free).
-7. Copy the service URL, e.g. `https://legalfly-api.onrender.com`
-8. Check: open `https://YOUR-API/health` — should return JSON `status: ok`
-
-> If you prefer Blueprints later (desktop): left sidebar → **Blueprints** → New Blueprint Instance → select the repo (needs `render.yaml` on `main`).
-
-### 2. Web on Vercel
-
-1. Go to [https://vercel.com/new](https://vercel.com/new).
-2. Import `zgbrenner/legalflyapp`.
-3. Set **Root Directory** to `apps/web`.
-4. Environment variables:
-
-| Name | Value |
-|---|---|
-| `NEXT_PUBLIC_API_URL` | `https://YOUR-API.onrender.com` (no trailing slash) |
-| `NEXT_PUBLIC_DEMO_MODE` | `false` |
-
-5. Deploy. Open the `*.vercel.app` URL — the twin chamber auto-fires.
-
-### CLI alternative (if you have tokens)
+Build the root `Dockerfile.api`. It packages the real hemibrain subgraph and builds compatible hashing-encoder readouts during image construction. Production runtime auto-training is disabled. Missing, old, corrupt or incompatible checkpoints must fail startup.
 
 ```bash
-# API (Fly)
-fly auth login
-fly launch --config fly.toml --dockerfile Dockerfile.api --yes
-fly deploy
-
-# Web (Vercel)
-cd apps/web
-npx vercel login
-npx vercel --prod \
-  -e NEXT_PUBLIC_API_URL=https://legalfly-api.fly.dev \
-  -e NEXT_PUBLIC_DEMO_MODE=false
+docker build -f Dockerfile.api -t the-legal-fly-api .
+docker run --rm -p 8000:8000 \
+  -e LEGALFLY_CORS_ORIGINS=http://localhost:3000 the-legal-fly-api
+curl --fail http://localhost:8000/ready
 ```
 
-Or set secrets in this Cloud Agent environment:
+Production settings:
 
-- `VERCEL_TOKEN`
-- `FLY_API_TOKEN` (or deploy API on Render via the dashboard)
-
-…and ask the agent to finish the deploy.
-
-## What the public API serves
-
-`Dockerfile.api` ships **hashing-encoder** reservoirs (no torch / MiniLM download) so it fits free memory limits. Macro-F1 is still strong on the synthetic harder set; twin viz and ROI meters work the same.
-
-For a MiniLM production box, use a ≥2 GB machine and the research image (`apps/api/Dockerfile`) with `LEGALFLY_ENCODER=minilm`.
-
-## Cloudflare option
-
-- **Pages**: point at `apps/web` (Next.js). Same env vars as Vercel.
-- **API**: Cloudflare Containers from `Dockerfile.api`, or keep Render/Fly as the origin.
-
-## Local check before shipping
-
-```bash
-docker build -f Dockerfile.api -t legalfly-api .
-docker run --rm -p 8000:8000 legalfly-api
-curl -s localhost:8000/health
 ```
+LEGALFLY_ENCODER=hashing
+LEGALFLY_ALLOW_AUTO_TRAIN=false
+LEGALFLY_CORS_ORIGINS=https://thelegalfly.vercel.app
+LEGALFLY_LOG_RAW_TEXT=false
+OPENBLAS_NUM_THREADS=1
+OMP_NUM_THREADS=1
+```
+
+Use `/ready`, not merely `/health`, for readiness. `/models` describes the actual loaded graph and encoder. Inference responses must identify science version `2.0-directed-controls`. Compare the graph hash with `deploy/research-inputs/hemibrain-provenance.json`.
+
+The browser checks exercise the actual biological API directly. They do not establish that the destination host's Docker image, memory limits, reverse proxy, or cold starts work. Verify those before promotion.
+
+## Website
+
+Vercel project root: `apps/web`. Install using the committed lock with `npm ci`. Set `NEXT_PUBLIC_API_URL` to the corrected API's HTTPS origin and rebuild. This public variable is compiled into the browser bundle. Never put credentials in `NEXT_PUBLIC_*` variables.
+
+Add each preview's exact origin to the API's comma-separated `LEGALFLY_CORS_ORIGINS`. Do not use a wildcard as the production default. `NEXT_PUBLIC_DEMO_MODE` is obsolete: provenance comes from the actual model response.
+
+The initial synthetic passage is a genuine saved inference labeled **Recorded example**. Only a successful new request becomes a **Live result**. Without an API origin, the site can still display recordings and bundled research, but cannot classify new text. Offline and outdated backends produce errors rather than fabricated predictions.
+
+## Release checks
+
+Run Python tests, frontend tests, lint, the production build, and `python -m scripts.browser_smoke` against the built frontend and biological API. Inspect the desktop and mobile screenshots. Verify new inference and source hashes. Deploy the corrected API first, then the frontend pointing at it. Retain the previous compatible image/build for rollback. Do not mix old readouts with new dynamics.
+
+The limiter is per process. Multiple instances need a shared or edge limiter. Trust forwarded headers only from the actual hosting proxy. Do not enable request-body logging or session replay. See `docs/PRIVACY.md` and `docs/KNOWN_LIMITATIONS.md`.
+
+The lightweight live hashing model is not the same configuration as the saved MiniLM research benchmark. Both are explicitly labeled. This branch does not by itself certify or update the public production deployment.

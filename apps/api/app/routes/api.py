@@ -1,99 +1,61 @@
-from __future__ import annotations
-
 import logging
-
 from fastapi import APIRouter, HTTPException
-
-from apps.api.app.privacy import text_fingerprint
-from apps.api.app.schemas import (
-    ClassifyRequest,
-    ClassifyResponse,
-    FeedbackRequest,
-    SimulateRequest,
-    TwinRequest,
-    TwinResponse,
-)
+from apps.api.app.schemas import ClassifyRequest,ClassifyResponse,FeedbackRequest,SimulateRequest,TwinRequest,TwinResponse
 from apps.api.app.services.models import get_model_service
-from apps.api.app.services.results import list_experiments, load_ablations, load_benchmark
-
-logger = logging.getLogger("legalfly.api")
-router = APIRouter()
-
+from apps.api.app.services.results import list_experiments,load_ablations,load_benchmark
+logger=logging.getLogger("legalfly.api")
+router=APIRouter()
 
 @router.get("/health")
-def health() -> dict:
-    return {"status": "ok", "service": "legalfly-api"}
+def health():return {"status":"ok","service":"legalfly-api"}
 
+@router.get("/ready")
+def ready():
+    service=get_model_service()
+    if not service._ready:raise HTTPException(status_code=503,detail="Models are not ready")
+    return {"status":"ready","models":service.list_models()}
 
 @router.get("/models")
-def models() -> dict:
-    service = get_model_service()
-    return {"models": service.list_models(), "demo_mode": service.settings.legalfly_demo_mode}
+def models():
+    service=get_model_service()
+    items = service.list_models()
+    active = next((item for item in items if item["id"] == "connectome" and item["loaded"]), None)
+    return {"models":items,"demo_mode":active.get("demo_mode") if active else None}
 
-
-@router.post("/classify", response_model=ClassifyResponse)
-def classify(body: ClassifyRequest) -> ClassifyResponse:
-    service = get_model_service()
-    try:
-        result = service.classify(body.text, body.model, with_simulation=body.with_simulation)
-    except KeyError as exc:
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
+@router.post("/classify",response_model=ClassifyResponse)
+def classify(body:ClassifyRequest):
+    try:return get_model_service().classify(body.text,body.model,with_simulation=body.with_simulation)
+    except KeyError as exc:raise HTTPException(status_code=400,detail="Unknown model") from exc
     except Exception as exc:
-        logger.exception("classify failed fingerprint=%s", text_fingerprint(body.text))
-        raise HTTPException(status_code=500, detail="Classification failed") from exc
-    return ClassifyResponse(**result)
+        logger.error("classification failed (%s)",type(exc).__name__)
+        raise HTTPException(status_code=500,detail="Classification failed") from exc
 
-
-
-
-@router.post("/twin", response_model=TwinResponse)
-def twin(body: TwinRequest) -> TwinResponse:
-    service = get_model_service()
-    try:
-        result = service.classify_twin(body.text, with_simulation=body.with_simulation)
+@router.post("/twin",response_model=TwinResponse)
+def twin(body:TwinRequest):
+    try:return get_model_service().classify_twin(body.text,with_simulation=body.with_simulation)
     except Exception as exc:
-        logger.exception("twin failed fingerprint=%s", text_fingerprint(body.text))
-        raise HTTPException(status_code=500, detail="Twin classification failed") from exc
-    return TwinResponse(**result)
+        logger.error("twin classification failed (%s)",type(exc).__name__)
+        raise HTTPException(status_code=500,detail="Twin classification failed") from exc
 
 @router.post("/simulate")
-def simulate(body: SimulateRequest) -> dict:
-    service = get_model_service()
-    try:
-        result = service.classify(body.text, body.model, with_simulation=True)
-    except KeyError as exc:
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
-    return {
-        "model": result["model"],
-        "simulation": result["simulation"],
-        "labels": result["labels"],
-        "contains_sensitive": result["contains_sensitive"],
-    }
-
+def simulate(body:SimulateRequest):
+    if body.timesteps!=12:
+        raise HTTPException(status_code=422,detail="The trained model uses 12 timesteps. Retrain before changing its dynamics.")
+    try:result=get_model_service().classify(body.text,body.model,with_simulation=True)
+    except KeyError as exc:raise HTTPException(status_code=400,detail="Unknown model") from exc
+    return {key:result[key] for key in ("model","simulation","labels","contains_sensitive")}
 
 @router.get("/benchmark")
-def benchmark() -> dict:
-    return load_benchmark()
-
+def benchmark():return load_benchmark()
 
 @router.get("/experiments")
-def experiments() -> dict:
-    return {"experiments": list_experiments()}
-
+def experiments():return {"experiments":list_experiments()}
 
 @router.get("/ablations")
-def ablations() -> dict:
-    return load_ablations()
-
+def ablations():return load_ablations()
 
 @router.post("/feedback")
-def feedback(body: FeedbackRequest) -> dict:
-    # Explicitly do not store raw text. Count-only telemetry could be added later.
-    logger.info(
-        "feedback correct=%s model=%s labels=%s fingerprint=%s",
-        body.correct,
-        body.model,
-        body.predicted_labels,
-        body.fingerprint,
-    )
-    return {"ok": True, "persisted_text": False}
+def feedback(body:FeedbackRequest):
+    # Count-only feedback; never log arbitrary client-supplied strings.
+    logger.info("feedback correct=%s",body.correct)
+    return {"ok":True,"persisted_text":False}

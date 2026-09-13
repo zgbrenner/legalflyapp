@@ -1,137 +1,23 @@
 "use client";
-
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { fetchAblations } from "@/lib/api";
-
-type Ablation = {
-  ablation: string;
-  kind?: string;
-  region?: string | null;
-  macro_f1: number;
-  binary_accuracy: number;
-  delta_macro_f1: number;
-  delta_binary_accuracy: number;
-  original_macro_f1: number;
-  original_binary_accuracy: number;
-};
-
-export default function AblatePage() {
-  const [data, setData] = useState<any>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [selected, setSelected] = useState<string>("");
-
-  useEffect(() => {
-    fetchAblations()
-      .then((payload) => {
-        setData(payload);
-        if (payload.ablations?.length) setSelected(payload.ablations[0].ablation);
-      })
-      .catch((e) => setError(e.message));
-  }, []);
-
-  const current: Ablation | undefined = useMemo(
-    () => data?.ablations?.find((a: Ablation) => a.ablation === selected),
-    [data, selected],
-  );
-
-  return (
-    <div className="mx-auto max-w-6xl px-4 py-12 md:px-6">
-      <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-accent">Destroy the Brain</p>
-      <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight md:text-5xl">
-        Ablate, then measure
-      </h1>
-      <p className="mt-4 max-w-3xl text-ink/70">
-        Playful name, serious controls. We remove neurons, scramble weights, or disable regions,
-        then recompute readout performance from precomputed research artifacts — not a full
-        browser-side retrain of a giant connectome.
-      </p>
-
-      {error ? <p className="mt-6 text-sm text-accent">{error}</p> : null}
-
-      {!data ? (
-        <p className="mt-8 text-ink/50">Loading ablation artifacts…</p>
-      ) : data.status === "not_yet_measured" ? (
-        <p className="mt-8 border border-ink/15 bg-mist/50 p-4 text-sm">
-          Not yet measured. Run <code className="font-mono">make ablate</code> to generate results.
-        </p>
-      ) : (
-        <div className="mt-8 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="border border-ink/15 bg-paper/80 p-4">
-            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-ink/50">
-              Choose an ablation
-            </p>
-            <ul className="mt-3 space-y-2">
-              {(data.ablations as Ablation[]).map((item) => (
-                <li key={item.ablation}>
-                  <button
-                    type="button"
-                    onClick={() => setSelected(item.ablation)}
-                    className={`w-full border px-3 py-2 text-left text-sm transition ${
-                      selected === item.ablation
-                        ? "border-accent bg-accentsoft"
-                        : "border-ink/10 hover:border-ink/30"
-                    }`}
-                  >
-                    {item.ablation}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {current ? (
-            <div className="border border-ink/15 bg-white/70 p-6">
-              <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-ink/50">Impact</p>
-              <h2 className="mt-2 font-display text-3xl font-semibold">{current.ablation}</h2>
-              {current.region ? (
-                <p className="mt-2 font-mono text-xs uppercase tracking-[0.18em] text-blood">
-                  ROI · {current.region}
-                </p>
-              ) : current.kind ? (
-                <p className="mt-2 font-mono text-xs uppercase tracking-[0.18em] text-ink/50">
-                  {current.kind}
-                </p>
-              ) : null}
-              <dl className="mt-6 grid gap-4 sm:grid-cols-3">
-                <div>
-                  <dt className="text-xs uppercase tracking-wider text-ink/50">Original accuracy</dt>
-                  <dd className="mt-1 font-display text-3xl">
-                    {(current.original_binary_accuracy * 100).toFixed(1)}%
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-xs uppercase tracking-wider text-ink/50">After ablation</dt>
-                  <dd className="mt-1 font-display text-3xl">
-                    {(current.binary_accuracy * 100).toFixed(1)}%
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-xs uppercase tracking-wider text-ink/50">Delta</dt>
-                  <dd className="mt-1 font-display text-3xl text-accent">
-                    {(current.delta_binary_accuracy * 100).toFixed(1)} pts
-                  </dd>
-                </div>
-              </dl>
-              <p className="mt-6 text-sm text-ink/65">
-                Macro F1: {current.original_macro_f1.toFixed(3)} → {current.macro_f1.toFixed(3)} (
-                {current.delta_macro_f1 >= 0 ? "+" : ""}
-                {current.delta_macro_f1.toFixed(3)})
-              </p>
-              <p className="mt-4 text-xs text-ink/50">{data.note}</p>
-              {Array.isArray(data.regions) && data.regions.length ? (
-                <p className="mt-2 text-xs text-ink/45">
-                  Live ROIs in this tissue: {data.regions.join(", ")}
-                </p>
-              ) : null}
-              {data.dataset ? (
-                <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.16em] text-ink/40">
-                  Dataset · {data.dataset} · encoder · {data.encoder ?? "n/a"}
-                </p>
-              ) : null}
-            </div>
-          ) : null}
-        </div>
-      )}
-    </div>
-  );
+type Mode="hybrid"|"activity_only";
+type Measure={macro_f1:number;delta_macro_f1:number;binary_accuracy:number};
+type Lesion={ablation:string;kind:string;region?:string;removed_neurons:number;remaining_edges:number;measurements:Record<Mode,Measure>};
+type Report={status:string;timestamp:string;note:string;protocol:string;total_neurons:number;total_edges:number;n_train:number;n_test:number;original:Record<Mode,{macro_f1:number}>;ablations:Lesion[]};
+export default function AblatePage(){
+ const [data,setData]=useState<Report|null>(null),[error,setError]=useState(""),[mode,setMode]=useState<Mode>("activity_only"),[selected,setSelected]=useState(0);
+ useEffect(()=>{let alive=true;fetchAblations().then(d=>{if(alive)setData(d as Report);}).catch(e=>{if(alive)setError(e.message);});return()=>{alive=false;};},[]);
+ const current=data?.ablations?.[selected];const before=data?.original?.[mode]?.macro_f1??0;const after=current?.measurements?.[mode];
+ return <div className="page-width research-page"><div className="research-title"><p className="section-label">The dissection room</p><h1>What happens when<br/><em>we cut the wiring?</em></h1><p>Switch off simulated neurons or rearrange connection strengths. Then measure what the same trained classifier gets wrong.</p></div>
+ {error?<p role="alert" className="form-error">{error}</p>:null}
+ {!data&&!error?<p role="status">Loading measured lesions…</p>:null}
+ {data?.status!=="measured"&&data?<p className="form-error">Corrected ablation measurements are not published on this deployment yet.</p>:null}
+ {data?.status==="measured"?<><div className="research-metadata"><span>{data.total_neurons.toLocaleString()} neurons</span><span>{data.n_train} training examples</span><span>{data.n_test} test examples</span><span>Single-seed diagnostic</span></div>
+ <div className="results-controls"><label>Readout <select value={mode} onChange={e=>setMode(e.target.value as Mode)}><option value="activity_only">Fly activity only</option><option value="hybrid">MiniLM features + fly activity</option></select></label><p>{mode==="activity_only"?"The classifier only sees simulated neuron activity.":"The classifier still has the original MiniLM text features after the lesion."}</p></div>
+ <div className="surgery-grid"><div className="lesion-list" aria-label="Choose a measured lesion">{data.ablations.map((a,i)=><button key={a.ablation} aria-pressed={selected===i} onClick={()=>setSelected(i)}><span>{String(i+1).padStart(2,"0")}</span>{a.ablation}</button>)}</div>
+ {current&&after?<section className="effects-panel surgery-panel" aria-live="polite"><p className="section-label">Recorded intervention</p><h2>{current.ablation}</h2><p>{current.removed_neurons.toLocaleString()} neurons disabled · {current.remaining_edges.toLocaleString()} connections remain</p>
+ <svg viewBox="0 0 520 145" className="lesion-meter" role="img" aria-label={`Macro F1 before ${before.toFixed(3)}, after ${after.macro_f1.toFixed(3)}`}><text x="0" y="32">Intact</text><text x="0" y="91">After lesion</text><rect x="110" y="10" width="320" height="30" fill="#e0e3d7"/><rect x="110" y="10" width={before*320} height="30" fill="#375e45"/><rect x="110" y="70" width="320" height="30" fill="#e0e3d7"/><rect x="110" y="70" width={after.macro_f1*320} height="30" fill="#823d32"/><text x="445" y="32">{before.toFixed(3)}</text><text x="445" y="92">{after.macro_f1.toFixed(3)}</text><text x="110" y="135">Macro F1, from 0 to 1</text></svg>
+ <p className="effect-number">{after.delta_macro_f1>0?"+":""}{(after.delta_macro_f1*100).toFixed(2)} <small>F1 points</small></p><p>{mode==="hybrid"?"A small change can mean the text features carry the prediction. It does not prove that the damaged fly circuitry is resilient.":"This measures dependence on a computational circuit. It is not an experiment on a living fly."}</p></section>:null}</div>
+ <div className="research-notes"><h2>What stays fixed</h2><p>{data.protocol} Disabled neurons receive no input. Remaining connections are not amplified to compensate for the cut. Results here are precomputed measurements, not a new training run in your browser.</p><p>{data.note}</p><a href="/research/ablation_v2.json" download>Download the measured lesions ↗</a></div></>:null}</div>;
 }

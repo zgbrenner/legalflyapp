@@ -1,210 +1,104 @@
-# LegalFly
+# The Legal Fly: Legal Dreaming
 
-We cut wiring out of a dead fruit fly and asked it to smell secrets in legal text.
+**Teach a fly-wired network a few legal ideas. Remove the text. Watch what lingers.**
 
-LegalFly is an open-source Frankenstein experiment: Drosophila connectome topology, reanimated as a reservoir computer for sensitive-information detection.
+Legal Dreaming remakes the homepage as a browser-local associative replay experiment. It preserves the repository's real Janelia hemibrain subgraph and brain visualization. It does not substitute a random graph, a decorative animation, or a language model.
 
-![LegalFly interface](docs/screenshot.svg)
+The graph has **3,072 neurons and 293,766 directed connections**. This is the existing high-degree hemibrain subset, **not a whole fly brain**. All retained connections participate in the computation; the visualization shows a sample in an illustrative layout.
 
-> **Scientific framing:** This tests whether biological neural connectivity provides useful inductive structure for low-parameter text classification. LegalFly does **not** restore a mind, simulate consciousness, understand law, or provide legal advice. When hemibrain tissue is loaded, edges are real Janelia FlyEM connectivity (CC BY). The gothic tone is aesthetic; the metrics are measured.
+## Use it
 
-## Why this exists
-
-The strange-but-legitimate research question:
-
-**If you steal the wiring diagram of a fly brain, freeze most of it, and train only a thin readout — does that stolen biology help classify legal/compliance text better than matched random corpses?**
-
-Pipeline:
-
-```
-Legal text
-  → text encoder
-  → fixed-dimensional representation
-  → temporal / neural input encoding
-  → fruit-fly connectome reservoir (mostly fixed)
-  → reservoir activity
-  → small trainable readout
-  → classification
+```sh
+cd apps/web
+npm ci
+npm run dev
 ```
 
-Task #1: **sensitive-information detection** (`EMAIL`, `PHONE`, `SSN`, `CREDENTIAL`, `NONE`, …).
+Open `http://localhost:3000`. Select a reading set and a last-read card, then choose **Read, then dream**. Training and replay run in a dedicated browser worker. The graph exporter runs before development and production builds, using the checked-in biological NPZ and provenance. No Python API, AI service, or API key is needed for the new laboratory.
 
-## Real tissue vs demo corpse
+Build from a full repository checkout: `apps/web/scripts/export-dream-graph.mjs` reads `deploy/data/processed/hemibrain/biological` and `deploy/research-inputs/hemibrain-provenance.json`. Hosting restricted to the `apps/web` subtree must include these root-level source files in its build input.
 
-| Mode | What it is | License |
-|---|---|---|
-| **Hemibrain research** (preferred when built) | Surgical high-degree subgraph (~3072 neurons) from Janelia hemibrain v1.2 traced adjacencies | CC BY 4.0 |
-| **Demo** | Synthetic modular graph | MIT |
+## What it actually does
 
-```bash
-make fetch-hemibrain   # ~44MB compact adjacency tables
-make build-hemibrain   # surgical subgraph + random controls
-make train-hemibrain   # train readout on real tissue + compare/ablate
+1. A deterministic 64-dimensional word/character hashing encoder turns each teaching passage into numbers. No LLM is involved.
+2. Those numbers stimulate 384 seeded neurons in a leaky-tanh simulation of the measured connectivity.
+3. A small artificial ridge-regression readout learns to reconstruct each input vector from activity in 192 non-input neurons. **The original biological connections do not learn or change.**
+4. In **learned replay**, external text stops, but the learned numerical readout feeds back into the network. In **silence**, both external text and feedback are zero.
+5. A separate nearest-state atlas annotates activity. It abstains on quiet, ambiguous, or dissimilar states. The titles and legal concept labels do not drive the model.
+
+The important correction to an easy-to-make claim: labeling states in a fixed reservoir does not teach that reservoir to dream. Learned replay here has an explicit artificial feedback loop. It is not raw fly wiring spontaneously understanding law, and it is not biological sleep.
+
+## Available controls
+
+- Select mixed, contracts, torts, or privacy teaching sets.
+- Import 2–48 of your own JSON teaching cards, entirely locally.
+- Switch between learned replay and feedback-off silence.
+- Set the random seed and explicitly injected noise, including zero noise.
+- Pause, resume, restart from a different cue, and cancel reading or comparisons.
+- Inspect the actual sampled neural activity, rotate the original brain view, or use its 2D fallback.
+- Save/import a learned model with strict engine-version and graph-fingerprint checks.
+- Save a notebook containing the teaching text, cue, seed, mode, settings, sampled states, association scores, and controls.
+- Compare biological replay, feedback-off decay, and independently trained degree-matched rewired replay.
+
+Sessions stop after 2,048 steps and pause when the tab becomes hidden. Reduced-motion preferences suppress automatic replay after reading. Nothing is saved automatically. Downloaded files include your teaching text.
+
+## Scientific boundaries
+
+The starter set contains **16 original fictional legal scenarios**, not court opinions or verified holdings. The model uses lexical hashing, not a legal semantic encoder. Source notes and concept labels are supplied by the person preparing the corpus.
+
+A close atlas match is not a probability of legal correctness. An unmatched state is not a new doctrine or an unwritten case. A fixed point, repetition, or silence is a valid outcome. There is no prose generator and no hidden playlist of concepts.
+
+The display uses schematic positions, not EM coordinates. The model uses scaled positive connection counts and mathematical dynamics, not a neurotransmitter-signed spiking simulation. Model choices, the artificial feedback, and the sampled display are disclosed in `/dreaming-method`.
+
+## Measured first diagnostic
+
+Reproduce after graph export:
+
+```sh
+cd apps/web
+npm run test:dream
+node scripts/probe-dream.mjs ../../results/dreaming/diagnostics.json
 ```
 
-Processed hemibrain graphs live under `data/processed/hemibrain/` (gitignored; rebuild locally).
+The saved diagnostic uses 16 fictional cards, seeds 42/43/44, four preselected cues, 256 steps per run, and no injected noise. These are **dynamical diagnostics**, not held-out legal accuracy or proof of a biological advantage.
 
-## Measured training update (harder set + MiniLM)
+| Mode | Runs | Mean matched steps / 256 | Mean label changes | Final activity RMS range |
+|---|---:|---:|---:|---:|
+| Biological learned replay | 12 | 101.17 | 0.67 | 0.06119–0.07174 |
+| Biological feedback off | 12 | 46.17 | 1.33 | 0.00000012–0.00000677 |
+| Degree-matched rewired replay | 12 | 256.00 | 0.00 | 0.06138–0.07049 |
 
-### Full-data ceiling (seeds 42–43)
-| Model | Macro F1 |
-|---|---|
-| Degree-matched random | ~0.985 |
-| Random Erdos–Renyi | ~0.984 |
-| Linear (MiniLM readout) | ~0.982 |
-| Hemibrain connectome | ~0.981 |
+Label changes include transitions to abstention, not just jumps between cases. The initial biological runs mostly held an association or lost a clear match. They did **not** produce rich legal narratives, and the rewired control retained taught associations more consistently on this diagnostic. The interface does not hide either result.
 
-On the full harder set, scores are still near ceiling and biology does **not** beat matched random.
+For the biological model at seed 42, the thinned-card recognition diagnostic was 14/16; the same cards were used for teaching, so this is not an independent test set. Full raw traces and settings are in `results/dreaming/diagnostics.json`.
 
-### Few-shot headroom (`--max-train 160`, seeds 42–43)
-| Model | Macro F1 | Binary F1 |
-|---|---|---|
-| Linear | ~0.964 | 1.000 |
-| Hemibrain connectome | ~0.947 | 0.983 |
-| Degree-matched random | ~0.937 | 0.974 |
-| Random Erdos–Renyi | ~0.934 | 0.975 |
+## Verification
 
-With scarce labels, the stolen wiring **does** beat random twins — but the thin linear MiniLM readout still wins overall. Use `make train-fewshot` to reproduce.
-
-### Few-shot @ 120 labels × 3 seeds (MiniLM)
-| Model | Macro F1 | Binary F1 |
-|---|---|---|
-| Linear | ~0.935 | ~0.991 |
-| Hemibrain connectome | ~0.902 | ~0.969 |
-| Random Erdos–Renyi | ~0.898 | ~0.968 |
-| Degree-matched random | ~0.893 | ~0.962 |
-
-With fewer labels, biological topology keeps a thin edge over random twins; linear MiniLM still leads. Reproduce: `make train-fewshot`.
-
-### Few-shot @ 80 labels × 5 seeds (MiniLM)
-| Model | Macro F1 | Binary F1 |
-|---|---|---|
-| Linear | ~0.897 | ~0.949 |
-| Hemibrain connectome | ~0.842 | ~0.925 |
-| Random Erdos–Renyi | ~0.835 | ~0.917 |
-| Degree-matched random | ~0.831 | ~0.912 |
-
-Scarcer labels widen the gap a little: connectome stays ahead of both random twins; linear MiniLM still leads. Artifact: `results/comparison_fewshot_80.json`.
-
-### Few-shot @ 60 labels × 6 seeds (MiniLM)
-| Model | Macro F1 | Binary F1 |
-|---|---|---|
-| Linear | ~0.847 | ~0.914 |
-| Degree-matched random | ~0.797 | ~0.881 |
-| Connectome | ~0.796 | ~0.879 |
-| Random Erdos–Renyi | ~0.796 | ~0.878 |
-
-At 60 labels the biological edge collapses into noise — connectome and random twins are statistically tied; linear MiniLM still leads. Artifact: `results/comparison_fewshot_60.json`.
-
-### Few-shot @ 120 labels × 3 seeds (hashing encoder)
-| Model | Macro F1 |
-|---|---|
-| Linear | ~0.926 |
-| Random Erdos–Renyi | ~0.858 |
-| Degree-matched random | ~0.849 |
-| Hemibrain connectome | ~0.839 |
-
-With hashing features, random twins beat biology. Topology help is encoder-dependent — not a universal win.
-
-### Few-shot @ 80 labels × 5 seeds (hashing encoder)
-| Model | Macro F1 | Binary F1 |
-|---|---|---|
-| Linear | ~0.893 | ~0.963 |
-| Degree-matched random | ~0.795 | ~0.924 |
-| Random Erdos–Renyi | ~0.792 | ~0.922 |
-| Hemibrain connectome | ~0.774 | ~0.914 |
-
-Same story under scarcity with hashing: random twins beat biology. Artifact: `results/comparison_hashing_fewshot_80.json`.
-
-
-## Architecture
-
-```
-apps/web      Next.js research demo (classify, compare, ablate, benchmark)
-apps/api      FastAPI inference + artifact serving
-research/     datasets, encoders, reservoirs, baselines, experiments
-data/demo     redistributable synthetic graph + synthetic PII benchmark
-data/raw      downloaded hemibrain tables (ignored)
-data/processed  built reservoirs (ignored)
-results/      measured experiment JSON (never fabricated UI numbers)
+```sh
+pytest -q                            # existing Python research/API regression tests
+cd apps/web
+npm test                             # existing frontend tests
+npm run test:dream                   # real-graph engine and control tests
+npm run build                       # production build, lint, TypeScript
+# With a local production server running at http://127.0.0.1:3000:
+cd ../..
+python -m scripts.dream_browser_smoke # real browser-worker flows, not mocked scores
 ```
 
-## Quick start
+GitHub Actions also verifies the retained classifier against its actual Python API. Browser evidence and exact current verification boundaries belong in `DREAMING_VERIFICATION.md`.
 
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -e ".[dev]"
-cp .env.example .env
+## Earlier experiment
 
-make generate-data
-# Optional but recommended for the Frankenstein path:
-make train-hemibrain
+The prior sensitive-information classifier remains at `/classification`; results and lesion studies remain at `/benchmark` and `/ablate`. That older feature still sends text to its configured Python API. It is not covered by the new laboratory's browser-only processing claim.
 
-make api
-# → http://localhost:8000/health
+The earlier project README is preserved in `docs/CLASSIFIER_README.md`. Its original verification record remains in `RELEASE_VERIFICATION.md` and does not certify the new dreaming code.
 
-cd apps/web && npm install && npm run dev
-# → http://localhost:3000
-```
+## Source and license
 
-Or: `docker compose up --build`
+Code and original fictional teaching cards: MIT. Biological connectivity: Janelia FlyEM hemibrain v1.2, CC BY 4.0, Scheffer and colleagues (2020). The retained source archive was independently verified in the earlier corrected-engine work; this build verifies the packaged graph against that recorded provenance rather than redownloading the archive each time.
 
-## Research commands
+- Source archive SHA-256: `07d8946eb0c4e3a5cb23d5769c9817847494f9fcadbc0ca239eed7bbd5555cf7`
+- Biological graph fingerprint: `9d10adb17bf5a7a9287f55e78e11e1e8a63b6bcd1d99e0fb1b1b190a1feda56b`
+- Generated browser graph SHA-256: `74224a10d083123cb17ddabc663222b3f93c5d0e3d05533f766b0a66dc788831`
 
-```bash
-python -m research.experiments.run --model connectome --seed 42
-python -m research.experiments.run --model all --seed 42
-python -m research.experiments.compare --seeds 42,43,44
-python -m research.experiments.ablate --seed 42
-```
-
-## Web routes
-
-| Route | Purpose |
-|---|---|
-| `/` | Twin chamber: real tissue vs random twin |
-| `/benchmark` | Autopsy table of measured scores |
-| `/compare` | Real tissue vs randomized twin |
-| `/ablate` | Destroy the brain |
-| `/methodology` | How we borrow the dead |
-| `/about` | What this is / is not |
-
-## Privacy
-
-Submitted text is **not saved by default**. Logs store fingerprints/metadata only. Details: `docs/PRIVACY.md`.
-
-## Licensing
-
-- Code: MIT (`LICENSE`)
-- Demo graph + synthetic dataset: MIT
-- Hemibrain import: CC BY 4.0 (download separately; cite Scheffer / Xu / Plaza et al., Janelia FlyEM)
-- FlyWire import: CC BY-NC 4.0 (non-commercial only)
-
-Full provenance: `docs/DATA_AND_LICENSING.md`.
-
-## Limitations
-
-- Hemibrain mode uses a surgical subgraph, not the entire central brain
-- UI node positions are abstract region clusters, not EM coordinates
-- Synthetic PII can be easy for linear baselines
-- Browser visualization samples activity; it does not render every synapse
-- Dynamics are computational, not biophysically exact spiking
-
-## Brand tone
-
-Serious science, macabre theatre:
-
-- Feed it the text.
-- Destroy the brain.
-- Real tissue vs. randomized twin.
-- The tissue has rendered its verdict.
-
-Never: “the fly understands your contract.”
-Never: “we uploaded a consciousness.”
-
-## Deploy (Vercel + Render / Fly)
-
-The Next.js UI goes on **Vercel** (or Cloudflare Pages). The FastAPI reservoir needs a **container** (Render free tier or Fly.io) — not Vercel serverless / Cloudflare Workers.
-
-Step-by-step: see **[DEPLOY.md](./DEPLOY.md)**.
+The rewired control is generated afresh from that graph with exact directed degree, edge-count, and weight-multiset preservation. It does not reuse the stale packaged rewired artifact. Fingerprints, normalization factors, and accepted swap counts are in the generated `/dream/manifest.json`.

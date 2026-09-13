@@ -1,173 +1,42 @@
 "use client";
-
-import { useEffect, useState } from "react";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  ErrorBar,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { useEffect, useMemo, useState } from "react";
 import { fetchBenchmark } from "@/lib/api";
-
-type ModelRow = {
-  macro_f1_mean?: number;
-  macro_f1_std?: number;
-  macro_f1_ci95_approx?: number;
-  binary_sensitive_f1_mean?: number;
-  trainable_params?: number;
-  reservoir_size?: number | null;
-  edge_count?: number | null;
-  n_runs?: number;
-  status?: string;
-};
-
-const ORDER = [
-  "connectome",
-  "random_erdos",
-  "random_degree_preserving",
-  "random_weights",
-  "linear",
-  "mlp",
-];
-
-const LABELS: Record<string, string> = {
-  connectome: "Fly Connectome (demo)",
-  random_erdos: "Random Reservoir",
-  random_degree_preserving: "Degree-Controlled",
-  random_weights: "Random Weights",
-  linear: "Linear Baseline",
-  mlp: "MLP Baseline",
-};
-
+const NAMES: Record<string,string> = {connectome:"MiniLM + fly wiring",random_erdos:"MiniLM + random wiring",random_degree_preserving:"MiniLM + degree-matched wiring",linear:"MiniLM + linear readout",mlp:"MiniLM + small neural readout"};
+type Row = { macro_f1_mean:number; binary_sensitive_f1_mean:number; ci95?:number[]; n_runs:number; trainable_params:number; trainable_params_range?:number[]; reservoir_size?:number; edge_count?:number };
+type Trial = { pair_id:string; model:string; data_seed:number; graph_seed:number; macro_f1:number; binary_sensitive_f1:number; validation_f1:number };
+type Effect = { reference:string; delta:number; ci95?:number[]; status:string; p_value_unadjusted?:number };
+type Report = { status:string; interpretation:string; models:Record<string,Row>; comparisons?:Effect[]; pairs?:Trial[]; n_pairs?:number; max_train?:number; n_validation?:number; n_test?:number; data_seeds?:number[]; graph_seeds?:number[]; timestamp?:string; delivery?:string; limitations?:string[] };
+const ORDER=["connectome","linear","mlp","random_erdos","random_degree_preserving"];
+function PairPlot({ trials, reference }: { trials:Trial[]; reference:string }) {
+  const pairs=trials.filter(t=>t.model==="connectome").map(fly=>({fly,other:trials.find(t=>t.model===reference&&t.pair_id===fly.pair_id)})).filter(p=>p.other);
+  const values=pairs.flatMap(p=>[p.fly.macro_f1,p.other!.macro_f1]);
+  const low=Math.max(0,Math.min(...values,.95)-.015),high=Math.min(1,Math.max(...values,.96)+.015);
+  const y=(value:number)=>155-(value-low)/(high-low)*125;
+  return <svg className="paired-chart" viewBox="0 0 620 190" role="img" aria-label={`Paired macro F1 scores comparing ${NAMES[reference]} and fly wiring. Each line connects the same training-data and graph seed.`}>
+    {[low,(low+high)/2,high].map(v=><g key={v}><line x1="50" x2="595" y1={y(v)} y2={y(v)} stroke="#d0d4c6" strokeDasharray="3 5"/><text x="0" y={y(v)+4} fill="#60675d" fontSize="10">{v.toFixed(2)}</text></g>)}
+    {pairs.map(p=><g key={p.fly.pair_id}><title>{p.fly.pair_id}: baseline {p.other!.macro_f1.toFixed(4)}, fly {p.fly.macro_f1.toFixed(4)}</title><line x1="120" x2="505" y1={y(p.other!.macro_f1)} y2={y(p.fly.macro_f1)} stroke="#758c70" strokeOpacity=".35"/><circle cx="120" cy={y(p.other!.macro_f1)} r="3" fill="#384f3e"/><circle cx="505" cy={y(p.fly.macro_f1)} r="3" fill="#823d32"/></g>)}
+    <text x="120" y="182" textAnchor="middle" fill="#60675d" fontSize="11">Comparison model</text><text x="505" y="182" textAnchor="middle" fill="#60675d" fontSize="11">Fly wiring</text>
+  </svg>;
+}
 export default function BenchmarkPage() {
-  const [data, setData] = useState<any>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetchBenchmark()
-      .then(setData)
-      .catch((e) => setError(e.message));
-  }, []);
-
-  const models: Record<string, ModelRow> = data?.models ?? {};
-  const chartData = ORDER.filter((k) => models[k]).map((key) => ({
-    name: LABELS[key] ?? key,
-    f1: models[key].macro_f1_mean ?? 0,
-    err: models[key].macro_f1_ci95_approx ?? models[key].macro_f1_std ?? 0,
-  }));
-
-  return (
-    <div className="mx-auto max-w-6xl px-4 py-12 md:px-6">
-      <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-accent">Benchmark</p>
-      <h1 className="mt-3 font-display text-4xl font-semibold tracking-tight md:text-5xl">
-        Measured results
-      </h1>
-      <p className="mt-4 max-w-3xl text-ink/70">
-        The point is not leaderboard chasing. The central question is whether biological topology
-        differs from controlled random graphs under matched capacity. Values below are loaded from
-        experiment JSON — never fabricated.
-      </p>
-
-      {error ? (
-        <p className="mt-6 border border-accent/30 bg-accentsoft p-3 text-sm text-accent">{error}</p>
-      ) : null}
-
-      {!data ? (
-        <p className="mt-8 text-ink/50">Loading benchmark artifacts…</p>
-      ) : (
-        <>
-          <div className="mt-6 flex flex-wrap gap-4 font-mono text-xs uppercase tracking-wider text-ink/55">
-            <span>Status: {data.status}</span>
-            <span>Seeds: {(data.seeds ?? []).join(", ") || "—"}</span>
-            <span>N seeds: {data.n_seeds ?? "—"}</span>
-          </div>
-
-          <div className="mt-8 overflow-x-auto border border-ink/15 bg-paper/80">
-            <table className="min-w-full text-left text-sm">
-              <thead className="border-b border-ink/10 bg-mist/60 font-mono text-[11px] uppercase tracking-wider text-ink/60">
-                <tr>
-                  <th className="px-4 py-3">Model</th>
-                  <th className="px-4 py-3">Macro F1</th>
-                  <th className="px-4 py-3">Binary F1</th>
-                  <th className="px-4 py-3">Trainable params</th>
-                  <th className="px-4 py-3">Nodes / edges</th>
-                </tr>
-              </thead>
-              <tbody>
-                {ORDER.map((key) => {
-                  const row = models[key];
-                  if (!row) return null;
-                  if (row.status === "Not yet measured" || row.macro_f1_mean == null) {
-                    return (
-                      <tr key={key} className="border-b border-ink/5">
-                        <td className="px-4 py-3 font-medium">{LABELS[key]}</td>
-                        <td className="px-4 py-3 text-ink/45" colSpan={4}>
-                          Not yet measured
-                        </td>
-                      </tr>
-                    );
-                  }
-                  return (
-                    <tr key={key} className="border-b border-ink/5">
-                      <td className="px-4 py-3 font-medium">{LABELS[key]}</td>
-                      <td className="px-4 py-3 font-mono">
-                        {row.macro_f1_mean.toFixed(3)}
-                        {row.macro_f1_std != null ? ` ± ${row.macro_f1_std.toFixed(3)}` : ""}
-                      </td>
-                      <td className="px-4 py-3 font-mono">
-                        {row.binary_sensitive_f1_mean?.toFixed(3) ?? "—"}
-                      </td>
-                      <td className="px-4 py-3 font-mono">{row.trainable_params ?? "—"}</td>
-                      <td className="px-4 py-3 font-mono">
-                        {row.reservoir_size ?? "—"} / {row.edge_count ?? "—"}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="mt-8 border border-ink/15 bg-white/60 p-4">
-            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-ink/50">
-              Macro F1 with approx. 95% CI whiskers
-            </p>
-            <div className="mt-3 h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,18,16,0.08)" />
-                  <XAxis dataKey="name" tick={{ fontSize: 10 }} interval={0} angle={-18} textAnchor="end" height={70} />
-                  <YAxis domain={[0, 1]} tick={{ fontSize: 11 }} />
-                  <Tooltip />
-                  <Bar dataKey="f1" fill="#c45c26" radius={[2, 2, 0, 0]}>
-                    <ErrorBar dataKey="err" width={4} stroke="#0f1210" />
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          <div className="prose-narrow mt-10 space-y-3 text-sm text-ink/70">
-            <p>
-              <strong className="font-medium text-ink">Measured result:</strong> values come from
-              `results/comparison_latest.json` produced by `python -m research.experiments.compare`.
-            </p>
-            <p>
-              <strong className="font-medium text-ink">Hypothesis:</strong> biological wiring may
-              provide useful inductive bias versus random controls matched for size.
-            </p>
-            <p>
-              <strong className="font-medium text-ink">Do not overclaim:</strong> if the linear
-              baseline wins on this synthetic task, say so. Demo graphs are not anatomical fly brains.
-            </p>
-            <p>{data.interpretation}</p>
-          </div>
-        </>
-      )}
-    </div>
-  );
+  const [report,setReport]=useState<Report|null>(null),[error,setError]=useState<string|null>(null);
+  const [metric,setMetric]=useState("macro"),[reference,setReference]=useState("linear");
+  useEffect(()=>{let alive=true;fetchBenchmark().then(d=>{if(alive)setReport(d as Report);}).catch(e=>{if(alive)setError(e.message);});return()=>{alive=false;};},[]);
+  const models=report?.models??{};
+  const current=report?.comparisons?.find(e=>e.reference==="linear");
+  const range=useMemo(()=>Math.max(.01,...(report?.comparisons??[]).flatMap(e=>(e.ci95??[e.delta]).map(Math.abs)))*1.2,[report]);
+  const percent=(v:number)=>(v/range*.5+.5)*100;
+  return <div className="page-width results-page"><div className="results-header"><div><p className="section-label">The autopsy report</p><h1>Does the wiring help?</h1><p>The fly, scrambled controls, and standard classifiers. Same text features, same passages, same validation budget.</p></div><span className="status-pill">{(current?.delta??0)<0?"Linear baseline leads":current?.status==="fly_ahead"?"Fly mean is higher":"Evidence under review"}</span></div>
+    {error?<p role="alert" className="empty-notice">{error}</p>:!report?<p className="empty-notice" role="status">Loading the measured results…</p>:report.status!=="measured"?<p className="empty-notice">{report.interpretation}</p>:<>
+      <div className="results-meta"><span>{report.n_pairs} paired trials</span><span>{report.max_train} training examples</span><span>{report.n_validation} validation examples</span><span>{report.n_test} test passages</span><span>{report.data_seeds?.length} data seeds × {report.graph_seeds?.length} graph/input seeds</span></div>
+      <div className="results-grid"><div><div className="results-controls"><label htmlFor="metric">Score</label><select id="metric" value={metric} onChange={e=>setMetric(e.target.value)}><option value="macro">Macro F1 · all information types</option><option value="binary">Binary F1 · sensitive or not</option></select></div>
+        <table className="results-table"><thead><tr><th>Model</th><th>Mean F1</th><th>{metric==="macro"?"95% interval":"Trials"}</th></tr></thead><tbody>{ORDER.filter(key=>models[key]).map(key=><tr key={key} className={key==="connectome"?"fly-row":""}><td>{NAMES[key]}</td><td>{(metric==="macro"?models[key].macro_f1_mean:models[key].binary_sensitive_f1_mean).toFixed(4)}</td><td>{metric==="macro"?models[key].ci95?.map(v=>v.toFixed(3)).join(" to ")??"Not computed":models[key].n_runs}</td></tr>)}</tbody><caption>F1 balances missed detections and false alarms. Higher is better. Macro F1 gives each information type equal weight.</caption></table>
+        <div className="results-controls" style={{marginTop:32}}><label htmlFor="reference">Pair the fly with</label><select id="reference" value={reference} onChange={e=>setReference(e.target.value)}>{ORDER.filter(k=>k!=="connectome").map(k=><option key={k} value={k}>{NAMES[k]}</option>)}</select></div>
+        {report.pairs?.length?<PairPlot trials={report.pairs} reference={reference}/>:null}<p style={{fontSize:11,color:"var(--muted)"}}>Macro F1 is shown in this plot. Each line links a matched trial. Upward toward the fly means a higher fly score. These trials share the same test passages.</p>
+      </div><aside className="effects-panel"><h2>The fly’s margin.</h2><p>Difference in macro F1, with a paired 95% interval. The center line is a tie. Crossing it means the direction is uncertain.</p>{report.comparisons?.map(effect=><div className="effect-row" key={effect.reference}><div className="effect-row-top"><span>vs. {NAMES[effect.reference]?.replace("MiniLM + ","")}</span><b>{effect.delta>=0?"+":""}{(effect.delta*100).toFixed(2)} pts</b></div><div className="effect-track" role="img" aria-label={`Difference ${effect.delta.toFixed(4)}; interval ${effect.ci95?.join(" to ")}`}><span className="effect-ci" style={{left:`${percent(effect.ci95?.[0]??effect.delta)}%`,width:`${((effect.ci95?.[1]??effect.delta)-(effect.ci95?.[0]??effect.delta))/range*50}%`}}/><span className="effect-dot" style={{left:`${percent(effect.delta)}%`}}/></div><div className="effect-note">{effect.status==="inconclusive"?"INCONCLUSIVE":effect.delta<0?"COMPARISON MEAN HIGHER":"FLY MEAN HIGHER"} · p {effect.p_value_unadjusted?.toFixed(3)??"not computed"}</div></div>)}<p>Intervals cluster on training-data seed. Permutation p-values are exploratory and not adjusted for multiple comparisons.</p></aside></div>
+      <details className="trials-details"><summary>Inspect every paired trial</summary><div className="trials-scroll"><table className="results-table"><thead><tr><th>Data / graph seed</th><th>Model</th><th>Test macro F1</th><th>Validation F1</th></tr></thead><tbody>{report.pairs?.map(t=><tr key={`${t.pair_id}-${t.model}`}><td>{t.data_seed} / {t.graph_seed}</td><td>{NAMES[t.model]}</td><td>{t.macro_f1.toFixed(4)}</td><td>{t.validation_f1.toFixed(4)}</td></tr>)}</tbody></table></div></details>
+      <section className="field-notes" style={{marginTop:35,paddingTop:30}}><div><p className="section-label">Read the fine print</p><h2>A harder test.<br/>Not a final verdict.</h2></div><div><p>{report.interpretation}</p><p>The fly models in this experiment are hybrids: they retain MiniLM’s original features and add fly activity. This is not a fly replacing MiniLM. All five model families received 18 validation candidates; the test was evaluated after those choices were saved.</p><p>{report.limitations?.join(" ")}</p><a href="/research/comparison_v2.json" download className="text-link result-download">Download the complete measurement record ↓</a><br/><a href="/research/comparison_v2_selection.json.gz" download className="text-link result-download">Download all validation choices (.json.gz) ↓</a></div></section>
+      <p className="experiment-footnote">Measured {report.timestamp?new Date(report.timestamp).toLocaleString():"date not reported"}. {report.delivery==="bundled_results"?"Showing the bundled research artifact, not a live measurement.":"Loaded from the API’s published research artifact."} Earlier results used a different, incorrect propagation/control implementation and are not comparable.</p>
+    </>}
+  </div>;
 }

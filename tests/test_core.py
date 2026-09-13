@@ -161,18 +161,24 @@ def test_ablation_changes_graph():
     assert ab.n_edges < g.n_edges
 
 
-def test_hard_legal_dataset_preferred():
-    from pathlib import Path
-
-    from research.datasets.generate_hard_legal_dataset import write_dataset
-    from research.datasets.sensitive import load_sensitive_split
-
-    hard = Path(__file__).resolve().parents[1] / "data" / "demo" / "sensitive_hard"
-    if not (hard / "train.jsonl").exists():
-        write_dataset(hard, train_n=40, val_n=10, test_n=10)
-    rows = load_sensitive_split("train")
-    assert rows
-    assert any(ex.metadata.get("task") == 'sensitive_information_hard' for ex in rows)
+def test_hard_legal_dataset_preferred(tmp_path, monkeypatch):
+    """Dataset precedence must not depend on artifacts left by another test."""
+    import json
+    from research.datasets import sensitive
+    monkeypatch.setattr(sensitive, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(sensitive, "DEFAULT_DIR", tmp_path / "data/demo/sensitive")
+    for suffix in ("", "_hard", "_harder"):
+        directory = tmp_path / "data/demo" / ("sensitive" + suffix)
+        directory.mkdir(parents=True)
+        task = "sensitive_information" + suffix
+        row = {"text": "A synthetic passage", "labels": ["NONE"],
+               "contains_sensitive": False, "task": task}
+        for split in ("train", "validation", "test"):
+            (directory / f"{split}.jsonl").write_text(json.dumps(row) + "\n")
+        for split in ("train", "validation", "test"):
+            assert sensitive.load_sensitive_split(split)[0].metadata["task"] == task
+    # Explicit data_dir takes precedence over automatic harder-set selection.
+    assert sensitive.load_sensitive_split("train", tmp_path / "data/demo/sensitive_hard")[0].metadata["task"] == "sensitive_information_hard"
 
 
 def test_default_ablations_include_regions():
