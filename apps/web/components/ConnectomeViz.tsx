@@ -5,7 +5,7 @@ import * as THREE from "three";
 import type { Simulation } from "@/lib/api";
 import { displayActivity, schematicPosition } from "@/lib/brain-layout";
 export type PlaybackClock = { time: number; paused: boolean };
-type Props = { simulation?: Simulation | null; playing?: boolean; className?: string; title?: string; heightClass?: string; clock?: MutableRefObject<PlaybackClock>; angle?: number; reducedMotion?: boolean };
+type Props = { simulation?: Simulation | null; playing?: boolean; className?: string; title?: string; heightClass?: string; clock?: MutableRefObject<PlaybackClock>; angle?: number; reducedMotion?: boolean; live?: boolean };
 const VERTEX = `attribute float glow; varying float vGlow; uniform float uSize;
 void main(){vGlow=glow;vec4 p=modelViewMatrix*vec4(position,1.0);gl_PointSize=uSize*(.5+glow*1.6)*(8.0/-p.z);gl_Position=projectionMatrix*p;}`;
 const FRAGMENT = `precision mediump float; varying float vGlow; uniform float uBase;
@@ -17,8 +17,8 @@ function pointMaterial(size: number, base: number) {
 }
 function Scene({ simulation, clock, angle, onSelect }: { simulation: Simulation; clock: MutableRefObject<PlaybackClock>; angle: number; onSelect: (i: number) => void }) {
   const ids = simulation.node_ids ?? (simulation.indices ?? []).map(String);
-  const positions = useMemo(() => ids.map(schematicPosition), [simulation]); // eslint-disable-line react-hooks/exhaustive-deps
-  const edges = useMemo(() => (simulation.edges ?? []).filter(([a,b]) => a < positions.length && b < positions.length), [simulation, positions]);
+  const positions = useMemo(() => ids.map(schematicPosition), [simulation.node_ids, simulation.indices]); // eslint-disable-line react-hooks/exhaustive-deps
+  const edges = useMemo(() => (simulation.edges ?? []).filter(([a,b]) => a < positions.length && b < positions.length), [simulation.edges, positions]);
   const group = useRef<THREE.Group>(null);
   const objects = useMemo(() => {
     const points = new THREE.BufferGeometry();
@@ -78,12 +78,12 @@ class SceneBoundary extends Component<{ children: ReactNode; fallback: ReactNode
   static getDerivedStateFromError() { return { failed: true }; }
   render() { return this.state.failed ? this.props.fallback : this.props.children; }
 }
-export function ConnectomeViz({ simulation, playing = true, className = "", title = "Fly wiring", clock, angle = 0, reducedMotion = false }: Props) {
+export function ConnectomeViz({ simulation, playing = true, className = "", title = "Fly wiring", clock, angle = 0, reducedMotion = false, live = false }: Props) {
   const ownClock = useRef<PlaybackClock>({ time:0,paused:!playing });
   const activeClock = clock ?? ownClock;
   const [webgl,setWebgl] = useState(false),[flat,setFlat] = useState(false),[selected,setSelected] = useState(0);
   useEffect(() => { try { const canvas=document.createElement("canvas"); const context=canvas.getContext("webgl2"); setWebgl(Boolean(context)); context?.getExtension("WEBGL_lose_context")?.loseContext(); } catch { setWebgl(false); } }, []);
-  useEffect(() => { setSelected(0); }, [simulation]);
+  useEffect(() => { setSelected(0); }, [simulation?.graph_hash]);
   useEffect(() => {
     if (clock || !playing || reducedMotion) return;
     let frame=0,last=performance.now();
@@ -98,7 +98,7 @@ export function ConnectomeViz({ simulation, playing = true, className = "", titl
     {hasData && simulation ? <SceneBoundary fallback={<FlatBrain simulation={simulation}/>}>{mode2d ? <FlatBrain simulation={simulation}/> :
       <Canvas frameloop={playing ? "always" : "demand"} camera={{ position:[0,.15,6.9],fov:40 }} dpr={[1,1.5]} gl={{ antialias:true,alpha:true }} raycaster={{ params:{ Mesh:{}, Line:{threshold:1}, LOD:{}, Sprite:{}, Points:{ threshold:.07 } } }} aria-label={`${title}: measured neuron activity in an illustrative brain-shaped layout`}><Scene simulation={simulation} clock={activeClock} angle={angle} onSelect={setSelected}/></Canvas>}</SceneBoundary> : <div className="brain-empty">Run a passage to inspect the neural response.</div>}
     <div className="brain-hud">{hasData ? <>{ids.length} NEURONS DISPLAYED<br/>{(simulation?.edges?.length ?? 0).toLocaleString()} CONNECTIONS DISPLAYED<br/>SCHEMATIC, NOT MICROSCOPY</> : "NO ACTIVITY LOADED"}</div>
-    <div className="brain-scale">{mode2d ? "2D / FINAL STATE" : "ACTIVITY ×18"}</div></div>
-    {hasData ? <div className="neuron-inspector"><label htmlFor={`neuron-${title.replaceAll(" ","-")}`}>Inspect neuron</label><select id={`neuron-${title.replaceAll(" ","-")}`} value={id} onChange={e=>setSelected(Number(e.target.value))}>{ids.map((node,i)=><option key={`${node}-${i}`} value={i}>{node}</option>)}</select><span>{simulation?.regions?.[id]?.replaceAll("_"," ")}</span><span className="neuron-degree">{simulation?.in_degrees?.[id] ?? "?"} in / {simulation?.out_degrees?.[id] ?? "?"} out · final {(simulation?.final_activity?.[id] ?? 0).toFixed(4)}</span>{webgl ? <button type="button" onClick={()=>setFlat(v=>!v)} style={{ marginLeft:"auto",fontSize:10,textDecoration:"underline" }}>{flat ? "3D view" : "2D view"}</button> : null}</div> : null}
+    <div className="brain-scale">{live ? "LIVE MODEL STATE" : mode2d ? "2D / FINAL STATE" : "ACTIVITY ×18"}</div></div>
+    {hasData ? <div className="neuron-inspector"><label htmlFor={`neuron-${title.replaceAll(" ","-")}`}>Inspect neuron</label><select id={`neuron-${title.replaceAll(" ","-")}`} value={id} onChange={e=>setSelected(Number(e.target.value))}>{ids.map((node,i)=><option key={`${node}-${i}`} value={i}>{node}</option>)}</select><span>{simulation?.regions?.[id]?.replaceAll("_"," ")}</span><span className="neuron-degree">{simulation?.in_degrees?.[id] ?? "?"} in / {simulation?.out_degrees?.[id] ?? "?"} out · {live ? "current" : "final"} {(simulation?.final_activity?.[id] ?? 0).toFixed(4)}</span>{webgl ? <button type="button" onClick={()=>setFlat(v=>!v)} style={{ marginLeft:"auto",fontSize:10,textDecoration:"underline" }}>{flat ? "3D view" : "2D view"}</button> : null}</div> : null}
   </div>;
 }

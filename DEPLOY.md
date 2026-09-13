@@ -1,4 +1,17 @@
-# Deploy The Legal Fly
+# Deploy Legal Dreaming
+
+The new homepage is a browser-local laboratory. It needs only the Next.js site, not the Python inference server. Build a full repository checkout with `cd apps/web && npm ci && npm run build`; the prebuild step exports and checksum-verifies the existing packaged biological graph.
+
+For a Vercel project rooted at `apps/web`, ensure the build has access to the root-level `deploy/data/processed/hemibrain/biological` and `deploy/research-inputs` source files. Do not replace missing graph input with a synthetic fallback. Verify the preview loads `/dream/manifest.json` and both graph binary assets. HTTPS is required for browser SHA-256 checks outside localhost.
+
+No API keys or `NEXT_PUBLIC_API_URL` are needed for dreaming. The existing `/classification` route still needs the separate Python API described below. Keep those two privacy and deployment boundaries distinct.
+
+Before promotion run `npm test`, `npm run test:dream`, `npm run build`, and `python -m scripts.dream_browser_smoke` against the production build. Test downloads, imports, cancellation, controls, and mobile layout. Do not enable analytics that capture entered text, session replay, request-body logging, or third-party script injection. This repository change does not itself certify or promote the existing production deployment.
+
+---
+
+## Retained classifier deployment
+
 
 The Next.js website and Python inference service are separate deployments. Updating the website does not update the trained server models. Deploy both from the same reviewed release.
 

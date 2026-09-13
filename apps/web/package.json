@@ -8,7 +8,10 @@
     "start": "next start",
     "lint": "eslint . --ext .ts,.tsx",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "predev": "node scripts/export-dream-graph.mjs",
+    "prebuild": "node scripts/export-dream-graph.mjs",
+    "test:dream": "node scripts/export-dream-graph.mjs && node --test tests/dream/*.test.mjs"
   },
   "dependencies": {
     "@react-three/fiber": "9.7.0",

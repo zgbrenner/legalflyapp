@@ -1,2 +1,2 @@
 import { redirect } from "next/navigation";
-export default function ComparePage() { redirect("/#experiment"); }
+export default function ComparePage() { redirect("/classification#experiment"); }

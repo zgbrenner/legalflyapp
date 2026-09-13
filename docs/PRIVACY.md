@@ -1,4 +1,15 @@
-# Privacy and the public experiment
+# Legal Dreaming privacy
+
+The new `/` laboratory reads, trains, simulates, and decodes in a dedicated browser worker. Imported teaching cards and models are read as local files. Application network requests fetch same-origin static assets, not the teaching text. No language-model service or inference API is used by this laboratory. There is no automatic persistence.
+
+Notebook and model downloads include your teaching passages and annotations. Keep them confidential where appropriate. The notebook contains bounded sampled state traces, not an exhaustive biological recording. Hosting may still record ordinary static-asset requests and IP addresses; browser-local computation is not a promise of anonymity or a substitute for a deployment security review.
+
+Reading and replay can be cancelled or paused. The worker cooperatively yields during training and stops advancing after a pause; leaving the route terminates it. Hidden tabs trigger pause. Do not add analytics, error payload collection, or session replay that captures user text.
+
+## Different boundary: the earlier classifier
+
+The retained `/classification` feature uses a Python inference API and has the separate behavior below. The browser-only claim does not apply to that older route.
+
 
 The Legal Fly is a public research demo. Do not submit real client information, passwords, privileged communications, or documents you are not authorized to share.
 

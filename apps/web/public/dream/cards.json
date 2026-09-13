@@ -1,0 +1,194 @@
+[
+  {
+    "id": "borrowed-key",
+    "title": "The borrowed key",
+    "area": "Privacy",
+    "text": "A guest gives a friend a key to water the plants. The friend uses the key to open a locked cabinet and read private letters.",
+    "concepts": [
+      "consent",
+      "scope",
+      "privacy"
+    ],
+    "source": "Original fictional teaching scenario. Not a case or a statement of law."
+  },
+  {
+    "id": "last-repair",
+    "title": "The last repair",
+    "area": "Contracts",
+    "text": "A collector promises to pay a watchmaker to restore a broken clock. The watchmaker buys parts and repairs the clock. The collector withdraws the promise.",
+    "concepts": [
+      "promise",
+      "reliance",
+      "payment"
+    ],
+    "source": "Original fictional teaching scenario. Not a case or a statement of law."
+  },
+  {
+    "id": "museum-stair",
+    "title": "The museum stair",
+    "area": "Torts",
+    "text": "A museum visitor warns a caretaker that a stair is broken. The caretaker postpones the repair. Another visitor steps on the same stair and falls.",
+    "concepts": [
+      "notice",
+      "care",
+      "injury"
+    ],
+    "source": "Original fictional teaching scenario. Not a case or a statement of law."
+  },
+  {
+    "id": "unsigned-letter",
+    "title": "The unsigned letter",
+    "area": "Contracts",
+    "text": "A buyer mails a letter accepting a seller’s price for a rare watch. Before the letter arrives, the seller attempts to withdraw the offer.",
+    "concepts": [
+      "offer",
+      "acceptance",
+      "timing"
+    ],
+    "source": "Original fictional teaching scenario. Not a case or a statement of law."
+  },
+  {
+    "id": "midnight-photo",
+    "title": "The midnight photograph",
+    "area": "Privacy",
+    "text": "A photographer receives permission to photograph an empty house for a sale. The photographer also captures private letters and publishes those images.",
+    "concepts": [
+      "permission",
+      "scope",
+      "publication"
+    ],
+    "source": "Original fictional teaching scenario. Not a case or a statement of law."
+  },
+  {
+    "id": "unattended-hound",
+    "title": "The unattended hound",
+    "area": "Torts",
+    "text": "A keeper knows a hound can slip through a damaged gate. The keeper leaves the gate unrepaired. The hound runs into the road and causes a cyclist to fall.",
+    "concepts": [
+      "notice",
+      "foreseeability",
+      "causation"
+    ],
+    "source": "Original fictional teaching scenario. Not a case or a statement of law."
+  },
+  {
+    "id": "boundary-wall",
+    "title": "The boundary wall",
+    "area": "Property",
+    "text": "Two neighbors disagree about a boundary. One builds a wall on the disputed strip while the other objects. An old survey places the boundary elsewhere.",
+    "concepts": [
+      "boundary",
+      "possession",
+      "notice"
+    ],
+    "source": "Original fictional teaching scenario. Not a case or a statement of law."
+  },
+  {
+    "id": "vanished-recording",
+    "title": "The vanished recording",
+    "area": "Evidence",
+    "text": "A shop camera records a disputed sale. After receiving a letter requesting the recording, the owner deletes it. The parties disagree about what the camera showed.",
+    "concepts": [
+      "preservation",
+      "notice",
+      "proof"
+    ],
+    "source": "Original fictional teaching scenario. Not a case or a statement of law."
+  },
+  {
+    "id": "silent-alarm",
+    "title": "The silent alarm",
+    "area": "Torts",
+    "text": "An inspector discovers a broken alarm in a crowded theater. The inspector leaves without warning the manager. A small fire begins later that night.",
+    "concepts": [
+      "warning",
+      "omission",
+      "causation"
+    ],
+    "source": "Original fictional teaching scenario. Not a case or a statement of law."
+  },
+  {
+    "id": "locked-drawer",
+    "title": "The locked drawer",
+    "area": "Privacy",
+    "text": "An employee permits a supervisor to inspect a shared filing cabinet. A separate drawer is locked and marked personal. The supervisor opens it and copies a diary.",
+    "concepts": [
+      "consent",
+      "expectation",
+      "scope"
+    ],
+    "source": "Original fictional teaching scenario. Not a case or a statement of law."
+  },
+  {
+    "id": "empty-gallery",
+    "title": "The empty gallery",
+    "area": "Contracts",
+    "text": "An artist promises to exhibit a collection on a fixed date. The gallery pays for invitations in reliance on the promise. The artist sends the collection elsewhere.",
+    "concepts": [
+      "promise",
+      "reliance",
+      "loss"
+    ],
+    "source": "Original fictional teaching scenario. Not a case or a statement of law."
+  },
+  {
+    "id": "flooded-cellar",
+    "title": "The flooded cellar",
+    "area": "Property",
+    "text": "A landowner redirects a drain toward a neighboring cellar. The neighbor complains before a storm. During the storm, water enters the cellar and damages stored books.",
+    "concepts": [
+      "use",
+      "notice",
+      "harm"
+    ],
+    "source": "Original fictional teaching scenario. Not a case or a statement of law."
+  },
+  {
+    "id": "second-letter",
+    "title": "The second letter",
+    "area": "Evidence",
+    "text": "A witness remembers a letter that no longer exists. Another witness recalls a different date. A photograph shows an envelope but not its contents.",
+    "concepts": [
+      "memory",
+      "corroboration",
+      "uncertainty"
+    ],
+    "source": "Original fictional teaching scenario. Not a case or a statement of law."
+  },
+  {
+    "id": "secret-copy",
+    "title": "The secret copy",
+    "area": "Privacy",
+    "text": "A client lets a repairer open a laptop to replace a battery. The repairer copies private photographs unrelated to the repair and keeps them after returning the laptop.",
+    "concepts": [
+      "permission",
+      "purpose",
+      "retention"
+    ],
+    "source": "Original fictional teaching scenario. Not a case or a statement of law."
+  },
+  {
+    "id": "unpaid-promise",
+    "title": "The unpaid promise",
+    "area": "Contracts",
+    "text": "A shopkeeper promises a reward for finding a lost dog. A passerby reads the notice, finds the dog, and brings it home. The shopkeeper refuses payment.",
+    "concepts": [
+      "notice",
+      "performance",
+      "promise"
+    ],
+    "source": "Original fictional teaching scenario. Not a case or a statement of law."
+  },
+  {
+    "id": "falling-sign",
+    "title": "The falling sign",
+    "area": "Torts",
+    "text": "A loose sign hangs over a pavement. A caretaker receives two warnings but does not secure it. Wind dislodges the sign and damages a parked bicycle.",
+    "concepts": [
+      "notice",
+      "precaution",
+      "damage"
+    ],
+    "source": "Original fictional teaching scenario. Not a case or a statement of law."
+  }
+]

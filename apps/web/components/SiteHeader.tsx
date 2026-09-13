@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FlyMark } from "./FlyMark";
-const links = [["/", "Experiment"], ["/benchmark", "Results"], ["/ablate", "Ablations"], ["/methodology", "Method"], ["/about", "About"]];
+const links = [["/", "Dreaming"], ["/#notebook", "Notebook"], ["/dreaming-method", "Method"], ["/classification", "Earlier experiment"]];
 export function SiteHeader() {
   const path = usePathname();
   return <header className="site-header"><div className="site-header-inner">
