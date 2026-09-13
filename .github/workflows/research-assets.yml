@@ -1,0 +1,60 @@
+name: Research assets
+on:
+  push:
+    branches: ['feat/the-legal-fly']
+    paths: ['.github/workflows/research-assets.yml']
+permissions:
+  contents: read
+jobs:
+  embeddings:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - run: pip install sentence-transformers
+      - name: Encode unchanged synthetic splits
+        run: |
+          python - <<'PY'
+          import json, hashlib, numpy as np
+          from pathlib import Path
+          from sentence_transformers import SentenceTransformer
+          model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+          payload = {}
+          manifest = {'encoder': 'sentence-transformers/all-MiniLM-L6-v2', 'files': {}}
+          for split in ('train', 'validation', 'test'):
+              path = Path('data/demo/sensitive_harder') / (split + '.jsonl')
+              texts = [json.loads(line)['text'] for line in path.read_text().splitlines()]
+              payload[split] = model.encode(texts, normalize_embeddings=True, show_progress_bar=False)
+              manifest['files'][split] = hashlib.sha256(path.read_bytes()).hexdigest()
+          np.savez_compressed('minilm_embeddings.npz', **payload)
+          Path('embedding_manifest.json').write_text(json.dumps(manifest, indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: minilm-embeddings
+          path: |
+            minilm_embeddings.npz
+            embedding_manifest.json
+          retention-days: 7
+  web-runtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: cd apps/web && npm ci
+      - run: tar -czf web-runtime.tar.gz -C apps/web node_modules
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web-runtime
+          path: web-runtime.tar.gz
+          retention-days: 3
