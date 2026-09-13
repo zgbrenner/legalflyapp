@@ -202,3 +202,9 @@ Serious science, macabre theatre:
 
 Never: “the fly understands your contract.”
 Never: “we uploaded a consciousness.”
+
+## Deploy (Vercel + Render / Fly)
+
+The Next.js UI goes on **Vercel** (or Cloudflare Pages). The FastAPI reservoir needs a **container** (Render free tier or Fly.io) — not Vercel serverless / Cloudflare Workers.
+
+Step-by-step: see **[DEPLOY.md](./DEPLOY.md)**.

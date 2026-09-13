@@ -27,7 +27,13 @@ class Settings(BaseSettings):
 
     @property
     def cors_origin_list(self) -> list[str]:
-        return [o.strip() for o in self.legalfly_cors_origins.split(",") if o.strip()]
+        """Comma-separated origins, or '*' to allow any browser origin."""
+        raw = [o.strip() for o in self.legalfly_cors_origins.split(",") if o.strip()]
+        return raw
+
+    @property
+    def cors_allow_all(self) -> bool:
+        return self.cors_origin_list == ["*"]
 
     @property
     def repo_root(self) -> Path:

@@ -1,0 +1,132 @@
+{
+  "mode": "hemibrain_research",
+  "dataset": "janelia_hemibrain_v1.2",
+  "license": "CC BY 4.0",
+  "anatomical_edges": true,
+  "anatomical_coordinates": false,
+  "max_nodes": 3072,
+  "min_weight": 2,
+  "seed": 42,
+  "variants": {
+    "biological": {
+      "n_nodes": 3072,
+      "n_edges": 293766,
+      "control": "biological",
+      "regions": [
+        "antennal_lobe_like",
+        "central_brain",
+        "central_complex",
+        "descending",
+        "mushroom_body",
+        "optic_lobe_like"
+      ],
+      "metadata": {
+        "source": "janelia_hemibrain_v1.2",
+        "license": "CC BY 4.0",
+        "attribution": "Scheffer et al. / Janelia FlyEM hemibrain. Compact adjacency: exported-traced-adjacencies-v1.2.",
+        "anatomical": true,
+        "layout": "abstract_region_clusters_not_em_coordinates",
+        "selection": "top_degree_surgical_subgraph",
+        "max_nodes": 3072,
+        "min_weight": 2,
+        "parent_neurons_traced": 21739,
+        "parent_edges_considered": 1764123,
+        "description": "Real hemibrain synapse-weighted edges among the highest-degree traced neurons. A surgical cut of biological tissue topology, reanimated as a computational reservoir. Not a mind.",
+        "seed": 42
+      }
+    },
+    "random_erdos": {
+      "n_nodes": 3072,
+      "n_edges": 289248,
+      "control": "random_erdos",
+      "regions": [
+        "antennal_lobe_like",
+        "central_brain",
+        "central_complex",
+        "descending",
+        "mushroom_body",
+        "optic_lobe_like"
+      ],
+      "metadata": {
+        "source": "janelia_hemibrain_v1.2",
+        "license": "CC BY 4.0",
+        "attribution": "Scheffer et al. / Janelia FlyEM hemibrain. Compact adjacency: exported-traced-adjacencies-v1.2.",
+        "anatomical": true,
+        "layout": "abstract_region_clusters_not_em_coordinates",
+        "selection": "top_degree_surgical_subgraph",
+        "max_nodes": 3072,
+        "min_weight": 2,
+        "parent_neurons_traced": 21739,
+        "parent_edges_considered": 1764123,
+        "description": "Real hemibrain synapse-weighted edges among the highest-degree traced neurons. A surgical cut of biological tissue topology, reanimated as a computational reservoir. Not a mind.",
+        "seed": 42,
+        "randomized": "erdos",
+        "parent_control": "biological",
+        "parent_source": "janelia_hemibrain_v1.2",
+        "control_note": "Matched-size randomisation of the surgical hemibrain subgraph."
+      }
+    },
+    "random_degree_preserving": {
+      "n_nodes": 3072,
+      "n_edges": 284686,
+      "control": "random_degree_preserving",
+      "regions": [
+        "antennal_lobe_like",
+        "central_brain",
+        "central_complex",
+        "descending",
+        "mushroom_body",
+        "optic_lobe_like"
+      ],
+      "metadata": {
+        "source": "janelia_hemibrain_v1.2",
+        "license": "CC BY 4.0",
+        "attribution": "Scheffer et al. / Janelia FlyEM hemibrain. Compact adjacency: exported-traced-adjacencies-v1.2.",
+        "anatomical": true,
+        "layout": "abstract_region_clusters_not_em_coordinates",
+        "selection": "top_degree_surgical_subgraph",
+        "max_nodes": 3072,
+        "min_weight": 2,
+        "parent_neurons_traced": 21739,
+        "parent_edges_considered": 1764123,
+        "description": "Real hemibrain synapse-weighted edges among the highest-degree traced neurons. A surgical cut of biological tissue topology, reanimated as a computational reservoir. Not a mind.",
+        "seed": 42,
+        "randomized": "degree_preserving",
+        "swaps": 587532,
+        "parent_source": "janelia_hemibrain_v1.2",
+        "control_note": "Matched-size randomisation of the surgical hemibrain subgraph."
+      }
+    },
+    "random_weights": {
+      "n_nodes": 3072,
+      "n_edges": 293766,
+      "control": "random_weights",
+      "regions": [
+        "antennal_lobe_like",
+        "central_brain",
+        "central_complex",
+        "descending",
+        "mushroom_body",
+        "optic_lobe_like"
+      ],
+      "metadata": {
+        "source": "janelia_hemibrain_v1.2",
+        "license": "CC BY 4.0",
+        "attribution": "Scheffer et al. / Janelia FlyEM hemibrain. Compact adjacency: exported-traced-adjacencies-v1.2.",
+        "anatomical": true,
+        "layout": "abstract_region_clusters_not_em_coordinates",
+        "selection": "top_degree_surgical_subgraph",
+        "max_nodes": 3072,
+        "min_weight": 2,
+        "parent_neurons_traced": 21739,
+        "parent_edges_considered": 1764123,
+        "description": "Real hemibrain synapse-weighted edges among the highest-degree traced neurons. A surgical cut of biological tissue topology, reanimated as a computational reservoir. Not a mind.",
+        "seed": 42,
+        "randomized": "weights",
+        "parent_source": "janelia_hemibrain_v1.2",
+        "control_note": "Matched-size randomisation of the surgical hemibrain subgraph."
+      }
+    }
+  },
+  "warning": "Edges are real hemibrain connectivity. Node positions in the UI are abstract region clusters for visualization \u2014 not EM skeleton coordinates."
+}

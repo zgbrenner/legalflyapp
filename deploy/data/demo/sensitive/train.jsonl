@@ -1,0 +1,800 @@
+{"text": "Service of process may be made at 6144 Harbor Street, Oakmont, ST 12700. Please contact me at taylor.silva89@example.com regarding the contract.", "labels": ["ADDRESS", "EMAIL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Venue\tlies in the district court.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Temporary  password  is  Tmp!8813.  Charge  8141  5604  4260  6514  for  the  filing  fee.", "labels": ["CREDENTIAL", "CREDIT_CARD"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "notify morgan chen immediately.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "hard"}
+{"text": "Payment is due net thirty days.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Payment method: 3594 1880 1376 7083", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "phone: (398) 614-3255", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "driver license number d1584497.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Account  balance  at  Harbor  Financial  is  $20,964.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "The\tinsured person is Alex Ivanov.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "The statute of limitations is three years.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "SHIP THE BINDER TO 9678 HARBOR STREET, CEDAR FALLS, ST 82326.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "IBAN-LIKE DEMO ACCOUNT EX332490938133 HOLDS RESERVE FUNDS.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "CC: sam.silva49@example.com", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "THE PARTIES AGREE TO MEDIATE IN GOOD FAITH.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "IBAN-LIKE DEMO ACCOUNT EX666011722914 HOLDS RESERVE FUNDS.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Notify  Avery  Nguyen  immediately.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "hard"}
+{"text": "Interest\taccrues at the statutory rate.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Please verify SSN 677-95-2352 against the personnel file .", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "API KEY: 10FFC149AD5AB0DC37DEC316", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Please  deliver  it  to  8241  Lake  View,  Springfield,  ST  61072.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Nothing\therein creates a partnership.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Supplier  shall  indemnify  Customer  from  all  claims.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "section 123 applies.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "Employee\tbadge ID B-40435.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Exhibit A is attached hereto .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "CONTACT ALEX BROWN FOR SIGNATURE. IBAN-LIKE DEMO ACCOUNT EX981921117957 HOLDS RESERVE FUNDS.", "labels": ["PERSON", "FINANCIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Login  with  token  d0de662623bf5f494ad6", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "The court entered judgment on March 4.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "the parties agree to mediate in good faith.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Plaintiff\tJordan Brown alleges breach of contract. Send the contract to 952-968-1306.", "labels": ["PERSON", "PHONE"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Nothing\therein creates a partnership.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Employee badge ID B-72563.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Call\tSection 555 of the statute.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Phone: (538) 458-3330", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "HEADINGS ARE FOR CONVENIENCE ONLY.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "Please deliver it to 550 Maple Court , Fairview , ST 94963 .", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "confidentiality obligations are mutual.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "Employee\tbadge ID B-76936.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Diagnosed  with  allergy  to  penicillin  last  quarter.  Send  the  executed  agreement  to  parker.kim39@corp.example.", "labels": ["MEDICAL", "EMAIL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "prescription refill needed for migraine.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Username admin password=Tmp!2233 Send the executed agreement to blake.rossi54@example.org.", "labels": ["CREDENTIAL", "EMAIL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "API key: e7f5af4396fd66c403f53997", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Medical history includes type 2 diabetes .", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "PATIENT REPORTS ASTHMA. CHARGE 4157 8172 9989 7114 FOR THE FILING FEE.", "labels": ["MEDICAL", "CREDIT_CARD"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Account balance at Northriver Bank is $12,007.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Our\trevenue grew 12%.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Exhibit A is attached hereto .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Medical\thistory includes type X diabetes.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "hard"}
+{"text": "EMERGENCY CONTACT NUMBER IS 2746162606.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Reach\tout via email (quinn.smith88@mail.test) before Friday. Please deliver it to 7664 Hill Boulevard, Oakmont, ST 25810.", "labels": ["EMAIL", "ADDRESS"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "DOB listed as 07/16/1978 on the intake form .", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "ACCOUNT BALANCE AT CEDAR CREDIT UNION IS $30,141.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "SSN: 621-59-1552", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Headings\tare for convenience only.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "PAYMENT METHOD: 1974 3136 6806 5099", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Driver\tlicense number DXXXXXXX.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "hard"}
+{"text": "API KEY: CD068746EE6DD10A353EF6D6", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Service  of  process  may  be  made  at  2513  Cedar  Lane,  Springfield,  ST  96814.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Supplier  shall  indemnify  Customer  from  all  claims.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Login\twith token cd9ad569deed29b886a4", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "EMERGENCY CONTACT NUMBER IS (318) 494-2158.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "annual salary is $156,467.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "TEMPORARY PASSWORD IS TMP!9616.", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "SERVICE OF PROCESS MAY BE MADE AT 1316 HARBOR STREET, CEDAR FALLS, ST 36477.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Prescription\trefill needed for type 2 diabetes.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "PLAINTIFF AVERY WRIGHT ALLEGES BREACH OF CONTRACT.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Service of process may be made at 4890 Hill Boulevard, Springfield, ST 27066.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Charge\t6815 9096 2127 9571 for the filing fee.", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Taxpayer identification (SSN) 498-56-8571 is on file . Payment method: 7973 4686 5481 1912", "labels": ["SSN", "CREDIT_CARD"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "CONTACT CAMERON KIM FOR SIGNATURE.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Temporary password is Tmp!6757 .", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "payment method: 4177 1461 1338 9293", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "OUR REVENUE GREW 12%.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Morgan\tLopez was born on 01/28/2005.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "NOTHING HEREIN CREATES A PARTNERSHIP.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Send\tthe contract to 6449254806.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "FORCE MAJEURE INCLUDES NATURAL DISASTERS.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Plaintiff  Jordan  Patel  alleges  breach  of  contract.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Send the contract to 6222572774 .", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "service of process may be made at 8725 pine road, oakmont, st 31540.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Ship the binder to XXXX Cedar Lane , Cedar Falls , ST XXXXX .", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "hard"}
+{"text": "My\tSocial Security number is 660-19-3283.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Contact Jamie Garcia for signature. Medical history includes asthma.", "labels": ["PERSON", "MEDICAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "SUPPLIER SHALL INDEMNIFY CUSTOMER FROM ALL CLAIMS.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "PLAINTIFF BLAKE ROSSI ALLEGES BREACH OF CONTRACT.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Supplier  shall  indemnify  Customer  from  all  claims.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "EXHIBIT A IS ATTACHED HERETO.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "The\tinsured person is Riley Nguyen.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Payment method: 6230 5996 9115 6081", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Date of birth: 05/19/1973", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "dob listed as 06/23/1967 on the intake form.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Card number 7160 4225 4476 7452 expires next year.", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Definitions\tappear in Article I.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "Contact Jordan Andersen for signature .", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Service  of  process  may  be  made  at  3907  River  Drive,  Riverton,  ST  78101.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Notify Cameron Okoye immediately.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Date  of  birth:  12/04/1968  SSN:  276-70-8395", "labels": ["DATE_OF_BIRTH", "SSN"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "My\tSocial Security number is 657-49-2015.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Service  of  process  may  be  made  at  3121  Pine  Road,  Brookside,  ST  71358.  Please  verify  SSN  745-91-9532  against  the  personnel  file.", "labels": ["ADDRESS", "SSN"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Date  of  birth:  01/05/1967", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Headings\tare for convenience only.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "ship the binder to 4853 harbor street, cedar falls, st 10174.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "call me at 607.372.4544.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Harper  Chen  was  born  on  12/23/1964.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Wire $40,512 to routing 378906285.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "The court entered judgment on March 4.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "VENUE LIES IN THE DISTRICT COURT.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "HEADINGS ARE FOR CONVENIENCE ONLY.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "Payment\tis due net thirty days.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "USERNAME ADMIN PASSWORD=TMP!4454", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "API  key:  00137f1b56e47c490c4d04a9  Date  of  birth:  11/02/1987", "labels": ["CREDENTIAL", "DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "EXHIBIT A IS ATTACHED HERETO.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "notices may be delivered electronically.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Date  of  birth:  08/14/1990", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "ANNUAL SALARY IS $109,723.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "emergency contact number is 457-930-3333. patient reports allergy to penicillin.", "labels": ["PHONE", "MEDICAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Please contact me at riley .kim34@example .com regarding the contract .", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Payment  method:  7205  2029  3817  3877  Please  deliver  it  to  4140  Lake  View,  Springfield,  ST  63975.", "labels": ["CREDIT_CARD", "ADDRESS"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "MY EMAIL IS CAMERON.LOPEZ40@EXAMPLE.ORG.", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Definitions appear in Article I .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Supplier shall indemnify Customer from all claims.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "IBAN-LIKE DEMO ACCOUNT EX541387476048 HOLDS RESERVE FUNDS.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Passport\tnumber P68798700.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "SEND THE CONTRACT TO 577.845.1347.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "THE CASE WAS FILED IN 1998.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "you can reach the clerk at 3844337543 during business hours.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Mailing\taddress: 4272 Hill Boulevard, Lakeside, ST 80879", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "You  can  reach  the  clerk  at  (779)  889-2006  during  business  hours.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "DOB listed as 07/07/2001 on the intake form.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Plaintiff Harper Nguyen alleges breach of contract .", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Mailing\taddress: 335 Harbor Street, Oakmont, ST 77497", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "venue lies in the district court.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "Patient reports migraine .", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Contact\tAvery Hassan for signature.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Card number 4326 1941 9259 3134 expires next year. Annual salary is $62,267.", "labels": ["CREDIT_CARD", "FINANCIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "WIRE $9,100 TO ROUTING 229014660.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Notices may be delivered electronically.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "SEND THE CONTRACT TO 760-491-7790.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "notices may be delivered electronically.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "My\tSocial Security number is 404-57-4210.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "ANNUAL SALARY IS $67,677.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "The  parties  agree  to  mediate  in  good  faith.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Diagnosed with migraine last quarter .", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Please deliver it to 3779 Sunset Way , Brookside , ST 10930 .", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "username admin password=tmp!9424", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Account  balance  at  Harbor  Financial  is  $48,724.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Plaintiff\tDrew Lopez alleges breach of contract. Please verify SSN 367-31-6083 against the personnel file.", "labels": ["PERSON", "SSN"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Contact\tParker Garcia for signature.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "hard"}
+{"text": "Interest  accrues  at  the  statutory  rate.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "send the executed agreement to parker.nguyen26@example.org.", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "emergency contact number is 581-693-9169.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "The case was filed in 1998.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Card  number  8237  1434  7458  3197  expires  next  year.", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Interest\taccrues at the statutory rate.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "Charge  5992  5058  4959  8635  for  the  filing  fee.", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Exhibit A is attached hereto.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Charge 3040 6505 3466 2740 for the filing fee .", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Plaintiff\tJamie Rossi alleges breach of contract.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Diagnosed with migraine last quarter.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "My email is sam .silva47@example .com .", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Contact Taylor Rossi for signature.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "This clause survives termination.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "dob listed as 04/02/1964 on the intake form.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "SSN: 345-89-3984", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "CALL ME AT (856) 647-1760.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Passport\tnumber P46124227.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "TAXPAYER IDENTIFICATION (SSN) XXX-XX-XXXX IS ON FILE.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "hard"}
+{"text": "governing law is the state of example.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Governing\tlaw is the State of Example.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "PLEASE DELIVER IT TO 972 RIVER DRIVE, BROOKSIDE, ST 84936.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Service of process may be made at 9887 Oak Avenue , Cedar Falls , ST 64043 .", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "SHIP THE BINDER TO 7001 HARBOR STREET, MAPLEWOOD, ST 75302.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "VENUE LIES IN THE DISTRICT COURT.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "IBAN-like demo account EX277305167112 holds reserve funds. Call me at 3544607221.", "labels": ["FINANCIAL", "PHONE"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "The insured person is Casey Andersen.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "notify taylor lopez immediately. annual salary is $58,107.", "labels": ["PERSON", "FINANCIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "TEMPORARY PASSWORD IS TMP!4249.", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "This clause survives termination .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "Passport number P68302962.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Employee  badge  ID  B-67749.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "DOB  listed  as  04/28/1958  on  the  intake  form.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "This\tclause survives termination.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Annual salary is $61,547.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Taxpayer identification (SSN) 214-81-3856 is on file .", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Plaintiff Quinn Brown alleges breach of contract .", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "The  statute  of  limitations  is  three  years.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "reach out via email (riley.silva85@mail.test) before friday.", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "PLEASE CONTACT ME AT HARPER.PATEL61@CORP.EXAMPLE REGARDING THE CONTRACT. API KEY: 2B7D0E4422D2A396F6E05D46", "labels": ["EMAIL", "CREDENTIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Plaintiff Quinn Andersen alleges breach of contract. Morgan Wright was born on 12/06/1987.", "labels": ["PERSON", "DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Send the contract to 610 .300 .8797 . Drew Rossi was born on 08/15/1958 .", "labels": ["PHONE", "DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "driver license number dxxxxxxx.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "hard"}
+{"text": "Payment  method:  4590  1179  6074  4276", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Send\tthe contract to (219) 454-7869.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Notices may be delivered electronically.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "Medical\thistory includes hypertension.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "PAYMENT METHOD: 4715 6122 1093 8962", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Supplier  shall  indemnify  Customer  from  all  claims.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Diagnosed  with  asthma  last  quarter.  Send  the  contract  to  843.605.1645.", "labels": ["MEDICAL", "PHONE"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Mailing address: 4961 Lake View , Fairview , ST 54061 Payment method: 8258 1100 9071 1152", "labels": ["ADDRESS", "CREDIT_CARD"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Call me at 9752606841.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Emergency contact number is 844.920.4842.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "PAYMENT METHOD: 1291 4993 9512 3017", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Phone: 563-836-7221", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Nothing  herein  creates  a  partnership.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "My\temail is avery.hassan95@mail.test.", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Card number 7997 5325 7049 8228 expires next year .", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Definitions  appear  in  Article  I.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Passport number P80172434.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Annual salary is $84 ,199 .", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Temporary\tpassword is Tmp!XXXX.", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "hard"}
+{"text": "interest accrues at the statutory rate.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "Reach out via email (cameron .lopez48@corp .example) before Friday .", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Definitions  appear  in  Article  I.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "Please verify SSN 851-62-8745 against the personnel file.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "The statute of limitations is three years.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "PASSPORT NUMBER P55929575.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "patient reports type 2 diabetes.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "payment method: 8431 2454 8895 1134", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Phone:  (854)  432-4535", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Prescription refill needed for migraine.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "hard"}
+{"text": "The  statute  of  limitations  is  three  years.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Service of process may be made at 1907 Maple Court , Cedar Falls , ST 40894 .", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Supplier\tshall indemnify Customer from all claims.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "API key: e8ab28e00f18355729d90eb0", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Medical history includes migraine .", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "The  statute  of  limitations  is  three  years.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "Prescription refill needed for asthma .", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Medical\thistory includes migraine.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Patient  reports  asthma.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "notices may be delivered electronically.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "NOTIFY SAM WRIGHT IMMEDIATELY.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "hard"}
+{"text": "Call me at 7494721397 .", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Notify\tHarper Ivanov immediately. My Social Security number is 791-49-2337.", "labels": ["PERSON", "SSN"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "EXHIBIT A IS ATTACHED HERETO.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Diagnosed with allergy to penicillin last quarter.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "contact jamie ivanov for signature.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Please  contact  me  at  drew.brown15@example.com  regarding  the  contract.", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Please verify SSN 294-84-3818 against the personnel file.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "PASSPORT NUMBER P89470867.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Card  number  1987  9297  8185  1884  expires  next  year.", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "PASSPORT NUMBER P19912884.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Section  123  applies.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "driver license number d5525507.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Definitions  appear  in  Article  I.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "annual salary is $57,732.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "My Social Security number is 681-17-6303.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Passport number P57569683 .", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "payment is due net thirty days.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "PLAINTIFF TAYLOR ROSSI ALLEGES BREACH OF CONTRACT. IBAN-LIKE DEMO ACCOUNT EX395197986791 HOLDS RESERVE FUNDS.", "labels": ["PERSON", "FINANCIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Definitions  appear  in  Article  I.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "The  court  entered  judgment  on  March  4.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "You can reach the clerk at (981) 718-9906 during business hours .", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "IBAN-like\tdemo account EX908282662526 holds reserve funds. Contact Casey Okoye for signature.", "labels": ["FINANCIAL", "PERSON"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Card number 5897 9071 2605 5176 expires next year.", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Driver  license  number  D1173775.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "this clause survives termination.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Account  balance  at  Harbor  Financial  is  $837.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Wire $2 ,777 to routing 445036314 .", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "The insured person is Cameron Kim.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Call\tSection 555 of the statute.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Exhibit A is attached hereto.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "mailing address: 6930 maple court, riverton, st 31622", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Nothing  herein  creates  a  partnership.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Nothing  herein  creates  a  partnership.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "my social security number is 408-29-1961. login with token bca48a96a3ad9bf3b7ff", "labels": ["SSN", "CREDENTIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Date  of  birth:  06/05/1969", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Contact\tAvery Silva for signature.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "API KEY: 1CB21CB077371171628A214B", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "iban-like demo account ex834339467980 holds reserve funds.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "annual salary is $144,034.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "The court entered judgment on March 4 .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "username admin password=tmp!4834", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Call  Section  555  of  the  statute.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "The  parties  agree  to  mediate  in  good  faith.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "Username  admin  password=Tmp!3631", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Contact Taylor Chen for signature.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Prescription refill needed for allergy to penicillin .", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Jamie Smith was born on 06/21/2002 . Notify Jordan Smith immediately .", "labels": ["DATE_OF_BIRTH", "PERSON"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "YOU CAN REACH THE CLERK AT 685-269-2092 DURING BUSINESS HOURS.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "date of birth: 09/15/1957", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Passport number P23692624.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Section\t123 applies.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Confidentiality  obligations  are  mutual.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "THE CASE WAS FILED IN 1998.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Wire $21,198 to routing 963364123.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Passport\tnumber P95564959.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "IBAN-like demo account EX416982782869 holds reserve funds .", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Plaintiff  Riley  Andersen  alleges  breach  of  contract.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "EMPLOYEE BADGE ID B-13306.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Jamie\tGarcia was born on 02/25/1965.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "driver license number d8964213.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Payment method: 7837 7774 8051 6600", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "our revenue grew 12%.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Definitions  appear  in  Article  I.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "venue lies in the district court.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Temporary password is Tmp!5026.", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "NOTIFY CASEY WRIGHT IMMEDIATELY.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "The case was filed in 1998.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "Nothing herein creates a partnership.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Confidentiality  obligations  are  mutual.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "patient reports type 2 diabetes.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Notify Harper Patel immediately. Please contact me at jamie.brown2@corp.example regarding the contract.", "labels": ["PERSON", "EMAIL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "SSN: 896-16-4005", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Login with token b69173e67a89d430a878", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "My  email  is  riley.chen17@example.org.  Payment  method:  3369  7488  3889  1555", "labels": ["EMAIL", "CREDIT_CARD"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "login with token 9e7e744741ff4b64b8b3", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Plaintiff  Riley  Patel  alleges  breach  of  contract.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Employee  badge  ID  B-78405.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Service  of  process  may  be  made  at  6502  Main  Street,  Lakeside,  ST  68633.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Diagnosed\twith type 2 diabetes last quarter.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "CARD NUMBER 2125 1223 4379 4200 EXPIRES NEXT YEAR.", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "IBAN-like demo account EX339450791856 holds reserve funds .", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Call  me  at  414.585.4450.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Interest\taccrues at the statutory rate.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Account\tbalance at Northriver Bank is $26,354.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "DOB listed as 10/16/1990 on the intake form.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "the case was filed in 1998.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "CARD NUMBER 2851 2056 2976 5660 EXPIRES NEXT YEAR.", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "TAXPAYER IDENTIFICATION (SSN) 637-85-2595 IS ON FILE.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "charge 5212 4838 3120 7047 for the filing fee.", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Username admin password=Tmp!1487", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Force  majeure  includes  natural  disasters.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "CALL ME AT 555-944-7002.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "SSN:  437-37-3726", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Contact  Blake  Ivanov  for  signature.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Notices may be delivered electronically .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "Payment\tmethod: 6908 5207 5876 1753", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "The  insured  person  is  Alex  Garcia.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Emergency\tcontact number is 834-253-1802.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "MEDICAL HISTORY INCLUDES MIGRAINE.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Passport number P31395503 .", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "date of birth: 04/06/1996", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "my email is cameron.smith15@example.org.", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "wire $44,727 to routing 165939454.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Nothing\therein creates a partnership.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "This clause survives termination.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Login\twith token 129fbaaaab644d385720", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "My email is taylor .wright65@corp .example . Phone: 3605088139", "labels": ["EMAIL", "PHONE"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "section 123 applies.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "notify blake patel immediately.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "taxpayer identification (ssn) 594-82-6102 is on file.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Card number 1784 8293 8645 5294 expires next year .", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Notices may be delivered electronically .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Headings  are  for  convenience  only.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "payment is due net thirty days.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "temporary password is tmp!5868.", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "TAXPAYER IDENTIFICATION (SSN) 454-57-6261 IS ON FILE.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Call me at (901) 825-6452. Login with token eec720e3ee5f5faa5f61", "labels": ["PHONE", "CREDENTIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Supplier\tshall indemnify Customer from all claims.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "TEMPORARY PASSWORD IS TMP!3371.", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "DEFINITIONS APPEAR IN ARTICLE I.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "headings are for convenience only.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Employee badge ID B-77755 .", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Definitions  appear  in  Article  I.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Charge 4962 8825 9909 7998 for the filing fee .", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Date  of  birth:  05/25/1990", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Venue lies in the district court .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "TEMPORARY PASSWORD IS TMP!6637. MY SOCIAL SECURITY NUMBER IS 717-41-3133.", "labels": ["CREDENTIAL", "SSN"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Section  123  applies.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "Definitions appear in Article I.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "FORCE MAJEURE INCLUDES NATURAL DISASTERS.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Please\tverify SSN 168-11-3638 against the personnel file.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "You can reach the clerk at 391.380.9790 during business hours.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Payment method: 4132 2651 6056 5196", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Payment  is  due  net  thirty  days.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "Send the contract to (205) 890-7950 . DOB listed as 06/01/1996 on the intake form .", "labels": ["PHONE", "DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Call  me  at  731.903.7104.  Notify  Jamie  Hassan  immediately.", "labels": ["PHONE", "PERSON"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "DIAGNOSED WITH MIGRAINE LAST QUARTER.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "My Social Security number is 387-81-6011.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "SSN:\t601-95-8017", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Alex  Wright  was  born  on  08/23/1973.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Force majeure includes natural disasters .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Send  the  contract  to  6734279679.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "IBAN-like demo account EX284722179301 holds reserve funds . Medical history includes asthma .", "labels": ["FINANCIAL", "MEDICAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "PLEASE VERIFY SSN 188-82-3698 AGAINST THE PERSONNEL FILE.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "The  statute  of  limitations  is  three  years.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Interest\taccrues at the statutory rate.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "ship the binder to 1038 hill boulevard, fairview, st 30257.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Diagnosed  with  hypertension  last  quarter.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "nothing herein creates a partnership.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "You  can  reach  the  clerk  at  762.645.3626  during  business  hours.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Card number 9024 5390 7241 2132 expires next year. Prescription refill needed for hypertension.", "labels": ["CREDIT_CARD", "MEDICAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Emergency contact number is (986) 397-7852.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "EXHIBIT A IS ATTACHED HERETO.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Call Section 555 of the statute.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "Section 123 applies .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "THE STATUTE OF LIMITATIONS IS THREE YEARS.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Phone:\t3504808543", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "the court entered judgment on march 4.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "mailing address: 9747 oak avenue, oakmont, st 94695", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "DEFINITIONS APPEAR IN ARTICLE I.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Taxpayer identification (SSN) 149-41-2238 is on file.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "CARD NUMBER XXXX XXXX XXXX XXXX EXPIRES NEXT YEAR.", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "hard"}
+{"text": "The insured person is Taylor Ivanov .", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Casey Garcia was born on 10/20/2005 .", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "CC:  riley.silva93@corp.example", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Jamie  Okoye  was  born  on  08/27/1993.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "card number xxxx xxxx xxxx xxxx expires next year.", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "hard"}
+{"text": "Call  me  at  2682912507.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "definitions appear in article i.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "please verify ssn 653-59-4450 against the personnel file.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Account\tbalance at Harbor Financial is $33,329.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Taylor Kim was born on 11/08/1965 .", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "The  case  was  filed  in  1998.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "Medical\thistory includes asthma.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Username admin password=Tmp!9322", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Temporary password is Tmp!3768 .", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Please contact me at harper .nguyen56@mail .test regarding the contract .", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "notices may be delivered electronically.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Please  contact  me  at  harper.rossi41@example.org  regarding  the  contract.", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "THE INSURED PERSON IS ALEX CHEN. PAYMENT METHOD: 4137 8170 6860 1291", "labels": ["PERSON", "CREDIT_CARD"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Card\tnumber 6947 9453 2898 9578 expires next year.", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "You can reach the clerk at 8047393691 during business hours .", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "riley andersen was born on 05/10/2003.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Payment method: 8680 9965 5056 5464", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Patient reports type 2 diabetes.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "This clause survives termination.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "passport number p41418030.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "CC: riley .wright26@corp .example", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "ACCOUNT BALANCE AT HARBOR FINANCIAL IS $2,146.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Plaintiff\tJamie Ivanov alleges breach of contract.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Send the executed agreement to alex.kim63@example.com.", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "The  insured  person  is  Avery  Nguyen.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Venue  lies  in  the  district  court.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "service of process may be made at 2088 maple court, riverton, st 51166.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "USERNAME ADMIN PASSWORD=TMP!8768 SHIP THE BINDER TO 4114 LAKE VIEW, MAPLEWOOD, ST 19981.", "labels": ["CREDENTIAL", "ADDRESS"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Login with token c37dbcebc44dac434f05", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "exhibit a is attached hereto.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "My\temail is jordan.andersen9@mail.test.", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "The insured person is Avery Patel .", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "CONTACT TAYLOR OKOYE FOR SIGNATURE.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Supplier\tshall indemnify Customer from all claims.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Taxpayer identification (SSN) 662-83-4925 is on file .", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Supplier shall indemnify Customer from all claims .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "Reach\tout via email (jamie.andersen13@example.com) before Friday.", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Please contact me at jordan.patel92@example.org regarding the contract.", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Notify Avery Nguyen immediately .", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "SEND THE CONTRACT TO 368-547-8827.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "TEMPORARY PASSWORD IS TMP!XXXX.", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "hard"}
+{"text": "Exhibit  A  is  attached  hereto.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Send the executed agreement to riley.ivanov9@example.org.", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "IBAN-like  demo  account  EX955500464717  holds  reserve  funds.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "contact morgan wright for signature.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Notices  may  be  delivered  electronically.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "SSN:  213-43-2763", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "PLEASE VERIFY SSN 201-60-8175 AGAINST THE PERSONNEL FILE.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Annual\tsalary is $72,045.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Employee\tbadge ID B-34213.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Annual\tsalary is $47,867.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Username admin password=Tmp!8166", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Annual\tsalary is $95,044.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "temporary password is tmp!9656.", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "the statute of limitations is three years.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Please verify SSN XXX-XX-XXXX against the personnel file .", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "hard"}
+{"text": "Contact Harper Hassan for signature .", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Parker Lopez was born on 04/24/1989 .", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "SSN:  385-54-4686", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Contact Sam Lopez for signature.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "CC: drew .hassan93@mail .test", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "contact quinn andersen for signature.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Please verify SSN 152-10-5539 against the personnel file.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "section xxx applies.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Mailing address: 9279 River Drive , Cedar Falls , ST 86561", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Jordan\tWright was born on 04/11/1971. My Social Security number is 758-64-3978.", "labels": ["DATE_OF_BIRTH", "SSN"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "SECTION 123 APPLIES.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Force majeure includes natural disasters.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "IBAN-like demo account EX971892869033 holds reserve funds .", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "THIS CLAUSE SURVIVES TERMINATION.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "Patient  reports  asthma.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "medical history includes type 2 diabetes.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Force\tmajeure includes natural disasters.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Medical history includes migraine .", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Date of birth: 07/19/1987", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Account balance at Harbor Financial is $24,816.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Medical history includes type 2 diabetes . SSN: 700-84-4721", "labels": ["MEDICAL", "SSN"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "login with token 183fbd3bf0c88be362f8", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Medical  history  includes  hypertension.  Wire  $25,592  to  routing  811536250.", "labels": ["MEDICAL", "FINANCIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Date of birth: 11/03/1962", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "WIRE $14,745 TO ROUTING 727353458.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Service of process may be made at 7779 Maple Court , Oakmont , ST 85746 .", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "THIS CLAUSE SURVIVES TERMINATION.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "The statute of limitations is three years .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Service of process may be made at 611 River Drive , Lakeside , ST 31649 .", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Notices\tmay be delivered electronically.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Phone: 5913447749", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "INTEREST ACCRUES AT THE STATUTORY RATE.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "prescription refill needed for hypertension. card number 9959 6385 6793 9443 expires next year.", "labels": ["MEDICAL", "CREDIT_CARD"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "SSN: 414-80-7465", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Username  admin  password=Tmp!4472", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Wire $XX ,XXX to routing XXXXXXXXX .", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "hard"}
+{"text": "wire $30,623 to routing 566082060.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "interest accrues at the statutory rate.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Patient  reports  hypertension.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "the case was filed in 1998.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Our revenue grew 12%.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Exhibit\tA is attached hereto.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "My email is cameron .garcia10@corp .example .", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "IBAN-like  demo  account  EX965158243208  holds  reserve  funds.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "THE STATUTE OF LIMITATIONS IS THREE YEARS.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Date of birth: 06/12/1955", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Send the contract to 262-318-3156 .", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Notify Cameron Ivanov immediately.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Exhibit A is attached hereto.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "CALL SECTION 555 OF THE STATUTE.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "login with token c988f65c5f5353909afd", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Employee badge ID B-49468.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Headings are for convenience only .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "Wire  $46,068  to  routing  555115663.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Plaintiff\tMorgan Hassan alleges breach of contract. Temporary password is Tmp!6647.", "labels": ["PERSON", "CREDENTIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Temporary password is Tmp!9963.", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "SERVICE OF PROCESS MAY BE MADE AT 1446 HARBOR STREET, FAIRVIEW, ST 37387.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "DATE OF BIRTH: 07/03/1978", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "employee badge id b-xxxxx.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "hard"}
+{"text": "MY SOCIAL SECURITY NUMBER IS 718-68-8948. DATE OF BIRTH: 10/06/1960", "labels": ["SSN", "DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "SUPPLIER SHALL INDEMNIFY CUSTOMER FROM ALL CLAIMS.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "Prescription\trefill needed for allergy to penicillin. Reach out via email (drew.okoye51@mail.test) before Friday.", "labels": ["MEDICAL", "EMAIL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Diagnosed  with  migraine  last  quarter.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Wire  $X,XXX  to  routing  XXXXXXXXX.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "hard"}
+{"text": "Ship  the  binder  to  7996  Lake  View,  Oakmont,  ST  89702.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Taxpayer\tidentification (SSN) 847-23-4520 is on file.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Headings are for convenience only .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "My email is casey .okoye15@example .org .", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Notices may be delivered electronically.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "payment method: 2446 2395 4779 2564", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Prescription  refill  needed  for  allergy  to  penicillin.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Login with token 93f32c6a7c684dd5bb7a", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Employee  badge  ID  B-58806.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Mailing address: 3121 Pine Road , Brookside , ST 20802", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "definitions appear in article i.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Please verify SSN 773-50-1269 against the personnel file.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Diagnosed with migraine last quarter .", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Date of birth: 08/02/1986", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Passport number P99736557 .", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "The  insured  person  is  Jordan  Kim.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Diagnosed  with  hypertension  last  quarter.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Login with token 310fc61cd949f07cd0f0", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Send  the  executed  agreement  to  alex.kim49@example.org.", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Reach out via email (parker.silva13@example.com) before Friday. Medical history includes allergy to penicillin.", "labels": ["EMAIL", "MEDICAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Venue  lies  in  the  district  court.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "Supplier shall indemnify Customer from all claims.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "The insured person is Cameron Silva .", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "CC: RILEY.KIM34@MAIL.TEST", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "PLAINTIFF BLAKE BROWN ALLEGES BREACH OF CONTRACT.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Section\t123 applies.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "exhibit a is attached hereto.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "mailing address: 2983 maple court, maplewood, st 88595", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "payment method: 2218 8205 2963 9142", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "iban-like demo account ex269152270987 holds reserve funds. diagnosed with migraine last quarter.", "labels": ["FINANCIAL", "MEDICAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Passport\tnumber P63320166.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Charge 4359 6672 6464 4912 for the filing fee .", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "payment is due net thirty days.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "Force majeure includes natural disasters .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "Wire  $23,292  to  routing  154406733.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "The insured person is Taylor Ivanov .", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "THE PARTIES AGREE TO MEDIATE IN GOOD FAITH.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "MEDICAL HISTORY INCLUDES ALLERGY TO PENICILLIN.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Charge 6416 5571 9427 3827 for the filing fee .", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "WIRE $9,685 TO ROUTING 655257150. MY SOCIAL SECURITY NUMBER IS 224-45-8799.", "labels": ["FINANCIAL", "SSN"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "you can reach the clerk at 8969182868 during business hours.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "VENUE LIES IN THE DISTRICT COURT.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "Headings are for convenience only.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "My\tSocial Security number is 467-26-2601.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Charge 1663 1061 9076 9248 for the filing fee. API key: a5ffe7b86d8f8ad3d2bea042", "labels": ["CREDIT_CARD", "CREDENTIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "login with token 79af6236e02f971ecaef", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "send the executed agreement to jamie.ivanov52@corp.example.", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "plaintiff parker okoye alleges breach of contract.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Force majeure includes natural disasters .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Date\tof birth: 07/06/1967", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Notify Quinn Smith immediately .", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Force majeure includes natural disasters.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Diagnosed  with  type  2  diabetes  last  quarter.  Notify  Jordan  Lopez  immediately.", "labels": ["MEDICAL", "PERSON"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "The statute of limitations is three years .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "My email is jordan .garcia53@mail .test .", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "please contact me at taylor.garcia27@corp.example regarding the contract.", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "The statute of limitations is three years .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "Ship\tthe binder to 1469 Pine Road, Brookside, ST 61270.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Our\trevenue grew 12%.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "Nothing herein creates a partnership .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Account  balance  at  Cedar  Credit  Union  is  $5,062.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "My email is drew.andersen7@example.com.", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "SSN:  477-25-6168", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "The  parties  agree  to  mediate  in  good  faith.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "GOVERNING LAW IS THE STATE OF EXAMPLE.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Headings\tare for convenience only.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "DOB listed as 03/15/1974 on the intake form.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "My  email  is  riley.ivanov35@corp.example.", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Passport  number  P42143379.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Please  deliver  it  to  9066  Hill  Boulevard,  Brookside,  ST  59380.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Confidentiality  obligations  are  mutual.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Send the executed agreement to jamie .silva22@example .com .", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "TAXPAYER IDENTIFICATION (SSN) XXX-XX-XXXX IS ON FILE.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "hard"}
+{"text": "Please contact me at [REDACTED_EMAIL] regarding the contract .", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "hard"}
+{"text": "Interest accrues at the statutory rate .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "Temporary\tpassword is Tmp!XXXX.", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "hard"}
+{"text": "PAYMENT METHOD: 2465 9024 4298 4692 EMERGENCY CONTACT NUMBER IS (424) 585-4099.", "labels": ["CREDIT_CARD", "PHONE"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Patient reports hypertension .", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Force  majeure  includes  natural  disasters.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "the insured person is alex rossi.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Temporary password is Tmp!7892 .", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Exhibit A is attached hereto .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "DOB LISTED AS 02/22/1960 ON THE INTAKE FORM.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "FORCE MAJEURE INCLUDES NATURAL DISASTERS.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Driver license number D3578338 .", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "DOB listed as 10/25/1992 on the intake form.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Headings are for convenience only .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "card number 9921 8219 5279 3528 expires next year.", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "reach out via email (alex.ivanov15@example.org) before friday.", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Account balance at Northriver Bank is $42 ,371 .", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Ship\tthe binder to 4933 Pine Road, Brookside, ST 26676. Diagnosed with hypertension last quarter.", "labels": ["ADDRESS", "MEDICAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Confidentiality  obligations  are  mutual.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "PATIENT REPORTS MIGRAINE. DOB LISTED AS 10/07/2002 ON THE INTAKE FORM.", "labels": ["MEDICAL", "DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "THE PARTIES AGREE TO MEDIATE IN GOOD FAITH.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Date of birth: 01/28/1960", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "The\tinsured person is Parker Ivanov. Account balance at Northriver Bank is $10,568.", "labels": ["PERSON", "FINANCIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Definitions appear in Article I.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Wire $2 ,183 to routing 430435665 .", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Call me at 8475146423 .", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "the court entered judgment on march 4.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "exhibit a is attached hereto.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "Force majeure includes natural disasters .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "SEND THE EXECUTED AGREEMENT TO CAMERON.GARCIA15@MAIL.TEST.", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Headings\tare for convenience only.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "phone: 805.684.3731", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "PHONE: (391) 840-6717", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Account balance at Northriver Bank is $21,253.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "The court entered judgment on March 4.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "LOGIN WITH TOKEN A4ABD1D61FFF8EB39BC9", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Diagnosed with asthma last quarter .", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "hard"}
+{"text": "TAXPAYER IDENTIFICATION (SSN) 242-35-5416 IS ON FILE.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Call  Section  555  of  the  statute.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "Reach  out  via  email  (blake.kim50@example.org)  before  Friday.  Contact  Taylor  Patel  for  signature.", "labels": ["EMAIL", "PERSON"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Notices  may  be  delivered  electronically.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Notify  Drew  Andersen  immediately.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "hard"}
+{"text": "Ship  the  binder  to  5362  River  Drive,  Brookside,  ST  62310.  Login  with  token  6c9329c852b70bf164ff", "labels": ["ADDRESS", "CREDENTIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "the case was filed in 1998.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "dob listed as xx/xx/xxxx on the intake form.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "hard"}
+{"text": "Card number 9554 2322 6782 6406 expires next year .", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "DRIVER LICENSE NUMBER D2884594.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Emergency\tcontact number is 2728356167.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Force majeure includes natural disasters.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Mailing  address:  8435  Sunset  Way,  Cedar  Falls,  ST  80869", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "the parties agree to mediate in good faith.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "PAYMENT IS DUE NET THIRTY DAYS.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "payment is due net thirty days.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Payment method: 2019 5514 7371 4633", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Username\tadmin password=Tmp!9791", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Username admin password=Tmp!6345 IBAN-like demo account EX645306028202 holds reserve funds .", "labels": ["CREDENTIAL", "FINANCIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Date  of  birth:  03/24/1971  Wire  $43,495  to  routing  975020425.", "labels": ["DATE_OF_BIRTH", "FINANCIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "API  key:  0edd74848bb2301163fceea4", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Venue\tlies in the district court.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "Diagnosed with migraine last quarter .", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "IBAN-like\tdemo account EX993162448141 holds reserve funds. Charge 2075 8512 5284 4468 for the filing fee.", "labels": ["FINANCIAL", "CREDIT_CARD"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "THE STATUTE OF LIMITATIONS IS THREE YEARS.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Diagnosed with asthma last quarter .", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Payment  method:  5618  1759  2978  1102", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Force\tmajeure includes natural disasters.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Venue lies in the district court .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Please verify SSN 431-77-6934 against the personnel file.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Notify  Alex  Hassan  immediately.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Exhibit\tA is attached hereto.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "force majeure includes natural disasters.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "call me at 7607062854.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "passport number p36833112.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Please  verify  SSN  107-57-1331  against  the  personnel  file.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Passport\tnumber P27528673.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "service of process may be made at 1564 river drive, fairview, st 80894. taxpayer identification (ssn) 568-48-4612 is on file.", "labels": ["ADDRESS", "SSN"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "charge xxxx xxxx xxxx xxxx for the filing fee.", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "hard"}
+{"text": "SERVICE OF PROCESS MAY BE MADE AT 1158 LAKE VIEW, CEDAR FALLS, ST 59764.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "IBAN-like demo account EX523867257461 holds reserve funds .", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Reach out via email (alex .ivanov71@example .com) before Friday . SSN: 231-73-6606", "labels": ["EMAIL", "SSN"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "THE PARTIES AGREE TO MEDIATE IN GOOD FAITH.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "Exhibit A is attached hereto.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Employee badge ID B-72425.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Send the executed agreement to cameron.kim78@corp.example.", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "CC: parker.garcia7@example.org", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "The court entered judgment on March 4.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Please\tverify SSN 603-99-1512 against the personnel file.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "IBAN-like demo account EX951619875767 holds reserve funds .", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "DOB LISTED AS 06/02/1968 ON THE INTAKE FORM.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "SEND THE EXECUTED AGREEMENT TO JORDAN.WRIGHT54@EXAMPLE.COM.", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "My  Social  Security  number  is  428-72-9651.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Please\tdeliver it to 7985 Oak Avenue, Oakmont, ST 38330.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Login\twith token 643a982e1a8b5c38185e", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Venue\tlies in the district court.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "reach out via email (drew.rossi7@example.org) before friday.", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "SSN:  391-65-5577", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "My  Social  Security  number  is  581-73-6701.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "account balance at northriver bank is $14,959. ssn: 177-85-3588", "labels": ["FINANCIAL", "SSN"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Force majeure includes natural disasters .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Passport\tnumber P74269516.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "payment method: 2948 8571 4807 9876", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Interest\taccrues at the statutory rate.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "My Social Security number is 421-64-1975 .", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "IBAN-like\tdemo account EX579824795874 holds reserve funds.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Card  number  8027  2894  8763  3483  expires  next  year.  Send  the  contract  to  254.530.2938.", "labels": ["CREDIT_CARD", "PHONE"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Confidentiality\tobligations are mutual.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Service of process may be made at 5476 Cedar Lane, Maplewood, ST 63860.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Call  me  at  777.585.7857.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Ship the binder to 575 Cedar Lane , Riverton , ST 59973 .", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "please verify ssn xxx-xx-xxxx against the personnel file.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "hard"}
+{"text": "DOB listed as 06/14/2000 on the intake form.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Payment is due net thirty days.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Notify  Blake  Brown  immediately.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "hard"}
+{"text": "reach out via email (alex.chen86@example.com) before friday.", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "PLEASE DELIVER IT TO 2556 CEDAR LANE, FAIRVIEW, ST 68996. THE INSURED PERSON IS SAM BROWN.", "labels": ["ADDRESS", "PERSON"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "my social security number is 722-16-2801.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Charge 7136 2521 6793 4078 for the filing fee.", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Taxpayer identification (SSN) 654-75-9011 is on file.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Taxpayer\tidentification (SSN) 554-11-2057 is on file.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "SHIP THE BINDER TO 9295 LAKE VIEW, RIVERTON, ST 16561.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Nothing herein creates a partnership.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "API key: d8afcee655dcf31fbb15a1bb", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "The case was filed in 1998 .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Notify\tMorgan Ivanov immediately.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "hard"}
+{"text": "Patient reports asthma.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "PLEASE DELIVER IT TO 1532 HILL BOULEVARD, BROOKSIDE, ST 20422.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Card number 3105 5810 1232 8166 expires next year.", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Temporary password is Tmp!9969 .", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "account balance at harbor financial is $18,493.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "SSN:\t124-47-7473", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Login  with  token  5fa382bae707211c8c4b", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "NOTICES MAY BE DELIVERED ELECTRONICALLY.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "date of birth: 10/09/1990", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Login\twith token 6b5b570b9bdd497c4d07", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Card  number  1504  2625  3575  4243  expires  next  year.", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "ANNUAL SALARY IS $42,560.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Driver  license  number  DXXXXXXX.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "hard"}
+{"text": "Driver license number D4176660 .", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Card\tnumber 8420 2789 8519 2996 expires next year. Plaintiff Jamie Nguyen alleges breach of contract.", "labels": ["CREDIT_CARD", "PERSON"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "the court entered judgment on march 4.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "PLAINTIFF PARKER GARCIA ALLEGES BREACH OF CONTRACT.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Account  balance  at  Northriver  Bank  is  $2,389.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Notices may be delivered electronically .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "dob listed as 03/18/1961 on the intake form. taxpayer identification (ssn) 733-21-6939 is on file.", "labels": ["DATE_OF_BIRTH", "SSN"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Force\tmajeure includes natural disasters.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "The parties agree to mediate in good faith.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Annual  salary  is  $55,036.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Plaintiff Parker Rossi alleges breach of contract.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "PLAINTIFF JAMIE GARCIA ALLEGES BREACH OF CONTRACT.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "DOB LISTED AS 03/04/1977 ON THE INTAKE FORM.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "mailing address: 7368 oak avenue, lakeside, st 89633", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Please\tverify SSN 201-83-9057 against the personnel file.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "MY SOCIAL SECURITY NUMBER IS 111-82-1731.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "The  parties  agree  to  mediate  in  good  faith.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "The  case  was  filed  in  1998.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Medical history includes migraine.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "PAYMENT METHOD: 1396 5802 2005 6481", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Passport number P90682486 .", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "DEFINITIONS APPEAR IN ARTICLE I.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "REACH OUT VIA EMAIL (HARPER.OKOYE47@EXAMPLE.COM) BEFORE FRIDAY.", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Card  number  7694  1387  5832  9754  expires  next  year.", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Jordan Silva was born on 08/05/1963 .", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "SERVICE OF PROCESS MAY BE MADE AT 7868 HARBOR STREET, BROOKSIDE, ST 12735. WIRE $22,332 TO ROUTING 418686599.", "labels": ["ADDRESS", "FINANCIAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "DOB listed as 12/21/1992 on the intake form.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "PATIENT REPORTS MIGRAINE.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "prescription refill needed for migraine.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "DATE OF BIRTH: 12/11/1979", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Supplier  shall  indemnify  Customer  from  all  claims.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Diagnosed with migraine last quarter.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Passport number PXXXXXXXX.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "hard"}
+{"text": "Exhibit A is attached hereto .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "the court entered judgment on march 4.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "Patient  reports  type  2  diabetes.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Call  Section  555  of  the  statute.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "The  statute  of  limitations  is  three  years.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Account\tbalance at Northriver Bank is $32,687. Please verify SSN 285-29-2253 against the personnel file.", "labels": ["FINANCIAL", "SSN"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Exhibit  A  is  attached  hereto.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "Payment\tmethod: 4656 4328 6847 5301", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Card\tnumber 9472 9100 6736 8131 expires next year.", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Plaintiff Riley Okoye alleges breach of contract .", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Please\tdeliver it to 6895 Cedar Lane, Maplewood, ST 71830.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Mailing\taddress: 3884 River Drive, Brookside, ST 20718", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Confidentiality  obligations  are  mutual.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "taxpayer identification (ssn) 688-39-1409 is on file. dob listed as 03/24/1967 on the intake form.", "labels": ["SSN", "DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Mailing address: 5603 Pine Road, Lakeside, ST 58871", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Passport number P62024439 .", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "PAYMENT METHOD: 6602 2186 3458 3998", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "The  court  entered  judgment  on  March  4.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "iban-like demo account ex482235332583 holds reserve funds.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "send the executed agreement to cameron.okoye5@example.org.", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "This\tclause survives termination.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "medium"}
+{"text": "Date of birth: 12/23/1985", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "charge 9174 8569 2451 4107 for the filing fee.", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Please  contact  me  at  harper.lopez70@mail.test  regarding  the  contract.", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Force majeure includes natural disasters.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard"}
+{"text": "Emergency\tcontact number is 286-505-3441.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Send  the  contract  to  494-343-3783.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "call me at 4599915362.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Wire $28 ,841 to routing 307918088 .", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "LOGIN WITH TOKEN 3EBAE19068C34CA098D9", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "my social security number is 375-58-5620.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Send\tthe contract to (257) 626-8257.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Payment  is  due  net  thirty  days.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "easy"}
+{"text": "USERNAME ADMIN PASSWORD=TMP!4571", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "Call me at (948) 546-5094.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "Medical history includes type 2 diabetes .", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "my email is jamie.rossi86@corp.example.", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "easy"}
+{"text": "MAILING ADDRESS: 3606 SUNSET WAY, SPRINGFIELD, ST 77181", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "medium"}
+{"text": "HARPER BROWN WAS BORN ON 12/15/1981.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "easy"}

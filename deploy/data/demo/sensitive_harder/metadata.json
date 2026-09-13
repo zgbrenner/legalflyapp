@@ -1,0 +1,24 @@
+{
+  "seed": 42,
+  "task": "sensitive_information_harder",
+  "labels": [
+    "NONE",
+    "PERSON",
+    "EMAIL",
+    "PHONE",
+    "ADDRESS",
+    "SSN",
+    "CREDIT_CARD",
+    "DATE_OF_BIRTH",
+    "FINANCIAL",
+    "MEDICAL",
+    "CREDENTIAL",
+    "OTHER_SENSITIVE"
+  ],
+  "notes": "Harder-than-MiniLM synthetic legal/compliance sensitive-info benchmark. Includes buried identifiers, zero-width splits, privilege talk-about-PII negatives, and dense boilerplate. No real personal data.",
+  "counts": {
+    "train": 1200,
+    "validation": 280,
+    "test": 360
+  }
+}

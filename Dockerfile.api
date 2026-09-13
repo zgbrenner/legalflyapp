@@ -1,0 +1,46 @@
+# Slim production API image (hashing encoder — no torch / MiniLM download).
+# Fits free-tier hosts (Render / Fly). Web UI deploys separately to Vercel.
+
+FROM python:3.12-slim
+
+WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+  && rm -rf /var/lib/apt/lists/*
+
+COPY pyproject.toml README.md LICENSE ./
+COPY research ./research
+COPY apps/api ./apps/api
+COPY deploy/data/demo ./data/demo
+COPY deploy/data/processed/hemibrain ./data/processed/hemibrain
+COPY deploy/models ./models
+COPY deploy/results ./results
+
+# Install runtime deps without torch / sentence-transformers.
+RUN pip install --no-cache-dir \
+      "fastapi>=0.115.0" \
+      "uvicorn[standard]>=0.30.0" \
+      "pydantic>=2.7.0" \
+      "pydantic-settings>=2.3.0" \
+      "numpy>=1.26.0" \
+      "scipy>=1.13.0" \
+      "scikit-learn>=1.5.0" \
+      "httpx>=0.27.0" \
+      "python-multipart>=0.0.9" \
+      "orjson>=3.10.0" \
+      "typer>=0.12.0" \
+      "rich>=13.7.0" \
+      "joblib>=1.4.0" \
+  && pip install --no-cache-dir --no-deps -e .
+
+ENV LEGALFLY_DEMO_MODE=false
+ENV LEGALFLY_ENCODER=hashing
+ENV LEGALFLY_CORS_ORIGINS=*
+ENV LEGALFLY_LOG_RAW_TEXT=false
+ENV PYTHONPATH=/app
+ENV PORT=8000
+
+EXPOSE 8000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
+  CMD curl -f "http://127.0.0.1:${PORT}/health" || exit 1
+
+CMD ["sh", "-c", "uvicorn apps.api.app.main:app --host 0.0.0.0 --port ${PORT}"]

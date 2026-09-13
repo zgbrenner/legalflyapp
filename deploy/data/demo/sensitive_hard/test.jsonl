@@ -1,0 +1,280 @@
+{"text": "Firm\u00a0card ending/full number 4405 5409 6582 4026 was used for the filing fee.", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "personal residence for service: 3430 cedar lane, brookside, st 80566.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "INSURED INDIVIDUAL: ALEX PATEL. TEMPORARY VAULT PASSWORD FOR THE DATA ROOM: TMP!23463", "labels": ["PERSON", "CREDENTIAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "charge xxxx xxxx xxxx xxxx and retain the receipt in the cost binder. temporary vault password for the data room: tmp!xxxxx", "labels": ["CREDIT_CARD", "CREDENTIAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Do  not  email  SSN  675-46-8655  outside  encrypted  channels.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "do not email ssn 181-28-5607 outside encrypted channels.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Personal  residence  for  service:  6656  Oak  Avenue,  Riverton,  ST  17431.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Notify  Taylor  Okoye  before  any  media  statement.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Attorney-client privilege is asserted as to the highlighted passages.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "WIRE $11,845 USING ROUTING 599676094 FOR THE SETTLEMENT ESCROW.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Ship  the  hard-copy  binder  overnight  to  1699  Pine  Road,  Riverton,  ST  89836.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Ship the hard-copy binder overnight to 8231 Oak Avenue , Riverton , ST 81969 .", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "Minor's  birthdate  on  the  sealed  petition  is  06/05/1984.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Chambers may reach the witness overnight at (625) 303-4150 .", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Reply-all accidentally exposed sam .okoye58@mail .test outside the clean team .", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Wire\u00a0$34,519 using routing 620317331 for the settlement escrow.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "HOME ADDRESS DISCLOSED IN THE SEALED EXHIBIT: XXXX MAPLE COURT, MAPLEWOOD, ST XXXXX. MINOR'S BIRTHDATE ON THE SEALED PETITION IS XX/XX/XXXX.", "labels": ["ADDRESS", "DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Insured individual: Quinn Okoye.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Firm\u00a0card ending/full number 4601 8134 1886 9327 was used for the filing fee.", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "minor's birthdate on the sealed petition is 05/03/2002.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Temporary  vault  password  for  the  data  room:  Tmp!61740", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Tax\u00a0ID / SSN on the W-9 is 899-41-6532.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "The  arbitration  clause  survives  termination.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Payment is due net thirty (30) days from invoice .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "SSN-format placeholders in fixtures must remain synthetic.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Notify  Riley  Patel  before  any  media  statement.  Passport  application  lists  date  of  birth  XX/XX/XXXX.", "labels": ["PERSON", "DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "DEFINED TERMS APPEAR IN ARTICLE I.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "CHARGE 7143 1267 6590 1570 AND RETAIN THE RECEIPT IN THE COST BINDER.", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Force  majeure  includes  epidemics  and  governmental  action.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "governing law is the state of example without regard to conflicts principles.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "The arbitration clause survives termination .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "GOVERNING LAW IS THE STATE OF EXAMPLE WITHOUT REGARD TO CONFLICTS PRINCIPLES.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "This communication is confidential and intended solely for counsel.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Minor's\u00a0birthdate on the sealed petition is 01/27/1986.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "Driver license D4030765 appears in the KYC packet .", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "The court entered judgment on March 4, 1998.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Please redline Section 4 .2 and circulate via the deal room .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Ship the hard-copy binder overnight to 1284 Maple Court , Brookside , ST 87975 .", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Charge 7514 5312 2683 9396 and retain the receipt in the cost binder .", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "Ship the hard-copy binder overnight to 5613 Pine Road, Riverton, ST 78851.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Account '555-operations' is an internal cost center, not a phone number.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "do not email ssn 295-74-8979 outside encrypted channels.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Home  address  disclosed  in  the  sealed  exhibit:  4399  Main  Street,  Brookside,  ST  36162.  Disability  file  references  diagnosis  of  type  2  diabetes.", "labels": ["ADDRESS", "MEDICAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Nothing herein creates a partnership or joint venture .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "wire $63,850 using routing 193700419 for the settlement escrow. insured individual: jordan smith.", "labels": ["FINANCIAL", "PERSON"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "ssn-format placeholders in fixtures must remain synthetic.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "salary band disclosed in the offer letter: $158,362.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "The case was docketed as 2024-CV-5551234.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "firm card ending/full number 2288 2438 7876 3208 was used for the filing fee.", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Temporary vault password for the data room: Tmp!40367", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "SSN-format\u00a0placeholders in fixtures must remain synthetic.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Counsel: please route the privilege log to avery .patel98@example .org only .", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Contact\u00a0the clerk of court for the filing window.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Billing\u00a0contact for outside counsel is riley.chen97@mail.test.", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "See  Exhibit  123-45-6789  attached  hereto.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "do not email ssn 760-39-8724 outside encrypted channels. for service of process questions call (861) 466-9890.", "labels": ["SSN", "PHONE"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Home\u00a0address disclosed in the sealed exhibit: 7087 Maple Court, Fairview, ST 46115.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "DO NOT EMAIL SSN 889-71-8237 OUTSIDE ENCRYPTED CHANNELS.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "CHAMBERS MAY REACH THE WITNESS OVERNIGHT AT 468.498.2075.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Tax ID / SSN on the W-9 is 681-18-5318.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "MINOR'S BIRTHDATE ON THE SEALED PETITION IS 09/20/1977.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "Counsel: please route the privilege log to quinn.kim23@example.com only.", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Minor's birthdate on the sealed petition is 05/19/1959.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "DO NOT EMAIL SSN 554-29-2289 OUTSIDE ENCRYPTED CHANNELS.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "the case was docketed as 2024-cv-5551234.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Attorney-client privilege is asserted as to the highlighted passages.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Governing law is the State of Example without regard to conflicts principles .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Passport  application  lists  date  of  birth  11/11/1960.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "hr packet lists ssn 565-37-7388 for background screening.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Minor's birthdate on the sealed petition is 12/06/1984 .", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Intake\u00a0form DOB for Avery Rossi: 05/08/1988.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Chambers may reach the witness overnight at +1 649 295 2622.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Driver\u00a0license D9445193 appears in the KYC packet.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "Disability  file  references  diagnosis  of  hypertension.  Wire  $XX,XXX  using  routing  XXXXXXXXX  for  the  settlement  escrow.", "labels": ["MEDICAL", "FINANCIAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "DEPONENT ALEX OKOYE ASSERTED THE FIFTH AS TO ACCOUNT OWNERSHIP. PERSONAL RESIDENCE FOR SERVICE: 8088 MAPLE COURT, SPRINGFIELD, ST 53692.", "labels": ["PERSON", "ADDRESS"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Chambers  may  reach  the  witness  overnight  at  716-878-9219.  Intake  form  DOB  for  Riley  Andersen:  08/19/1981.", "labels": ["PHONE", "DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Hotline\u00a0(after hours): 853.679.7835.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "the court entered judgment on march 4, 1998.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "CHARGE 8646 7639 3535 1000 AND RETAIN THE RECEIPT IN THE COST BINDER.", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "See\u00a0Exhibit 123-45-6789 attached hereto.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Counsel:  please  route  the  privilege  log  to  avery.nguyen46@corp.example  only.", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Notices may be delivered electronically under Section 12.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "TEMPORARY VAULT PASSWORD FOR THE DATA ROOM: TMP!67935", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "passport number p87751377 from the travel affidavit.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "This\u00a0communication is confidential and intended solely for counsel.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Notices\u00a0may be delivered electronically under Section 12.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "temporary vault password for the data room: tmp!88359", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "Notify\u00a0Avery Kim before any media statement.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "WIRE $53,057 USING ROUTING 825100895 FOR THE SETTLEMENT ESCROW.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Notify Alex Garcia before any media statement .", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "API token for e-discovery export: bf8c303c4a0fe8895077", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "FIRM CARD ENDING/FULL NUMBER 1176 2356 7585 4066 WAS USED FOR THE FILING FEE.", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Attorney-client\u00a0privilege is asserted as to the highlighted passages.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Notify Taylor Nguyen before any media statement .", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Driver license D1979909 appears in the KYC packet .", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "driver license d1558798 appears in the kyc packet.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Account '555-operations' is an internal cost center , not a phone number .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Minor's  birthdate  on  the  sealed  petition  is  05/23/1984.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "Home  address  disclosed  in  the  sealed  exhibit:  8786  Pine  Road,  Fairview,  ST  21915.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Firm  card  ending/full  number  9701  9250  9955  5633  was  used  for  the  filing  fee.", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "Account\u00a0'555-operations' is an internal cost center, not a phone number.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "See Exhibit 123-45-6789 attached hereto .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "SSN-format\u00a0placeholders in fixtures must remain synthetic.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "do not email ssn 362-96-6372 outside encrypted channels.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "REPLY-ALL ACCIDENTALLY EXPOSED SAM.SMITH81@CORP.EXAMPLE OUTSIDE THE CLEAN TEAM.", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Supplier\u00a0shall indemnify Customer from all claims arising hereunder.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "api token for e-discovery export: 72b1bd31cc7816ebdf0e", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "Billing contact for outside counsel is jordan .garcia42@example .com .", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Passport  application  lists  date  of  birth  XX/XX/XXXX.  Disability  file  references  diagnosis  of  asthma.", "labels": ["DATE_OF_BIRTH", "MEDICAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Salary band disclosed in the offer letter: $95 ,066 .", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "HR  packet  lists  SSN  421-76-1943  for  background  screening.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "driver license d7516227 appears in the kyc packet.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "The arbitration clause survives termination.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "SSN-FORMAT PLACEHOLDERS IN FIXTURES MUST REMAIN SYNTHETIC.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "DEPONENT RILEY NGUYEN ASSERTED THE FIFTH AS TO ACCOUNT OWNERSHIP. INDEPENDENT MEDICAL EXAM NOTES ONGOING HYPERTENSION.", "labels": ["PERSON", "MEDICAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Defined terms appear in Article I .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "DRIVER LICENSE D3254338 APPEARS IN THE KYC PACKET.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Governing law is the State of Example without regard to conflicts principles.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Notify  Quinn  Lopez  before  any  media  statement.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Salary\u00a0band disclosed in the offer letter: $XXX,XXX. For service of process questions call XXX-XXX-XXXX.", "labels": ["FINANCIAL", "PHONE"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "salary band disclosed in the offer letter: $172,726.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "passport application lists date of birth 12/16/1999.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "force majeure includes epidemics and governmental action.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Salary  band  disclosed  in  the  offer  letter:  $198,661.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "PASSPORT NUMBER P77777375 FROM THE TRAVEL AFFIDAVIT.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "NOTIFY TAYLOR GARCIA BEFORE ANY MEDIA STATEMENT.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Wire  $67,055  using  routing  929856052  for  the  settlement  escrow.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "Temporary\u00a0vault password for the data room: Tmp!79806", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Notices may be delivered electronically under Section 12.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "SSN-FORMAT PLACEHOLDERS IN FIXTURES MUST REMAIN SYNTHETIC.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Driver license D1198925 appears in the KYC packet .", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "WIRE $65,283 USING ROUTING 943980097 FOR THE SETTLEMENT ESCROW.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Passport  number  P38917411  from  the  travel  affidavit.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "temporary vault password for the data room: tmp!49038", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "Passport application lists date of birth 02/25/1972 .", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "See Exhibit 123-45-6789 attached hereto.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "THIS COMMUNICATION IS CONFIDENTIAL AND INTENDED SOLELY FOR COUNSEL.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Chambers  may  reach  the  witness  overnight  at  845.511.3202.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Disability file references diagnosis of type 2 diabetes .", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Billing contact for outside counsel is jordan .rossi91@example .org .", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "The court entered judgment on March 4 , 1998 .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "attorney-client privilege is asserted as to the highlighted passages.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Passport application lists date of birth 05/02/1987 .", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "Account  '555-operations'  is  an  internal  cost  center,  not  a  phone  number.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Independent medical exam notes ongoing migraine .", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "Passport number P15824722 from the travel affidavit .", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "ship the hard-copy binder overnight to 4175 maple court, riverton, st 31869.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Supplier  shall  indemnify  Customer  from  all  claims  arising  hereunder.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Call  Section  555  of  the  statute  before  filing.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Supplier\u00a0shall indemnify Customer from all claims arising hereunder.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Wire $30,596 using routing 527318398 for the settlement escrow.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Nothing  herein  creates  a  partnership  or  joint  venture.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "intake form dob for avery kim: 03/05/1963.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Temporary vault password for the data room: Tmp!94442", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "Driver  license  D8631784  appears  in  the  KYC  packet.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Deponent Riley Chen asserted the Fifth as to account ownership .", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Independent  medical  exam  notes  ongoing  type  2  diabetes.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Notices may be delivered electronically under Section 12.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "The  arbitration  clause  survives  termination.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Reply-all accidentally exposed taylor .okoye97@example .com outside the clean team .", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "hotline (after hours): (505) 871-6510.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Reply-all\u00a0accidentally exposed alex.garcia19@mail.test outside the clean team.", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "PASSPORT NUMBER P94783566 FROM THE TRAVEL AFFIDAVIT.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "WORK PRODUCT DOCTRINE PROTECTS DRAFT STRATEGY MEMORANDA.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Charge 4048 5241 3364 8508 and retain the receipt in the cost binder .", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "notify riley okoye before any media statement.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "API token for e-discovery export: 668a9b31fe324eaba2bf", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "API TOKEN FOR E-DISCOVERY EXPORT: 77309E6792D1E9E5B85D", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "Deponent Morgan Patel asserted the Fifth as to account ownership.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Attorney-client\u00a0privilege is asserted as to the highlighted passages.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "passport number p62729274 from the travel affidavit.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Firm  card  ending/full  number  1660  4208  3489  9294  was  used  for  the  filing  fee.", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "Passport  number  P22881391  from  the  travel  affidavit.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Contact  the  clerk  of  court  for  the  filing  window.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "BILLING CONTACT FOR OUTSIDE COUNSEL IS CASEY.OKOYE93@CORP.EXAMPLE.", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Nothing  herein  creates  a  partnership  or  joint  venture.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "wire $56,442 using routing 567238368 for the settlement escrow.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Payment\u00a0is due net thirty (30) days from invoice.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Passport  number  P88886523  from  the  travel  affidavit.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "Charge 8028 5615 2643 9651 and retain the receipt in the cost binder.", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "COUNSEL: PLEASE ROUTE THE PRIVILEGE LOG TO TAYLOR.CHEN49@CORP.EXAMPLE ONLY.", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "Temporary vault password for the data room: Tmp!51853", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "PASSPORT NUMBER P47200814 FROM THE TRAVEL AFFIDAVIT.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "api token for e-discovery export: 33f843b98193200aa223", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Tax  ID  /  SSN  on  the  W-9  is  564-21-1303.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "Salary band disclosed in the offer letter: $182,218.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "Firm card ending/full number 2284 8892 6337 1421 was used for the filing fee.", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "Charge 6624 3264 1932 7276 and retain the receipt in the cost binder . API token for e-discovery export: 0692d9375a1fa621896d", "labels": ["CREDIT_CARD", "CREDENTIAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Deponent Riley Rossi asserted the Fifth as to account ownership . Wire $XX ,XXX using routing XXXXXXXXX for the settlement escrow .", "labels": ["PERSON", "FINANCIAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Home  address  disclosed  in  the  sealed  exhibit:  3588  Pine  Road,  Brookside,  ST  28328.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Chambers may reach the witness overnight at 934-922-5805.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Minor's birthdate on the sealed petition is 01/13/1995.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Insured individual: Parker Kim .", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "FORCE MAJEURE INCLUDES EPIDEMICS AND GOVERNMENTAL ACTION.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Nothing herein creates a partnership or joint venture.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "home address disclosed in the sealed exhibit: 8162 oak avenue, fairview, st 35649.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "MINOR'S BIRTHDATE ON THE SEALED PETITION IS XX/XX/XXXX. NOTIFY AVERY KIM BEFORE ANY MEDIA STATEMENT.", "labels": ["DATE_OF_BIRTH", "PERSON"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Temporary vault password for the data room: Tmp!81043", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "The\u00a0arbitration clause survives termination.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "PERSONAL RESIDENCE FOR SERVICE: 5694 CEDAR LANE, BROOKSIDE, ST 77292.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "CONTACT THE CLERK OF COURT FOR THE FILING WINDOW.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Personal\u00a0residence for service: 698 Oak Avenue, Maplewood, ST 15543.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Revenue grew 12% year over year .", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Personal\u00a0residence for service: 3362 Pine Road, Brookside, ST 93647.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "please redline section 4.2 and circulate via the deal room.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "THE CASE WAS DOCKETED AS 2024-CV-5551234.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "HR packet lists SSN 415-39-2075 for background screening .", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Defined  terms  appear  in  Article  I.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "governing law is the state of example without regard to conflicts principles.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "API TOKEN FOR E-DISCOVERY EXPORT: DFE80915CB90B8EB4747 MINOR'S BIRTHDATE ON THE SEALED PETITION IS 01/13/1960.", "labels": ["CREDENTIAL", "DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Counsel: please route the privilege log to jordan.garciaXX@example.com only. Disability file references diagnosis of migraine.", "labels": ["EMAIL", "MEDICAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "personal residence for service: 8063 maple court, springfield, st 58661.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "For\u00a0service of process questions call 803-546-8054.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "INDEPENDENT MEDICAL EXAM NOTES ONGOING PTSD.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Governing\u00a0law is the State of Example without regard to conflicts principles.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "DISABILITY FILE REFERENCES DIAGNOSIS OF MIGRAINE.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Insured  individual:  Alex  Patel.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Passport number P28044889 from the travel affidavit.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "billing contact for outside counsel is jordan.lopez46@corp.example.", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "intake form dob for jordan patel: 04/13/1978.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "notify alex garcia before any media statement. hr packet lists ssn 143-14-9104 for background screening.", "labels": ["PERSON", "SSN"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "SEE EXHIBIT 123-45-6789 ATTACHED HERETO.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "API\u00a0token for e-discovery export: 908f7b39018a2d7e3028", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Attorney-client privilege is asserted as to the highlighted passages.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Charge 5476 8591 7113 5053 and retain the receipt in the cost binder.", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "disability file references diagnosis of migraine.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "temporary vault password for the data room: tmp!28379", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "passport application lists date of birth 03/27/1985.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Salary\u00a0band disclosed in the offer letter: $133,583.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "Firm card ending/full number 2709 7131 4633 7670 was used for the filing fee.", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "chambers may reach the witness overnight at 494.315.2231.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "for service of process questions call 685-360-7730.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Tax  ID  /  SSN  on  the  W-9  is  256-93-1675.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "Counsel: please route the privilege log to parker .smith16@mail .test only .", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Minor's\u00a0birthdate on the sealed petition is 11/04/2002.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "Passport\u00a0application lists date of birth 01/13/1991.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Driver license D1650067 appears in the KYC packet.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "insured individual: alex andersen.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "charge 6882 3095 5142 1914 and retain the receipt in the cost binder.", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "CHAMBERS MAY REACH THE WITNESS OVERNIGHT AT 554.682.1083.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Temporary vault password for the data room: Tmp!57568", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Home  address  disclosed  in  the  sealed  exhibit:  1718  Oak  Avenue,  Springfield,  ST  17145.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "The\u00a0arbitration clause survives termination.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Driver  license  D7326837  appears  in  the  KYC  packet.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "Intake\u00a0form DOB for Taylor Patel: 06/16/2004.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Insured individual: Morgan Okoye .", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Wire $25 ,462 using routing 748323794 for the settlement escrow .", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "ACCOUNT '555-OPERATIONS' IS AN INTERNAL COST CENTER, NOT A PHONE NUMBER.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Charge  8727  6769  6316  8804  and  retain  the  receipt  in  the  cost  binder.", "labels": ["CREDIT_CARD"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Governing law is the State of Example without regard to conflicts principles.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Personal  residence  for  service:  9331  Maple  Court,  Springfield,  ST  39752.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Insured individual: Morgan Kim.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "For service of process questions call 394.723.8477.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "deponent quinn andersen asserted the fifth as to account ownership.", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "Disability\u00a0file references diagnosis of type 2 diabetes.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "API TOKEN FOR E-DISCOVERY EXPORT: F9E9578E79E334709AB7", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "PASSPORT NUMBER P13130352 FROM THE TRAVEL AFFIDAVIT.", "labels": ["OTHER_SENSITIVE"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "HR  packet  lists  SSN  426-61-5159  for  background  screening.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "intake form dob for alex garcia: 10/26/1996.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Personal residence for service: 3661 Maple Court, Fairview, ST 36966.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Passport application lists date of birth 07/05/2000.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "do not email ssn xxx-xx-xxxx outside encrypted channels. firm card ending/full number xxxx xxxx xxxx xxxx was used for the filing fee.", "labels": ["SSN", "CREDIT_CARD"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Ship the hard-copy binder overnight to 3681 Pine Road, Brookside, ST 94131.", "labels": ["ADDRESS"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Salary  band  disclosed  in  the  offer  letter:  $83,917.  Intake  form  DOB  for  Quinn  Nguyen:  01/20/1974.", "labels": ["FINANCIAL", "DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Hotline (after hours): 380-886-7312.", "labels": ["PHONE"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Do\u00a0not email SSN 412-77-6833 outside encrypted channels.", "labels": ["SSN"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Disability\u00a0file references diagnosis of hypertension.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "REVENUE GREW 12% YEAR OVER YEAR.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "SALARY BAND DISCLOSED IN THE OFFER LETTER: $XXX,XXX. CHARGE XXXX XXXX XXXX XXXX AND RETAIN THE RECEIPT IN THE COST BINDER.", "labels": ["FINANCIAL", "CREDIT_CARD"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Independent\u00a0medical exam notes ongoing asthma.", "labels": ["MEDICAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "HR\u00a0packet lists SSN XXX-XX-XXXX for background screening. Home address disclosed in the sealed exhibit: XXXX Main Street, Riverton, ST XXXXX.", "labels": ["SSN", "ADDRESS"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Minor's\u00a0birthdate on the sealed petition is 02/16/1982.", "labels": ["DATE_OF_BIRTH"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "The case was docketed as 2024-CV-5551234.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Insured individual: Alex Nguyen .", "labels": ["PERSON"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Temporary vault password for the data room: Tmp!98075", "labels": ["CREDENTIAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "counsel: please route the privilege log to jordan.smith4@example.com only.", "labels": ["EMAIL"], "contains_sensitive": true, "difficulty": "medium", "task": "sensitive_information_hard"}
+{"text": "WIRE $8,911 USING ROUTING 437984324 FOR THE SETTLEMENT ESCROW.", "labels": ["FINANCIAL"], "contains_sensitive": true, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Supplier shall indemnify Customer from all claims arising hereunder.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Defined terms appear in Article I.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
+{"text": "Governing law is the State of Example without regard to conflicts principles.", "labels": ["NONE"], "contains_sensitive": false, "difficulty": "hard", "task": "sensitive_information_hard"}
