@@ -1,33 +1,43 @@
 # Legal Dreaming verification
 
-Implementation branch: `feat/legal-dreaming`, based on corrected engine commit `69587dc87f7513f87d411335341f3bcd7681d398` from the existing unmerged PR #2. Main and production were not changed. Pull request: https://github.com/zgbrenner/legalflyapp/pull/3
+Legal Dreaming is the only public experiment in the web application. The retired sensitive-information classifier, benchmark, ablation, comparison, and old methodology routes are no longer part of the product and must return 404.
 
-## Verified locally
+## Required verification
 
-- 38 existing Python regression tests pass.
-- 13 frontend tests pass, including stable accessible names for the new controls.
-- 17 new Node engine tests pass using the actual packaged biological graph, not a synthetic stand-in.
-- Production Next.js build, TypeScript checks, and lint complete successfully.
-- Lossless browser export matches the original CSR pointers, indices, weights and node IDs, with the recorded biological fingerprint.
-- The generated control preserves every node's incoming and outgoing degree, exact edge count, unique connections, and weight multiset.
-- Three seeds, four cues, 256 steps per run measured on both biological and rewired graphs; raw data in `results/dreaming/diagnostics.json`.
+The current GitHub Actions workflow verifies three layers:
 
-## Browser evidence
+1. **Python regression suite** for retained research and graph-processing code.
+2. **Frontend and dream-engine tests**, including the actual packaged biological graph rather than a synthetic stand-in.
+3. **Production Chromium checks** against the built Next.js site, with no classifier API process.
 
-Local Chromium navigation was administrator-blocked. The existing GitHub Actions browser job runs the production build instead, using the real browser worker and biological assets. Read the latest completed run and `dream-checks.json` in its `browser-evidence` artifact for the exact checks reached and measurements, rather than treating compilation or configured tests as a browser pass.
+The browser suite covers:
 
-The first run, 34744936421, passed all 12 legacy classifier checks, graph loading and corpus-import/cancellation checks, then caught a reading-set label mismatch. Explicit accessible names and the mobile viewport setup were corrected in the follow-up commit. Results of subsequent runs are linked in PR #3.
+- biological graph loading and checksum validation
+- local corpus training and cancellation
+- learned replay and feedback-off silence
+- pause/resume and cue restarts
+- model and notebook import/export
+- degree-preserving rewired controls
+- privacy/network canaries
+- desktop and mobile layouts
+- reduced-motion behavior
+- hero scroll interaction
+- explicit 404 checks for `/classification`, `/benchmark`, `/ablate`, `/compare`, and `/methodology`
 
-The browser script covers training, pause/resume, replay/silence, model/notebook downloads, import rejection and round trips, genuine matched-size controls, checksum failure, a network privacy canary, method disclosures, desktop/mobile layout and reduced motion. The visibility check tests the event handler, not physical-device background scheduling.
+Browser evidence is uploaded as the `browser-evidence` GitHub Actions artifact. Compilation alone is not treated as browser proof.
 
 ## Scientific limits
 
-The model learns an added numerical feedback map, not biological synaptic plasticity. Replay receives internal feedback but no new external text. Silence receives neither. The source graph is a 3,072-neuron subset, not a complete fly nervous system. The initial corpus is 16 fictional scenarios, not a library of court opinions.
+The model learns an added numerical feedback map, not biological synaptic plasticity. Replay receives internal feedback but no new external text. Silence receives neither.
 
-The first diagnostic shows sustained feedback activity and quiet feedback-off decay. It does not demonstrate novel law, semantic legal understanding, or superiority of biological wiring. Label changes include abstention; the rewired control held the taught associations more consistently on these runs.
+The source graph is a 3,072-neuron subset with 293,766 directed connections, not a complete fly nervous system. The initial corpus is 16 fictional scenarios, not a library of court opinions.
 
-## Deployment and unverified boundaries
+The experiment does not demonstrate biological sleep, consciousness, legal reasoning, novel law, or superiority of biological wiring. The initial diagnostic found that the degree-preserving rewired control retained taught associations more consistently than the biological graph.
 
-The existing Vercel integration builds a branch preview. This is not a production promotion or a direct runtime verification of that hosted URL. Safari, Firefox, physical iPhones, long background sessions, arbitrary private corpora and whole-brain execution are not certified here. The earlier classifier still uses its API.
+## Deployment boundaries
 
-The inherited npm lockfile emitted seven audit findings during installation (four moderate, two high, one critical). Their exact dependency paths and exploitability have not been triaged here. A successful build is not a security clearance; investigate these before production use. No force-upgrade was applied.
+The public Legal Dreaming site is browser-local and does not require the retained Python research API. A Vercel or equivalent deployment should build the Next.js frontend with access to the root-level biological graph/provenance inputs and serve the generated `/dream/` assets over HTTPS.
+
+Safari, Firefox, physical iPhones, long background sessions, arbitrary private corpora, and whole-brain execution are not certified by the standard CI run.
+
+The inherited npm lockfile previously emitted dependency audit findings during installation. A successful build is not a security clearance; dependency findings should be reviewed independently before production use.
