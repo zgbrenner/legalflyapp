@@ -2,27 +2,27 @@
 
 Can a fly's brain wiring help spot sensitive text?
 
-The Legal Fly turns connections reconstructed from part of a fruit fly brain into a computational circuit. A trained classifier reads its activity and flags patterns such as email addresses and private identifiers. Compare it with scrambled wiring, inspect actual neuron IDs, and read the measured results.
+The Legal Fly turns connections reconstructed from part of a fruit fly brain into a computer model. A trained classifier flags patterns such as email addresses and private identifiers. Compare it with scrambled wiring, inspect real neuron IDs, and read the measured results.
 
-This is not a living fly, a restored mind, a full-brain simulation, or legal advice. Neural dynamics are simplified mathematics. The visual brain shape is illustrative, not reconstructed anatomy.
+This is a mathematical model, not a living fly, restored mind, full-brain simulation, or legal adviser. Brain shapes are illustrative; connection data and displayed model activity are real.
 
-## Corrected science
+## The experiment
 
-Source-row adjacency is transposed for forward propagation. Random controls preserve exact edge counts; directed degree controls preserve both degree sequences; weight controls permute original weights. Seeds and graph fingerprints are deterministic. Checkpoints are versioned and checksummed. Old checkpoints are rejected.
+The homepage starts with a genuine synthetic **Recorded example**. Submitting a passage requests new server-side inference. Failed, cancelled or outdated requests cannot turn a recording into a fabricated live result. Both brain views use the same layout, camera, clock and brightness scale. Known examples show their expected label independently of the model's answer.
 
-All pre-v2 measurements are historical only. They used incorrect propagation/control implementations and are not evidence for the corrected model. The API will not serve them as current results.
+The default live API uses a lightweight hashing encoder. The research benchmark uses shared frozen MiniLM features. The interface identifies each configuration rather than treating the saved benchmark as the accuracy of every live request.
 
-## The MiniLM experiment
+## Corrected science and result
 
-`results/comparison_v2.json` contains 20 paired trials: ten training-data seeds crossed with two graph/input seeds. Each uses 120 training examples, 280 validation examples, and 360 test passages from the existing synthetic legal-text dataset. Every model family receives 18 validation candidates. All choices are saved before the test is evaluated, in `results/comparison_v2_selection.json`.
+Forward propagation uses the transpose of source-row adjacency. Random controls have exact directed edge counts. Degree controls preserve both degree sequences. Weight controls permute original weights. Graph identities, seeds and checkpoint compatibility are verified. Pre-v2 measurements are historical only.
 
-The fly models are hybrids: they retain MiniLM features and add compact activity features. They do not replace MiniLM. Comparators are a linear readout, a small neural readout, random wiring, and degree-matched wiring. A hybrid improvement alone would not demonstrate a biological-topology advantage.
+`results/comparison_v2.json` contains 20 paired trials: ten training-data seeds crossed with two graph/input seeds, each with 120 training, 280 validation and 360 test examples. Each model family receives 18 validation candidates. Choices are saved before test scoring in `results/comparison_v2_selection.json`.
 
-The initial corrected run did not beat the standard MiniLM classifiers. Read the published artifact for exact means, individual trials, per-class metrics and paired intervals. Intervals resample training-data-seed clusters rather than treating correlated trials as independent. Sign-permutation p-values are exploratory and unadjusted for multiple comparisons.
+The fly models retain MiniLM features and add activity features. They do not replace MiniLM. The corrected run did not establish a fly advantage: mean macro F1 was 0.9457 for the fly hybrid, 0.9511 for MiniLM plus linear readout, and 0.9498 for MiniLM plus a small neural readout. Exact scores, random controls, individual trials and uncertainty are in the published artifact.
 
-The test is synthetic, shares template structure across splits, and was used in earlier project experiments. Independent external replication remains necessary.
+Intervals resample training-data-seed clusters. Paired permutation p-values are exploratory and unadjusted for multiple comparisons. The synthetic test shares template structure across splits and was used in earlier experiments. External validation is still needed.
 
-## Local development
+## Run locally
 
 ```bash
 python -m venv .venv
@@ -37,48 +37,40 @@ In another terminal:
 
 ```bash
 cd apps/web
+printf 'NEXT_PUBLIC_API_URL=http://localhost:8000\n' > .env.local
 npm ci
 npm run dev
 ```
 
-The live lightweight API uses hashing features, not MiniLM. The interface reports the encoder it actually receives. The research benchmark uses frozen `all-MiniLM-L6-v2` features. Missing MiniLM dependencies raise an error rather than silently substituting hashing.
-
-The homepage initially shows a genuine saved inference, labeled **Recorded example**. Running the experiment submits a new request to the configured API. Failure never turns the recording into a fabricated live result.
-
-## Reproduce research and public assets
+## Reproduce the research
 
 ```bash
-pip install -e '.[research,dev]'
+mkdir -p .cache/research
+cp deploy/research-inputs/minilm_embeddings.npz deploy/research-inputs/embedding_manifest.json .cache/research/
 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 python -m research.experiments.search
 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 python -m research.experiments.surgery
 LEGALFLY_ENCODER=hashing OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 python -m scripts.export_public
 ```
 
-The embedding cache manifest verifies the encoder and SHA-256 hashes of all dataset splits. The search does not overwrite serving checkpoints. It refuses synthetic graph fallback.
+The frozen vector cache checks dataset hashes, vector shapes, finite values and every vector-array hash. The original producer did not record the encoder revision; that limitation is explicit. Janelia's original archive was independently downloaded, checksum-verified and rebuilt to match the packaged graph. The research refuses a synthetic graph substitute and does not overwrite serving checkpoints.
 
-The separate ablation diagnostic compares frozen hybrid and activity-only readouts. Disabled neurons receive no input. Surviving weights are not amplified after damage. Neither classifier is retrained. A hybrid can keep its prediction after all neurons are silenced because it retains text features; that is not biological resilience.
+Lesions compare frozen hybrid and activity-only readouts without retraining or increasing surviving weights. A hybrid can preserve a prediction after every neuron is silenced because it retains text features. That is not biological resilience.
 
-## Verification
+## Verify
 
 ```bash
 LEGALFLY_ENCODER=hashing OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 pytest -q
-cd apps/web && npm test && npm run build
+cd apps/web && npm test && npm run lint && npm run build
 ```
 
-For browser checks, start the Next frontend and API, install Playwright Chromium, then run `python -m scripts.browser_smoke`. Screenshots go to `/tmp/legalfly-qa`, not into the source tree. CI checks desktop/mobile inference, errors, playback, neuron selection, 2D fallback, result selectors, lesions and reduced motion.
+With the built frontend and biological API running, use `python -m scripts.browser_smoke`. Chromium screenshots and checks are written outside the source tree. CI exercises desktop/mobile inference, input/network errors, playback, neuron inspection, 2D fallback, results, lesions and reduced motion.
 
-## Deployment
+## Deployment, provenance and limits
 
-Vercel project root: `apps/web`. Set `NEXT_PUBLIC_API_URL` to the HTTPS API origin and rebuild the frontend. Without this setting, the public site provides explicitly labeled recorded playback and bundled results, not pretend live inference.
+Use `DEPLOY.md` to deploy the API and frontend from the same release. The API image creates compatible readouts during its build, then disables runtime auto-training. A branch/PR does not certify the existing production host.
 
-Build the API using `Dockerfile.api`. Corrected readouts are trained once during image construction. Runtime auto-training is disabled; missing, mismatched or corrupted artifacts fail startup. Both Render and Fly configurations use `/ready` and restricted CORS. Add a preview origin explicitly when testing a Vercel preview against that API.
+The bundled CC BY 4.0 Janelia FlyEM hemibrain v1.2 subgraph contains 3,072 neurons and 293,766 directed connections. It is neither the whole brain nor an intact learning circuit. Credit belongs to the reconstruction team and source authors. Region labels are coarse heuristics; UI coordinates are not microscopy.
 
-The limiter is per process, with bounded client state. Multiple instances require an additional shared or edge limiter. Reverse-proxy forwarding headers must only be trusted from the actual hosting proxy. Request bodies are bounded, errors do not echo submitted passages, and inference is serialized because reservoir state is mutable.
+Do not submit real client files, passwords or privileged material. Text is sent to a server. A negative score is not a safety guarantee. The live synthetic SSN example currently exposes a false negative; it has not been hidden or rewritten into a success.
 
-## Data, limitations and privacy
-
-The bundled real graph is a high-degree subgraph: 3,072 neurons and 293,766 directed connections from Janelia FlyEM hemibrain v1.2, CC BY 4.0. It is not the full brain or an intact learning circuit. Region names use coarse cell-type heuristics. UI coordinates are illustrative; edges and activity come from the computational model. Rendering applies the same layout rule, camera, timing and intensity scale to both models.
-
-Do not submit client files, passwords or privileged material to a public demo. Text is sent to a server, even though this application does not persist it. This does not guarantee anything about every hosting provider's infrastructure. Model scores are not calibrated guarantees of safety.
-
-Code and synthetic examples: MIT. Hemibrain data: CC BY 4.0, attributed to Janelia FlyEM and Scheffer and colleagues. FlyWire is not bundled or simulated by this implementation. Full provenance remains in `docs/DATA_AND_LICENSING.md`.
+See `docs/METHODOLOGY.md`, `docs/DATA_AND_LICENSING.md`, `docs/PRIVACY.md`, and `docs/KNOWN_LIMITATIONS.md`. Code and synthetic examples are MIT-licensed; biological data retain their original license. FlyWire execution and browser-side training are not implemented.

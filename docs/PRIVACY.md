@@ -1,33 +1,25 @@
-# Privacy
+# Privacy and the public experiment
 
-LegalFly may receive text that looks like sensitive information. Treat all
-user-submitted content as confidential.
+The Legal Fly is a public research demo. Do not submit real client information, passwords, privileged communications, or documents you are not authorized to share.
 
-## Defaults
+## Where text goes
 
-- **Submitted text is not persisted** to disk or a database.
-- Classification runs in-memory and returns a response.
-- Server logs record only **metadata**: model id, character count, coarse timing, and a short **hash fingerprint** of the text.
-- Raw text logging is disabled unless `LEGALFLY_LOG_RAW_TEXT=true` (discouraged).
-- Error handlers redact emails, phone-like strings, and digits before logging.
-- No third-party analytics are attached to submitted content in the default app.
-- Optional YES/NO feedback stores correctness flags only — never the original passage.
+The initial recording is a bundled synthetic passage and its actual saved model output. Replaying it does not submit a passage for inference. **Run the experiment** sends entered text to the configured API over HTTPS in production. This is server-side computation, not browser-only processing. The default live encoder uses local hashing features, not an external language-model API. Every result identifies its actual encoder.
 
-## Operator checklist
+## Application behavior
 
-1. Keep `LEGALFLY_LOG_RAW_TEXT=false` in production.
-2. Do not add request-body logging middleware.
-3. If you add persistence, require explicit opt-in and document retention.
-4. Prefer on-prem / local deployment for highly sensitive corpora.
-5. Review reverse proxies and APM tools so they do not capture POST bodies.
+Classification routes do not write passages to disk or a database. Inference runs in memory. Normal model-service logs include model, character count, timing, and predicted sensitive/not-sensitive flag, but not passage text or fingerprints. Exception handlers record exception types, not submitted text. Validation errors omit rejected input. Feedback logs a boolean correctness flag, not arbitrary client strings.
 
-## User-facing statement
+Legacy fingerprint and redaction helpers remain in the source but classification does not use fingerprints as telemetry. `LEGALFLY_LOG_RAW_TEXT` controls the legacy defensive logging filter; it does not authorize request-body logging or cause classification to start logging passages. Leave it false.
 
-The UI states:
+There is no session-replay or text-analytics integration. Responses and activity remain in page memory. This does not guarantee that hosting providers, reverse proxies, operating systems, or future operators retain nothing. Infrastructure and the in-memory request limiter can process IP addresses.
 
-> Submitted text is not saved by default.
+## Cancellation and limits
 
-## API notes
+**Cancel request** aborts the browser request and prevents its response from replacing the display. It does not guarantee that computation already started on the server has stopped. Text is bounded to 4,000 characters, request bodies are bounded, and POST requests have a per-process rate limit. Multiple instances require a shared or edge limiter.
 
-- `POST /classify` and `POST /simulate` accept text and return predictions.
-- `POST /feedback` accepts `{ correct, model, predicted_labels, fingerprint }` only.
+## Operator requirements
+
+Use HTTPS and exact allowed origins. Do not add body logging, session replay, or exception tools that capture payloads. Trust forwarded headers only from the real reverse proxy. Audit hosting logs and retention. Sensitive deployments need their own security and confidentiality review.
+
+A negative prediction is not a guarantee that text is safe to share. Model scores are not calibrated safety probabilities. The Legal Fly does not determine legal privilege, satisfy a compliance obligation, or provide legal advice.
