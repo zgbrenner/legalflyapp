@@ -1,0 +1,142 @@
+name: Reproduce and verify The Legal Fly
+on:
+  workflow_dispatch:
+  push:
+    branches: [feat/the-legal-fly]
+    paths: [.github/workflows/finish-research.yml]
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: legalfly-research-release
+  cancel-in-progress: false
+jobs:
+  reproduce:
+    if: github.ref == 'refs/heads/feat/the-legal-fly'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      LEGALFLY_ENCODER: hashing
+      LEGALFLY_CORS_ORIGINS: http://127.0.0.1:3000
+      NEXT_PUBLIC_API_URL: http://127.0.0.1:8000
+      NEXT_TELEMETRY_DISABLED: '1'
+      QA_ARTIFACTS_DIR: /tmp/legalfly-qa
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/the-legal-fly
+      - name: Apply the locally tested source corrections
+        run: |
+          if test -f scripts/reviewed-fixes.patch; then
+            git apply --check --unidiff-zero scripts/reviewed-fixes.patch
+            git apply --unidiff-zero scripts/reviewed-fixes.patch
+            git rm scripts/reviewed-fixes.patch
+          fi
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install reproducible numerical dependencies
+        run: |
+          pip install numpy==2.3.5 scipy==1.17.0 scikit-learn==1.8.0 joblib==1.5.3 fastapi uvicorn pydantic-settings httpx rich typer pytest pytest-asyncio playwright
+          pip install --no-deps -e .
+          mkdir -p /tmp/legalfly-qa data/processed
+          cp -R deploy/data/processed/hemibrain data/processed/
+      - name: Verify biological wiring against the original Janelia archive
+        run: |
+          python - <<'PY'
+          import hashlib, json, tarfile, urllib.request
+          from pathlib import Path
+          from research.graphs.build_hemibrain_connectome import build_hemibrain_subgraph
+          from research.graphs.connectome import ConnectomeGraph
+          url='https://storage.googleapis.com/hemibrain/v1.2/exported-traced-adjacencies-v1.2.tar.gz'
+          archive=Path('/tmp/hemibrain-source.tar.gz')
+          urllib.request.urlretrieve(url,archive)
+          with tarfile.open(archive) as f:
+              f.extractall('/tmp/hemibrain-source',filter='data')
+          raw=Path('/tmp/hemibrain-source/exported-traced-adjacencies-v1.2')
+          rebuilt=build_hemibrain_subgraph(raw/'traced-neurons.csv',raw/'traced-total-connections.csv')
+          packaged=ConnectomeGraph.load(Path('data/processed/hemibrain/biological'))
+          report={'source_url':url,'archive_sha256':hashlib.sha256(archive.read_bytes()).hexdigest(),'rebuilt_graph_hash':rebuilt.fingerprint(),'packaged_graph_hash':packaged.fingerprint(),'neurons':rebuilt.n_nodes,'edges':rebuilt.n_edges,'matches_original_source':rebuilt.fingerprint()==packaged.fingerprint()}
+          assert report['matches_original_source'],report
+          Path('deploy/research-inputs').mkdir(parents=True,exist_ok=True)
+          Path('deploy/research-inputs/hemibrain-provenance.json').write_text(json.dumps(report,indent=2)+'\n')
+          print(json.dumps(report,indent=2))
+          PY
+      - name: Check for frozen encoder evidence
+        id: frozen
+        run: |
+          if test -f deploy/research-inputs/minilm_embeddings.npz; then echo 'present=true' >> "$GITHUB_OUTPUT"; else echo 'present=false' >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/download-artifact@v4
+        if: steps.frozen.outputs.present != 'true'
+        with:
+          name: encoder-evidence
+          run-id: 34731746744
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/encoder-evidence
+      - name: Verify and preserve frozen encoder inputs
+        run: |
+          mkdir -p .cache/research deploy/research-inputs
+          if test -f deploy/research-inputs/minilm_embeddings.npz; then
+            cp deploy/research-inputs/minilm_embeddings.npz deploy/research-inputs/embedding_manifest.json .cache/research/
+          else
+            python -m scripts.import_embeddings /tmp/encoder-evidence
+            cp .cache/research/minilm_embeddings.npz .cache/research/embedding_manifest.json deploy/research-inputs/
+          fi
+          python -m pytest -q | tee /tmp/legalfly-qa/python-tests.txt
+      - name: Measure paired models and frozen-readout lesions
+        run: |
+          python -u -m research.experiments.search --cache .cache/research | tee /tmp/legalfly-qa/research.txt
+          python -u -m research.experiments.surgery --cache .cache/research | tee /tmp/legalfly-qa/lesions.txt
+          python -m scripts.export_public | tee /tmp/legalfly-qa/export.txt
+      - name: Update to the patched Next.js maintenance release and compatible React renderer
+        working-directory: apps/web
+        run: |
+          npm install --save-exact next@15.5.24 react@19 react-dom@19 @react-three/fiber@9 @react-three/drei@10
+          npm install --save-dev --save-exact eslint-config-next@15.5.24 @types/react@19 @types/react-dom@19
+          npm pkg set 'scripts.lint=eslint . --ext .ts,.tsx'
+          npm test | tee /tmp/legalfly-qa/web-tests.txt
+          npm run lint | tee /tmp/legalfly-qa/lint.txt
+          npm run build | tee /tmp/legalfly-qa/build.txt
+      - name: Preserve source and generated evidence on the feature branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add apps/web research/experiments/search.py tests scripts/import_embeddings.py results/comparison_v2.json results/comparison_v2_selection.json results/ablation_latest.json deploy/research-inputs deploy/results
+          if ! git diff --cached --quiet; then
+            git commit -m 'feat: publish verified biological research and corrected The Legal Fly runtime'
+            git push origin HEAD:feat/the-legal-fly
+          fi
+      - name: Run real browser checks against the actual biological API
+        run: |
+          python -m playwright install --with-deps chromium
+          uvicorn apps.api.app.main:app --host 127.0.0.1 --port 8000 > /tmp/legalfly-qa/api.log 2>&1 &
+          (cd apps/web && npm start -- --hostname 127.0.0.1 > /tmp/legalfly-qa/web.log 2>&1) &
+          for i in $(seq 1 90); do
+            if curl -fsS http://127.0.0.1:8000/ready >/dev/null && curl -fsS http://127.0.0.1:3000 >/dev/null; then break; fi
+            sleep 2
+          done
+          python -m scripts.browser_smoke
+      - name: Package reproducible source and browser evidence
+        if: always()
+        run: |
+          git archive HEAD --format=tar.gz > /tmp/legalfly-qa/source.tar.gz
+          if test -d apps/web/node_modules; then tar -czf /tmp/legalfly-web-runtime.tgz -C apps/web node_modules package.json package-lock.json; fi
+          cp results/comparison_v2.json /tmp/legalfly-qa/ 2>/dev/null || true
+          cp deploy/research-inputs/hemibrain-provenance.json /tmp/legalfly-qa/ 2>/dev/null || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: legalfly-final-evidence
+          path: /tmp/legalfly-qa
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: legalfly-patched-web-runtime
+          path: /tmp/legalfly-web-runtime.tgz
+          retention-days: 3
