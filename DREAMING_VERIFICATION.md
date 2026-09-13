@@ -1,24 +1,24 @@
 # Legal Dreaming verification
 
-Implementation branch: `feat/legal-dreaming`, based on corrected engine commit `69587dc87f7513f87d411335341f3bcd7681d398` from the existing unmerged PR #2. Main and the production deployment were not changed.
+Implementation branch: `feat/legal-dreaming`, based on corrected engine commit `69587dc87f7513f87d411335341f3bcd7681d398` from the existing unmerged PR #2. Main and production were not changed. Pull request: https://github.com/zgbrenner/legalflyapp/pull/3
 
 ## Verified locally
 
 - 38 existing Python regression tests pass.
-- 12 existing frontend tests pass.
+- 13 frontend tests pass, including stable accessible names for the new controls.
 - 17 new Node engine tests pass using the actual packaged biological graph, not a synthetic stand-in.
 - Production Next.js build, TypeScript checks, and lint complete successfully.
 - Lossless browser export matches the original CSR pointers, indices, weights and node IDs, with the recorded biological fingerprint.
 - The generated control preserves every node's incoming and outgoing degree, exact edge count, unique connections, and weight multiset.
 - Three seeds, four cues, 256 steps per run measured on both biological and rewired graphs; raw data in `results/dreaming/diagnostics.json`.
 
-The original Vite CommonJS configuration emits a deprecation warning during frontend tests. It does not fail the test suite.
-
 ## Browser evidence
 
-Local Chromium navigation to localhost was blocked by an administrator policy (`ERR_BLOCKED_BY_ADMINISTRATOR`). No attempt was made to alter that policy. The repository's existing GitHub Actions browser job is used for production-build interaction tests and screenshots instead. Its script exercises real browser-side learning, actual connectome assets, cancellation, replay/silence, downloads/imports, controls, bad-checksum rejection, privacy canary checks and desktop/mobile layouts.
+Local Chromium navigation was administrator-blocked. The existing GitHub Actions browser job runs the production build instead, using the real browser worker and biological assets. Read the latest completed run and `dream-checks.json` in its `browser-evidence` artifact for the exact checks reached and measurements, rather than treating compilation or configured tests as a browser pass.
 
-Browser results must be read from the corresponding completed CI run and `dream-checks.json` artifact. A successful local build alone is not browser verification.
+The first run, 34744936421, passed all 12 legacy classifier checks, graph loading and corpus-import/cancellation checks, then caught a reading-set label mismatch. Explicit accessible names and the mobile viewport setup were corrected in the follow-up commit. Results of subsequent runs are linked in PR #3.
+
+The browser script covers training, pause/resume, replay/silence, model/notebook downloads, import rejection and round trips, genuine matched-size controls, checksum failure, a network privacy canary, method disclosures, desktop/mobile layout and reduced motion. The visibility check tests the event handler, not physical-device background scheduling.
 
 ## Scientific limits
 
@@ -28,4 +28,6 @@ The first diagnostic shows sustained feedback activity and quiet feedback-off de
 
 ## Deployment and unverified boundaries
 
-Production hosting, Safari, Firefox, physical iPhones, long background sessions, arbitrary private corpora, and whole-brain execution are not certified here. Existing API behavior is retained only for the earlier classifier. This change does not merge, publish, or promote production.
+The existing Vercel integration builds a branch preview. This is not a production promotion or a direct runtime verification of that hosted URL. Safari, Firefox, physical iPhones, long background sessions, arbitrary private corpora and whole-brain execution are not certified here. The earlier classifier still uses its API.
+
+The inherited npm lockfile emitted seven audit findings during installation (four moderate, two high, one critical). Their exact dependency paths and exploitability have not been triaged here. A successful build is not a security clearance; investigate these before production use. No force-upgrade was applied.

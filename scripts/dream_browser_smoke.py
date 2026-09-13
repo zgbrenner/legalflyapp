@@ -151,7 +151,8 @@ async def main():
             assert 'not a whole brain' in await page.locator('article').inner_text()
             checks.append('Method page discloses real versus artificial components and experiment limits')
 
-            mobile = await context.new_page(viewport={'width': 390, 'height': 844})
+            mobile = await context.new_page()
+            await mobile.set_viewport_size({'width': 390, 'height': 844})
             mobile.on('pageerror', lambda e: errors.append(str(e)))
             await mobile.emulate_media(reduced_motion='reduce')
             await mobile.goto(base, wait_until='networkidle')
@@ -169,6 +170,7 @@ async def main():
             (out / 'dream-checks.json').write_text(json.dumps(report, indent=2))
             try:
                 await page.screenshot(path=str(out / 'dream-final-state.png'), full_page=True)
+                (out / 'dream-final-state.html').write_text(await page.content())
             except Exception:
                 pass
             await browser.close()
