@@ -9,35 +9,57 @@ concurrency:
   group: verify-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  verify:
+  prepare:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
-      - name: Capture exact source under test
-        run: tar --exclude=.git -czf "$RUNNER_TEMP/source.tgz" .
-      - uses: actions/upload-artifact@v4
-        with:
-          name: source-under-test
-          path: ${{ runner.temp }}/source.tgz
-          retention-days: 3
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: npm
-          cache-dependency-path: apps/web/package-lock.json
-      - name: Install research dependencies
-        run: pip install -e '.[dev]'
-      - name: Python tests
-        env:
-          LEGALFLY_ENCODER: hashing
-        run: pytest -q
-      - name: Web dependencies
+      - name: Install web dependencies
         working-directory: apps/web
         run: npm ci
-      - name: Web tests and production build
-        working-directory: apps/web
-        run: npm test && npm run build
+      - name: Save browser runtime for isolated verification
+        run: |
+          mkdir -p evidence
+          tar -czf evidence/web-runtime.tgz -C apps/web node_modules
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web-runtime
+          path: evidence/web-runtime.tgz
+          retention-days: 3
+      - name: Install research dependencies
+        run: |
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -e '.[dev,research]'
+      - name: Record MiniLM features for unchanged dataset splits
+        env:
+          OMP_NUM_THREADS: '2'
+        run: |
+          python - <<'PY'
+          import json, hashlib
+          from pathlib import Path
+          import numpy as np
+          from research.encoders.text import SentenceTransformerEncoder
+          from research.datasets.sensitive import load_sensitive_split
+          enc = SentenceTransformerEncoder()
+          manifest = {'encoder': enc.name, 'splits': {}}
+          for split in ('train', 'validation', 'test'):
+              rows = load_sensitive_split(split)
+              np.save(f'evidence/minilm_{split}.npy', enc.encode_batch([r.text for r in rows]))
+              texts = [r.text for r in rows]
+              manifest['splits'][split] = {'count': len(rows), 'texts_sha256': hashlib.sha256(json.dumps(texts, ensure_ascii=False).encode()).hexdigest()}
+          Path('evidence/embeddings.json').write_text(json.dumps(manifest, indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: encoder-evidence
+          path: |
+            evidence/*.npy
+            evidence/*.json
+          retention-days: 3
