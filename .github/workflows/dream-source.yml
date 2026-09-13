@@ -1,0 +1,19 @@
+name: Dream source snapshot
+on:
+  push:
+    branches: [feat/legal-dreaming]
+    paths: [.github/workflows/dream-source.yml]
+permissions:
+  contents: read
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Archive checked-out source and biological artifacts
+        run: git archive --format=tar HEAD > /tmp/legalfly-source.tar
+      - uses: actions/upload-artifact@v4
+        with:
+          name: legalfly-dream-source
+          path: /tmp/legalfly-source.tar
+          retention-days: 1
