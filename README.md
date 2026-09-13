@@ -1,210 +1,84 @@
-# LegalFly
+# The Legal Fly
 
-We cut wiring out of a dead fruit fly and asked it to smell secrets in legal text.
+Can a fly's brain wiring help spot sensitive text?
 
-LegalFly is an open-source Frankenstein experiment: Drosophila connectome topology, reanimated as a reservoir computer for sensitive-information detection.
+The Legal Fly turns connections reconstructed from part of a fruit fly brain into a computational circuit. A trained classifier reads its activity and flags patterns such as email addresses and private identifiers. Compare it with scrambled wiring, inspect actual neuron IDs, and read the measured results.
 
-![LegalFly interface](docs/screenshot.svg)
+This is not a living fly, a restored mind, a full-brain simulation, or legal advice. Neural dynamics are simplified mathematics. The visual brain shape is illustrative, not reconstructed anatomy.
 
-> **Scientific framing:** This tests whether biological neural connectivity provides useful inductive structure for low-parameter text classification. LegalFly does **not** restore a mind, simulate consciousness, understand law, or provide legal advice. When hemibrain tissue is loaded, edges are real Janelia FlyEM connectivity (CC BY). The gothic tone is aesthetic; the metrics are measured.
+## Corrected science
 
-## Why this exists
+Source-row adjacency is transposed for forward propagation. Random controls preserve exact edge counts; directed degree controls preserve both degree sequences; weight controls permute original weights. Seeds and graph fingerprints are deterministic. Checkpoints are versioned and checksummed. Old checkpoints are rejected.
 
-The strange-but-legitimate research question:
+All pre-v2 measurements are historical only. They used incorrect propagation/control implementations and are not evidence for the corrected model. The API will not serve them as current results.
 
-**If you steal the wiring diagram of a fly brain, freeze most of it, and train only a thin readout — does that stolen biology help classify legal/compliance text better than matched random corpses?**
+## The MiniLM experiment
 
-Pipeline:
+`results/comparison_v2.json` contains 20 paired trials: ten training-data seeds crossed with two graph/input seeds. Each uses 120 training examples, 280 validation examples, and 360 test passages from the existing synthetic legal-text dataset. Every model family receives 18 validation candidates. All choices are saved before the test is evaluated, in `results/comparison_v2_selection.json`.
 
-```
-Legal text
-  → text encoder
-  → fixed-dimensional representation
-  → temporal / neural input encoding
-  → fruit-fly connectome reservoir (mostly fixed)
-  → reservoir activity
-  → small trainable readout
-  → classification
-```
+The fly models are hybrids: they retain MiniLM features and add compact activity features. They do not replace MiniLM. Comparators are a linear readout, a small neural readout, random wiring, and degree-matched wiring. A hybrid improvement alone would not demonstrate a biological-topology advantage.
 
-Task #1: **sensitive-information detection** (`EMAIL`, `PHONE`, `SSN`, `CREDENTIAL`, `NONE`, …).
+The initial corrected run did not beat the standard MiniLM classifiers. Read the published artifact for exact means, individual trials, per-class metrics and paired intervals. Intervals resample training-data-seed clusters rather than treating correlated trials as independent. Sign-permutation p-values are exploratory and unadjusted for multiple comparisons.
 
-## Real tissue vs demo corpse
+The test is synthetic, shares template structure across splits, and was used in earlier project experiments. Independent external replication remains necessary.
 
-| Mode | What it is | License |
-|---|---|---|
-| **Hemibrain research** (preferred when built) | Surgical high-degree subgraph (~3072 neurons) from Janelia hemibrain v1.2 traced adjacencies | CC BY 4.0 |
-| **Demo** | Synthetic modular graph | MIT |
+## Local development
 
 ```bash
-make fetch-hemibrain   # ~44MB compact adjacency tables
-make build-hemibrain   # surgical subgraph + random controls
-make train-hemibrain   # train readout on real tissue + compare/ablate
-```
-
-Processed hemibrain graphs live under `data/processed/hemibrain/` (gitignored; rebuild locally).
-
-## Measured training update (harder set + MiniLM)
-
-### Full-data ceiling (seeds 42–43)
-| Model | Macro F1 |
-|---|---|
-| Degree-matched random | ~0.985 |
-| Random Erdos–Renyi | ~0.984 |
-| Linear (MiniLM readout) | ~0.982 |
-| Hemibrain connectome | ~0.981 |
-
-On the full harder set, scores are still near ceiling and biology does **not** beat matched random.
-
-### Few-shot headroom (`--max-train 160`, seeds 42–43)
-| Model | Macro F1 | Binary F1 |
-|---|---|---|
-| Linear | ~0.964 | 1.000 |
-| Hemibrain connectome | ~0.947 | 0.983 |
-| Degree-matched random | ~0.937 | 0.974 |
-| Random Erdos–Renyi | ~0.934 | 0.975 |
-
-With scarce labels, the stolen wiring **does** beat random twins — but the thin linear MiniLM readout still wins overall. Use `make train-fewshot` to reproduce.
-
-### Few-shot @ 120 labels × 3 seeds (MiniLM)
-| Model | Macro F1 | Binary F1 |
-|---|---|---|
-| Linear | ~0.935 | ~0.991 |
-| Hemibrain connectome | ~0.902 | ~0.969 |
-| Random Erdos–Renyi | ~0.898 | ~0.968 |
-| Degree-matched random | ~0.893 | ~0.962 |
-
-With fewer labels, biological topology keeps a thin edge over random twins; linear MiniLM still leads. Reproduce: `make train-fewshot`.
-
-### Few-shot @ 80 labels × 5 seeds (MiniLM)
-| Model | Macro F1 | Binary F1 |
-|---|---|---|
-| Linear | ~0.897 | ~0.949 |
-| Hemibrain connectome | ~0.842 | ~0.925 |
-| Random Erdos–Renyi | ~0.835 | ~0.917 |
-| Degree-matched random | ~0.831 | ~0.912 |
-
-Scarcer labels widen the gap a little: connectome stays ahead of both random twins; linear MiniLM still leads. Artifact: `results/comparison_fewshot_80.json`.
-
-### Few-shot @ 60 labels × 6 seeds (MiniLM)
-| Model | Macro F1 | Binary F1 |
-|---|---|---|
-| Linear | ~0.847 | ~0.914 |
-| Degree-matched random | ~0.797 | ~0.881 |
-| Connectome | ~0.796 | ~0.879 |
-| Random Erdos–Renyi | ~0.796 | ~0.878 |
-
-At 60 labels the biological edge collapses into noise — connectome and random twins are statistically tied; linear MiniLM still leads. Artifact: `results/comparison_fewshot_60.json`.
-
-### Few-shot @ 120 labels × 3 seeds (hashing encoder)
-| Model | Macro F1 |
-|---|---|
-| Linear | ~0.926 |
-| Random Erdos–Renyi | ~0.858 |
-| Degree-matched random | ~0.849 |
-| Hemibrain connectome | ~0.839 |
-
-With hashing features, random twins beat biology. Topology help is encoder-dependent — not a universal win.
-
-### Few-shot @ 80 labels × 5 seeds (hashing encoder)
-| Model | Macro F1 | Binary F1 |
-|---|---|---|
-| Linear | ~0.893 | ~0.963 |
-| Degree-matched random | ~0.795 | ~0.924 |
-| Random Erdos–Renyi | ~0.792 | ~0.922 |
-| Hemibrain connectome | ~0.774 | ~0.914 |
-
-Same story under scarcity with hashing: random twins beat biology. Artifact: `results/comparison_hashing_fewshot_80.json`.
-
-
-## Architecture
-
-```
-apps/web      Next.js research demo (classify, compare, ablate, benchmark)
-apps/api      FastAPI inference + artifact serving
-research/     datasets, encoders, reservoirs, baselines, experiments
-data/demo     redistributable synthetic graph + synthetic PII benchmark
-data/raw      downloaded hemibrain tables (ignored)
-data/processed  built reservoirs (ignored)
-results/      measured experiment JSON (never fabricated UI numbers)
-```
-
-## Quick start
-
-```bash
-python3 -m venv .venv
+python -m venv .venv
 source .venv/bin/activate
-pip install -e ".[dev]"
-cp .env.example .env
-
-make generate-data
-# Optional but recommended for the Frankenstein path:
-make train-hemibrain
-
-make api
-# → http://localhost:8000/health
-
-cd apps/web && npm install && npm run dev
-# → http://localhost:3000
+pip install -e '.[dev]'
+mkdir -p data/processed
+cp -R deploy/data/processed/hemibrain data/processed/
+LEGALFLY_ENCODER=hashing OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 uvicorn apps.api.app.main:app --port 8000
 ```
 
-Or: `docker compose up --build`
-
-## Research commands
+In another terminal:
 
 ```bash
-python -m research.experiments.run --model connectome --seed 42
-python -m research.experiments.run --model all --seed 42
-python -m research.experiments.compare --seeds 42,43,44
-python -m research.experiments.ablate --seed 42
+cd apps/web
+npm ci
+npm run dev
 ```
 
-## Web routes
+The live lightweight API uses hashing features, not MiniLM. The interface reports the encoder it actually receives. The research benchmark uses frozen `all-MiniLM-L6-v2` features. Missing MiniLM dependencies raise an error rather than silently substituting hashing.
 
-| Route | Purpose |
-|---|---|
-| `/` | Twin chamber: real tissue vs random twin |
-| `/benchmark` | Autopsy table of measured scores |
-| `/compare` | Real tissue vs randomized twin |
-| `/ablate` | Destroy the brain |
-| `/methodology` | How we borrow the dead |
-| `/about` | What this is / is not |
+The homepage initially shows a genuine saved inference, labeled **Recorded example**. Running the experiment submits a new request to the configured API. Failure never turns the recording into a fabricated live result.
 
-## Privacy
+## Reproduce research and public assets
 
-Submitted text is **not saved by default**. Logs store fingerprints/metadata only. Details: `docs/PRIVACY.md`.
+```bash
+pip install -e '.[research,dev]'
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 python -m research.experiments.search
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 python -m research.experiments.surgery
+LEGALFLY_ENCODER=hashing OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 python -m scripts.export_public
+```
 
-## Licensing
+The embedding cache manifest verifies the encoder and SHA-256 hashes of all dataset splits. The search does not overwrite serving checkpoints. It refuses synthetic graph fallback.
 
-- Code: MIT (`LICENSE`)
-- Demo graph + synthetic dataset: MIT
-- Hemibrain import: CC BY 4.0 (download separately; cite Scheffer / Xu / Plaza et al., Janelia FlyEM)
-- FlyWire import: CC BY-NC 4.0 (non-commercial only)
+The separate ablation diagnostic compares frozen hybrid and activity-only readouts. Disabled neurons receive no input. Surviving weights are not amplified after damage. Neither classifier is retrained. A hybrid can keep its prediction after all neurons are silenced because it retains text features; that is not biological resilience.
 
-Full provenance: `docs/DATA_AND_LICENSING.md`.
+## Verification
 
-## Limitations
+```bash
+LEGALFLY_ENCODER=hashing OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 pytest -q
+cd apps/web && npm test && npm run build
+```
 
-- Hemibrain mode uses a surgical subgraph, not the entire central brain
-- UI node positions are abstract region clusters, not EM coordinates
-- Synthetic PII can be easy for linear baselines
-- Browser visualization samples activity; it does not render every synapse
-- Dynamics are computational, not biophysically exact spiking
+For browser checks, start the Next frontend and API, install Playwright Chromium, then run `python -m scripts.browser_smoke`. Screenshots go to `/tmp/legalfly-qa`, not into the source tree. CI checks desktop/mobile inference, errors, playback, neuron selection, 2D fallback, result selectors, lesions and reduced motion.
 
-## Brand tone
+## Deployment
 
-Serious science, macabre theatre:
+Vercel project root: `apps/web`. Set `NEXT_PUBLIC_API_URL` to the HTTPS API origin and rebuild the frontend. Without this setting, the public site provides explicitly labeled recorded playback and bundled results, not pretend live inference.
 
-- Feed it the text.
-- Destroy the brain.
-- Real tissue vs. randomized twin.
-- The tissue has rendered its verdict.
+Build the API using `Dockerfile.api`. Corrected readouts are trained once during image construction. Runtime auto-training is disabled; missing, mismatched or corrupted artifacts fail startup. Both Render and Fly configurations use `/ready` and restricted CORS. Add a preview origin explicitly when testing a Vercel preview against that API.
 
-Never: “the fly understands your contract.”
-Never: “we uploaded a consciousness.”
+The limiter is per process, with bounded client state. Multiple instances require an additional shared or edge limiter. Reverse-proxy forwarding headers must only be trusted from the actual hosting proxy. Request bodies are bounded, errors do not echo submitted passages, and inference is serialized because reservoir state is mutable.
 
-## Deploy (Vercel + Render / Fly)
+## Data, limitations and privacy
 
-The Next.js UI goes on **Vercel** (or Cloudflare Pages). The FastAPI reservoir needs a **container** (Render free tier or Fly.io) — not Vercel serverless / Cloudflare Workers.
+The bundled real graph is a high-degree subgraph: 3,072 neurons and 293,766 directed connections from Janelia FlyEM hemibrain v1.2, CC BY 4.0. It is not the full brain or an intact learning circuit. Region names use coarse cell-type heuristics. UI coordinates are illustrative; edges and activity come from the computational model. Rendering applies the same layout rule, camera, timing and intensity scale to both models.
 
-Step-by-step: see **[DEPLOY.md](./DEPLOY.md)**.
+Do not submit client files, passwords or privileged material to a public demo. Text is sent to a server, even though this application does not persist it. This does not guarantee anything about every hosting provider's infrastructure. Model scores are not calibrated guarantees of safety.
+
+Code and synthetic examples: MIT. Hemibrain data: CC BY 4.0, attributed to Janelia FlyEM and Scheffer and colleagues. FlyWire is not bundled or simulated by this implementation. Full provenance remains in `docs/DATA_AND_LICENSING.md`.

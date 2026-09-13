@@ -1,60 +1,98 @@
-name: Research assets
+name: Publish corrected research artifacts
 on:
   push:
     branches: ['feat/the-legal-fly']
     paths: ['.github/workflows/research-assets.yml']
 permissions:
-  contents: read
+  contents: write
+  actions: read
 jobs:
-  embeddings:
+  reproduce:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 45
     env:
-      OMP_NUM_THREADS: '1'
+      LEGALFLY_ENCODER: hashing
       OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: feat/the-legal-fly
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-      - run: pip install torch --index-url https://download.pytorch.org/whl/cpu
-      - run: pip install sentence-transformers
-      - name: Encode unchanged synthetic splits
-        run: |
-          python - <<'PY'
-          import json, hashlib, numpy as np
-          from pathlib import Path
-          from sentence_transformers import SentenceTransformer
-          model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
-          payload = {}
-          manifest = {'encoder': 'sentence-transformers/all-MiniLM-L6-v2', 'files': {}}
-          for split in ('train', 'validation', 'test'):
-              path = Path('data/demo/sensitive_harder') / (split + '.jsonl')
-              texts = [json.loads(line)['text'] for line in path.read_text().splitlines()]
-              payload[split] = model.encode(texts, normalize_embeddings=True, show_progress_bar=False)
-              manifest['files'][split] = hashlib.sha256(path.read_bytes()).hexdigest()
-          np.savez_compressed('minilm_embeddings.npz', **payload)
-          Path('embedding_manifest.json').write_text(json.dumps(manifest, indent=2))
-          PY
-      - uses: actions/upload-artifact@v4
-        with:
-          name: minilm-embeddings
-          path: |
-            minilm_embeddings.npz
-            embedding_manifest.json
-          retention-days: 7
-  web-runtime:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    steps:
-      - uses: actions/checkout@v4
+          python-version: '3.12'
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: cd apps/web && npm ci
-      - run: tar -czf web-runtime.tar.gz -C apps/web node_modules
-      - uses: actions/upload-artifact@v4
+      - run: pip install numpy==2.3.5 scipy==1.17.0 scikit-learn==1.8.0 fastapi uvicorn pydantic-settings httpx rich joblib typer pytest pytest-asyncio black
+      - run: pip install --no-deps -e .
+      - uses: actions/download-artifact@v4
         with:
-          name: web-runtime
-          path: web-runtime.tar.gz
-          retention-days: 3
+          name: minilm-embeddings
+          path: .cache/research
+          run-id: 34729507434
+          github-token: ${{ github.token }}
+      - name: Finish small source migrations
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          for name in ('build_demo_connectome.py','build_hemibrain_connectome.py'):
+              path=Path('research/graphs')/name
+              text=path.read_text()
+              if 'from research.graphs.connectome import CONTROL_SEEDS' not in text:
+                  text=text.replace('from research.graphs.connectome import ', 'from research.graphs.connectome import CONTROL_SEEDS\nfrom research.graphs.connectome import ',1)
+              text=text.replace('seed=seed + (hash(control) % 10_000)','seed=seed + CONTROL_SEEDS[control]')
+              text=text.replace('seed=seed + hash(control) % 10_000','seed=seed + CONTROL_SEEDS[control]')
+              path.write_text(text)
+          p=Path('tests/test_core.py')
+          p.write_text(p.read_text().replace("ex.metadata.get(\"task\") == 'sensitive_information_hard'", "ex.metadata.get(\"task\") in {'sensitive_information_hard', 'sensitive_information_harder'}"))
+          p=Path('apps/web/tests/ui.test.ts')
+          p.write_text(p.read_text().replace('const row = { status: "Not yet measured" as const };','const row: { status: string; macro_f1_mean?: number } = { status: "Not yet measured" };'))
+          PY
+          mkdir -p data/processed
+          cp -R deploy/data/processed/hemibrain data/processed/
+      - name: Verify science and safety before recomputing
+        run: pytest -q
+      - name: Reproduce the fixed 20-pair protocol
+        run: python -m research.experiments.search
+      - name: Measure frozen-readout lesions
+        run: python -m research.experiments.surgery
+      - name: Export actual predictions, provenance and downloads
+        run: python -m scripts.export_public
+      - name: Format changed implementation files
+        run: |
+          python - <<'PY'
+          import subprocess
+          changed=subprocess.check_output(['git','diff','--name-only','310e5366c27c10f664480b379daba5c83a657dfd']).decode().splitlines()
+          paths=[p for p in changed if p.endswith('.py')]
+          if paths:subprocess.run(['black',*paths],check=True)
+          PY
+          npx --yes prettier@3.3.3 --write 'apps/web/app/**/*.{ts,tsx,css}' 'apps/web/components/*.tsx' 'apps/web/lib/*.ts' 'apps/web/tests/*.{ts,tsx}'
+      - name: Verify the formatted source
+        run: |
+          pytest -q
+          cd apps/web
+          npm ci
+          npm test
+          npm run build
+      - name: Commit measured artifacts and formatting without touching model binaries
+        run: |
+          git config user.name 'The Legal Fly verification'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add research apps/api apps/web tests scripts
+          git add results/comparison_v2.json results/comparison_v2_selection.json results/ablation_latest.json
+          git add deploy/results/comparison_v2.json deploy/results/ablation_latest.json
+          git commit -m 'research: publish reproduced 20-pair experiment and frozen-readout ablations'
+          git push origin HEAD:feat/the-legal-fly
+          git archive --format=tar HEAD -o verified-source.tar
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: corrected-research
+          path: |
+            results/comparison_v2.json
+            results/comparison_v2_selection.json
+            results/ablation_latest.json
+            verified-source.tar
+          retention-days: 14

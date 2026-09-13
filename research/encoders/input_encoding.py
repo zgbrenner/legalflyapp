@@ -1,69 +1,37 @@
-"""Embedding → reservoir input encoding strategies."""
-
+"""Embedding to reservoir drive, using immutable cached projection matrices."""
 from __future__ import annotations
-
 from typing import Literal
-
+from functools import lru_cache
 import numpy as np
-
 EncodingMode = Literal["direct", "temporal"]
 
+@lru_cache(maxsize=256)
+def projection_matrix(embedding_dim: int, input_dim: int, seed: int):
+    matrix = np.random.default_rng(seed).normal(0., 1./np.sqrt(embedding_dim), size=(input_dim, embedding_dim)).astype(np.float32)
+    matrix.setflags(write=False)
+    return matrix
 
-def project_embedding(
-    embedding: np.ndarray,
-    input_dim: int,
-    *,
-    seed: int = 42,
-) -> np.ndarray:
-    """Fixed random projection of embedding into reservoir input dimension."""
+def project_embedding(embedding, input_dim, *, seed=42):
     emb = np.asarray(embedding, dtype=np.float32).reshape(-1)
-    rng = np.random.default_rng(seed)
-    proj = rng.normal(0.0, 1.0 / np.sqrt(emb.shape[0]), size=(input_dim, emb.shape[0])).astype(
-        np.float32
-    )
-    out = proj @ emb
+    out = projection_matrix(emb.shape[0], input_dim, seed) @ emb
     norm = np.linalg.norm(out)
-    if norm > 0:
-        out = out / norm
-    return out
+    return out / norm if norm > 0 else out
 
-
-def encode_for_reservoir(
-    embedding: np.ndarray,
-    *,
-    mode: EncodingMode = "temporal",
-    input_dim: int = 64,
-    timesteps: int = 12,
-    seed: int = 42,
-) -> np.ndarray:
-    """
-    Convert text embedding into a (T, input_dim) drive signal.
-
-    direct: repeat projected vector across timesteps
-    temporal: chunk / rotate projection across timesteps
-    """
+def encode_for_reservoir(embedding, *, mode: EncodingMode="temporal", input_dim=64, timesteps=12, seed=42):
     projected = project_embedding(embedding, input_dim, seed=seed)
     if mode == "direct":
         return np.tile(projected, (timesteps, 1))
-
     if mode == "temporal":
         emb = np.asarray(embedding, dtype=np.float32).reshape(-1)
-        # Split embedding into chunks mapped over time.
-        chunks = np.array_split(emb, timesteps)
         frames = []
         rng = np.random.default_rng(seed)
-        for t, chunk in enumerate(chunks):
-            # Pad chunk then project with time-specific seeded matrix
+        for t, chunk in enumerate(np.array_split(emb, timesteps)):
             padded = np.zeros(emb.shape[0], dtype=np.float32)
-            padded[: chunk.shape[0]] = chunk
-            local = project_embedding(padded, input_dim, seed=seed + t + 17)
-            # Mild mixing with global projection for continuity
-            frame = 0.65 * local + 0.35 * projected
-            # Temporal gate
-            gate = 0.5 + 0.5 * np.sin(2 * np.pi * (t + 1) / (timesteps + 1))
-            noise = rng.normal(0.0, 0.01, size=input_dim).astype(np.float32)
-            frames.append(gate * frame + noise)
-        arr = np.asarray(frames, dtype=np.float32)
-        return arr
-
+            padded[:chunk.shape[0]] = chunk
+            local = project_embedding(padded, input_dim, seed=seed+t+17)
+            frame = .65*local + .35*projected
+            gate = .5 + .5*np.sin(2*np.pi*(t+1)/(timesteps+1))
+            noise = rng.normal(0., .01, size=input_dim).astype(np.float32)
+            frames.append(gate*frame + noise)
+        return np.asarray(frames, dtype=np.float32)
     raise ValueError(f"Unknown encoding mode: {mode}")

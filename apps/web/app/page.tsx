@@ -1,48 +1,24 @@
 import Link from "next/link";
 import { TwinChamber } from "@/components/TwinChamber";
-
+import { FlyMark } from "@/components/FlyMark";
 export default function HomePage() {
-  return (
-    <div>
-      <section className="relative overflow-hidden">
-        <div className="grid-fade pointer-events-none absolute inset-0 opacity-80" />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_70%_20%,rgba(140,18,18,0.18),transparent_42%)]" />
-        <div className="relative mx-auto max-w-6xl px-4 pb-8 pt-14 md:px-6 md:pb-10 md:pt-18">
-          <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-blood">
-            Open research · borrowed tissue · visible firing
-          </p>
-          <h1 className="mt-4 max-w-4xl font-display text-5xl font-semibold leading-[0.95] tracking-tight md:text-7xl">
-            LEGALFLY
-          </h1>
-          <p className="mt-5 max-w-2xl text-lg text-ink/80 md:text-xl">
-            Watch a stolen fly connectome light up as it classifies sensitive legal text — then see
-            whether a random twin fires the same way.
-          </p>
-          <div className="mt-7 flex flex-wrap gap-3">
-            <a
-              href="#twin"
-              className="bg-ink px-5 py-3 font-mono text-xs uppercase tracking-[0.18em] text-paper hover:bg-blood"
-            >
-              Stimulate the twins
-            </a>
-            <Link
-              href="/benchmark"
-              className="border border-ink/20 bg-paper/70 px-5 py-3 font-mono text-xs uppercase tracking-[0.18em] hover:border-blood hover:text-blood"
-            >
-              See measured scores
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      <section id="twin" className="mx-auto max-w-6xl px-4 pb-16 md:px-6 md:pb-20">
-        <TwinChamber />
-        <p className="mt-8 max-w-3xl text-sm text-ink/55">
-          Pulses and synapse flashes are reservoir dynamics on connectome topology — not a waking
-          fly, not consciousness, not legal advice. Hemibrain tissue uses real Janelia edges (CC BY)
-          when loaded; otherwise a synthetic stand-in.
-        </p>
-      </section>
+  return <div>
+    <section className="page-width hero">
+      <div className="hero-copy"><h1>Can a fly’s brain<br/>spot your <em>secrets?</em></h1>
+        <p>We built a computer model from part of a fruit fly’s brain wiring, then trained a classifier to flag private information in text.</p>
+        <p className="hero-secondary">Give it a passage. Watch the signals travel. Compare its answer with scrambled wiring and a standard text classifier.</p>
+        <div className="hero-actions"><a className="button button-dark" href="#experiment">Try the experiment <span aria-hidden>↘</span></a><Link className="text-link" href="/benchmark">Read the results <span aria-hidden>↗</span></Link></div>
+      </div>
+      <div className="specimen-print" aria-hidden="true"><div className="print-corner tl"/><div className="print-corner tr"/><FlyMark className="hero-fly"/><div className="specimen-caption"><i>Drosophila melanogaster</i><span>Fruit fly · wiring preserved</span></div><span className="print-index">FIG. 01</span><div className="print-corner bl"/><div className="print-corner br"/></div>
+    </section>
+    <div className="page-width procedure-strip" aria-label="How the experiment works">
+      <p><span>01</span>Text becomes electrical-style signals.</p><p><span>02</span>Signals pass through the fly’s wiring.</p><p><span>03</span>A trained readout predicts what is private.</p>
     </div>
-  );
+    <section id="experiment" className="page-width experiment-section"><TwinChamber/></section>
+    <section className="page-width field-notes"><div><p className="section-label">A note on the experiment</p><h2>The wiring is real.<br/>The assignment is ours.</h2></div>
+      <div><p>The fly did not learn to read. We trained the part of the computer model that turns its activity into an answer. The map contains connections from a real, reconstructed fly brain; the simulated signals are mathematics.</p>
+        <p>To find out whether the wiring helps, we compare it with scrambled connections and standard classifiers. The research benchmark gives every model the same MiniLM text features. A higher score alone does not prove that biology caused the improvement.</p>
+        <Link href="/methodology" className="text-link">See what is biological, and what is not ↗</Link></div>
+    </section>
+  </div>;
 }

@@ -1,209 +1,85 @@
 "use client";
-
-import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  classifyTwin,
-  type ClassifyResponse,
-  type TwinResponse,
-} from "@/lib/api";
-import { ConnectomeViz } from "@/components/ConnectomeViz";
-
+import dynamic from "next/dynamic";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import { classifyTwin, recordedTwin, MAX_TEXT_CHARS, type ClassifyResponse, type TwinResponse } from "@/lib/api";
+import type { PlaybackClock } from "./ConnectomeViz";
+const ConnectomeViz = dynamic(()=>import("./ConnectomeViz").then(m=>m.ConnectomeViz), { ssr:false, loading:()=> <div className="brain-empty">Preparing the neural display…</div> });
 const EXAMPLES = [
-  "CONFIDENTIAL — ATTORNEY'S EYES ONLY. Buried in ¶14 of the engagement letter, the only authorized recipient is jordan.chen41@corp.example. Nothing herein waives privilege.",
-  "WITHOUT WAIVING ANY OBJECTION: DO NOT CIRCULATE SSN 412-88-2910 outside the encrypted channel.",
-  "Call Section 555 of the statute before filing the motion in limine.",
-  "Attorney-client privilege is asserted as to the highlighted passages; no identifiers appear herein.",
+  { name:"An email", text:"Please email the draft to alex@example.com" },
+  { name:"A private number", text:"For the confidential personnel file, the employee's Social Security number is 000-12-3456. This is an invented example." },
+  { name:"A legal decoy", text:"Call Section 555 of the statute before filing the motion in limine." },
+  { name:"Nothing private", text:"The parties agree to meet next week to discuss the draft agreement." },
 ];
-
-function Side({
-  title,
-  subtitle,
-  result,
-  accent,
-}: {
-  title: string;
-  subtitle: string;
-  result: ClassifyResponse | null;
-  accent: "blood" | "ink";
-}) {
-  const top = result?.labels?.[0];
-  const border =
-    accent === "blood" ? "border-blood/35 bg-blood/[0.04]" : "border-ink/20 bg-white/55";
-  return (
-    <div className={`border ${border} p-4 md:p-5`}>
-      <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-ink/50">{title}</p>
-      <p className="mt-1 text-xs text-ink/55">{subtitle}</p>
-      {result ? (
-        <>
-          <h3 className="mt-4 font-display text-2xl font-semibold tracking-tight md:text-3xl">
-            {result.contains_sensitive ? "Sensitive residue" : "Clean passage"}
-          </h3>
-          <p className="mt-2 font-mono text-sm text-ink/70">
-            {(top?.name ?? (result.contains_sensitive ? "SENSITIVE" : "NONE")) +
-              (top ? ` · ${Math.round(top.confidence * 100)}%` : "")}
-          </p>
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            {result.labels.slice(0, 4).map((label) => (
-              <span
-                key={label.name}
-                className="border border-ink/15 bg-mist/70 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider"
-              >
-                {label.name}
-              </span>
-            ))}
-          </div>
-          <div className="mt-4 overflow-hidden border border-ink/10 bg-ink/[0.03]">
-            <ConnectomeViz
-              simulation={result.simulation}
-              playing={Boolean(result)}
-              title={`${title} firing`}
-              className="h-full"
-              heightClass="h-[340px] md:h-[460px]"
-            />
-          </div>
-          <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.16em] text-ink/45">
-            {result.graph_label} · {(result.inference_time_sec * 1000).toFixed(0)} ms
-          </p>
-        </>
-      ) : (
-        <div className="mt-8 space-y-3">
-          <div className="h-[340px] animate-pulse border border-ink/10 bg-gradient-to-b from-ink/[0.06] to-[#070a09] md:h-[460px]" />
-          <p className="text-sm text-ink/45">Awaiting stimulation…</p>
-        </div>
-      )}
-    </div>
-  );
+function encoderName(name?: string) { return name?.toLowerCase().includes("minilm") ? "MiniLM" : name?.startsWith("hashing") ? "Hashing text encoder" : "Text encoder not reported"; }
+function ResultLabel({ result }: { result: ClassifyResponse | null }) {
+  const top=result?.labels?.[0];
+  return <div className="prediction-tag" title="Model scores are not calibrated guarantees of safety.">{result ? <><strong>{result.contains_sensitive ? "Flagged as sensitive" : "No sensitive flag"}</strong><br/>{top?.name ?? "NONE"} {top ? `· ${Math.round(top.confidence*100)}% score` : ""}</> : "Awaiting a passage"}</div>;
 }
-
 export function TwinChamber() {
-  const [text, setText] = useState(EXAMPLES[0]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [payload, setPayload] = useState<TwinResponse | null>(null);
-  const autoStarted = useRef(false);
-
-  const verdict = useMemo(() => {
-    if (!payload) return null;
-    if (payload.agree_on_sensitive) {
-      return "The corpse and its random twin agree on the sensitive bit.";
-    }
-    return "The stolen tissue and the scrambled twin disagree — topology mattered on this specimen.";
-  }, [payload]);
-
-  async function stimulate(passage: string) {
-    setError(null);
-    setPayload(null);
-    if (!passage.trim()) {
-      setError("Offer both chambers a passage.");
-      return;
-    }
-    setLoading(true);
+  const [text,setText]=useState(EXAMPLES[0].text),[shownText,setShownText]=useState("");
+  const [payload,setPayload]=useState<TwinResponse|null>(null);
+  const [source,setSource]=useState<"none"|"recorded"|"live">("none");
+  const [recordedAt,setRecordedAt]=useState("");
+  const [loading,setLoading]=useState(false),[error,setError]=useState<string|null>(null);
+  const [paused,setPaused]=useState(false),[reduced,setReduced]=useState(true),[angle,setAngle]=useState(0);
+  const clock=useRef<PlaybackClock>({time:0,paused:false});
+  const controller=useRef<AbortController|null>(null),requestId=useRef(0),edited=useRef(false);
+  useEffect(()=>{
+    let alive=true;
+    recordedTwin().then(record=>{
+      if (!alive || requestId.current!==0) return;
+      setPayload(record.result);setShownText(record.text);setRecordedAt(record.recorded_at);setSource("recorded");
+      if (!edited.current) setText(record.text);
+    }).catch(()=>{});
+    return()=>{alive=false;controller.current?.abort();};
+  },[]);
+  useEffect(()=>{
+    const query=window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update=()=>{setReduced(query.matches);if(query.matches)setPaused(true);};
+    update();query.addEventListener("change",update);return()=>query.removeEventListener("change",update);
+  },[]);
+  useEffect(()=>{
+    clock.current.paused=paused;
+    let frame=0,last=performance.now();
+    const tick=(now:number)=>{if(!paused&&!document.hidden)clock.current.time+=Math.min(.1,(now-last)/1000);last=now;frame=requestAnimationFrame(tick);};
+    frame=requestAnimationFrame(tick);return()=>cancelAnimationFrame(frame);
+  },[paused]);
+  async function run(passage:string) {
+    edited.current=true;
+    if (!passage.trim()) {setError("Enter a passage to test.");return;}
+    if (passage.length>MAX_TEXT_CHARS) {setError("Keep the passage under 4,000 characters.");return;}
+    controller.current?.abort();controller.current=new AbortController();
+    const id=++requestId.current;setLoading(true);setError(null);
     try {
-      const response = await classifyTwin(passage, true);
-      setPayload(response);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Twin stimulation failed");
-    } finally {
-      setLoading(false);
-    }
+      const response=await classifyTwin(passage,true,controller.current.signal);
+      if(id!==requestId.current)return;
+      setPayload(response);setShownText(passage);setSource("live");clock.current.time=0;
+    } catch(e) {
+      if(id===requestId.current && !(e instanceof DOMException && e.name==="AbortError"))setError(e instanceof Error?e.message:"The request failed. Please retry.");
+    } finally {if(id===requestId.current)setLoading(false);}
   }
-
-  useEffect(() => {
-    if (autoStarted.current) return;
-    autoStarted.current = true;
-    void stimulate(EXAMPLES[0]);
-  }, []);
-
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    await stimulate(text);
-  }
-
-  return (
-    <div className="animate-rise">
-      <form onSubmit={onSubmit} className="border border-ink/15 bg-paper/85 p-5 shadow-soft md:p-6">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-blood">
-              Twin chamber · live firing
-            </p>
-            <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight md:text-4xl">
-              Real tissue vs random twin
-            </h2>
-            <p className="mt-2 max-w-xl text-sm text-ink/60">
-              Auto-fires on load so you immediately see the connectome light up — then try your own
-              passage.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {EXAMPLES.map((example) => (
-              <button
-                key={example}
-                type="button"
-                onClick={() => {
-                  setText(example);
-                  void stimulate(example);
-                }}
-                className="max-w-[14rem] truncate border border-ink/15 px-2 py-1 text-left text-[11px] text-ink/65 hover:border-blood/40 hover:text-blood"
-              >
-                {example}
-              </button>
-            ))}
-          </div>
-        </div>
-        <textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          rows={4}
-          className="mt-5 w-full resize-y border border-ink/20 bg-white/70 p-3 text-base outline-none ring-blood/30 focus:ring-2"
-          placeholder="Feed both chambers the same legal passage…"
-        />
-        <div className="mt-4 flex flex-wrap items-center gap-3">
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-ink px-5 py-3 font-mono text-xs uppercase tracking-[0.18em] text-paper transition hover:bg-blood disabled:opacity-60"
-          >
-            {loading ? "Stimulating both corpses…" : "Stimulate tissue + twin"}
-          </button>
-          <p className="text-xs text-ink/55">
-            Same encoder. Different graph. Watch synapses flash as activity spreads.
-          </p>
-        </div>
-        {error ? (
-          <p
-            className="mt-4 border border-accent/30 bg-accentsoft px-3 py-2 text-sm text-accent"
-            role="alert"
-          >
-            {error}
-          </p>
-        ) : null}
-      </form>
-
-      <div className="mt-5 grid gap-4 md:grid-cols-2">
-        <Side
-          title="Real tissue"
-          subtitle="Hemibrain / demo biological reservoir"
-          result={payload?.tissue ?? null}
-          accent="blood"
-        />
-        <Side
-          title="Random twin"
-          subtitle="Matched random Erdos–Renyi corpse"
-          result={payload?.twin ?? null}
-          accent="ink"
-        />
-      </div>
-
-      {payload ? (
-        <div className="mt-5 border border-ink/15 bg-white/70 p-4 md:p-5">
-          <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-ink/50">Verdict</p>
-          <p className="mt-2 font-display text-xl font-semibold tracking-tight md:text-2xl">
-            {verdict}
-          </p>
-          <p className="mt-3 text-xs text-ink/50">{payload.disclaimer}</p>
-        </div>
-      ) : null}
+  function submit(event:FormEvent) {event.preventDefault();void run(text);}
+  const tissue=payload?.tissue ?? null,twin=payload?.twin ?? null;
+  const actual=tissue?.anatomical_edges && !tissue.demo_mode;
+  const status=loading?"Running live":source==="recorded"?"Recorded example":source==="live"?"Live result":"Ready to test";
+  return <div>
+    <div className="experiment-heading"><div><p className="section-label">The specimen chamber</p><h2>Put the fly to the test.</h2></div><span className="status-tag" role="status">{status}</span></div>
+    <form onSubmit={submit} className="input-workbench">
+      <div className="input-topline"><label htmlFor="passage">Your passage, or one of ours</label><div className="sample-buttons" aria-label="Example passages">{EXAMPLES.map(ex=><button key={ex.name} type="button" onClick={()=>{edited.current=true;setText(ex.text);void run(ex.text);}}>{ex.name}</button>)}</div></div>
+      <textarea id="passage" value={text} onChange={e=>{edited.current=true;setText(e.target.value);}} maxLength={MAX_TEXT_CHARS} rows={3} aria-describedby="privacy-warning" placeholder="Use an invented or redacted passage…"/>
+      <div className="input-footer"><button type="submit" className="button button-dark" disabled={loading}>{loading?"Testing the passage…":"Run the experiment"}<span aria-hidden>↗</span></button><p id="privacy-warning">Public research demo. Your text is sent to a server. Do not enter real client information, passwords, or privileged material.</p><span className="character-count">{text.length.toLocaleString()} / 4,000</span></div>
+      {error ? <p role="alert" className="form-error">{error}</p> : null}
+    </form>
+    <div className="brain-workbench" aria-busy={loading}>
+      <div className="playback-tools"><p>{source==="recorded"?"Recorded model activity":source==="live"?"Replay of this inference":"Neural activity"} · same display scale</p><div className="playback-buttons"><button type="button" onClick={()=>setPaused(v=>!v)} aria-pressed={paused}>{paused?"Play activity":"Pause activity"}</button><button type="button" onClick={()=>{clock.current.time=0;setPaused(false);}}>Replay</button><label>Rotate both <input aria-label="Rotate both brains" type="range" min={-1.6} max={1.6} step={.04} value={angle} onChange={e=>setAngle(Number(e.target.value))}/></label></div></div>
+      <div className="brain-columns">{[{result:tissue,title:actual?"The fly’s wiring":tissue?"Synthetic demo wiring":"The fly’s wiring",letter:"A",note:actual?"Real connections from hemibrain v1.2":tissue?"Not an anatomical fly graph":"Source reported when loaded"},{result:twin,title:"The scrambled twin",letter:"B",note:"Same neurons. Connections rearranged."}].map(side=><section key={side.letter} className="brain-column" aria-label={side.title}>
+        <div className="brain-column-header"><div><p className="section-label">Specimen {side.letter}</p><h3>{side.title}</h3><p className="graph-caption">{side.note}</p></div><ResultLabel result={side.result}/></div>
+        <ConnectomeViz simulation={side.result?.simulation} title={side.title} clock={clock} angle={angle} reducedMotion={reduced} playing={!paused}/>
+        <div className="provenance-line">{side.result ? <>{side.result.simulation.total_neurons?.toLocaleString() ?? "?"} neurons · {side.result.simulation.total_edges?.toLocaleString() ?? "?"} connections · {(side.result.inference_time_sec*1000).toFixed(0)} ms<br/>Graph {side.result.graph_hash?.slice(0,12) ?? "hash unavailable"} · {encoderName(side.result.encoder_name)}</> : "No model results loaded."}</div>
+      </section>)}</div>
     </div>
-  );
+    <div className="result-summary" aria-live="polite"><div><h3>{payload ? payload.agree_on_sensitive ? tissue?.contains_sensitive ? "Both flagged this passage." : "Neither flagged this passage." : "The two models disagree." : "One passage. Two sets of wiring."}</h3><p>{payload?"Agreement is not proof of correctness. A disagreement does not establish why the models differ.":"Both receive the same text features. Only their connections differ."}</p></div><div className="baseline-line">{payload?.baseline ? <><b>Standard classifier · {encoderName(payload.baseline.encoder_name)} + linear readout</b><span>{payload.baseline.contains_sensitive?"Flagged as sensitive":"No sensitive flag"} · {payload.baseline.labels[0]?.name} · {Math.round((payload.baseline.labels[0]?.confidence??0)*100)}% model score</span></> : <><b>Compared against a standard text classifier</b><span>The live API includes this baseline when available. The research results also compare MiniLM-based models.</span></>}</div></div>
+    <p className="experiment-footnote">{source==="recorded"?`A saved inference, not a new run${recordedAt?` · ${new Date(recordedAt).toLocaleDateString()}`:""}. `:""}{shownText&&shownText!==text?"The display still shows the previous passage. Run your edits to update it. ":""}The model’s readout was trained{tissue?.training_examples?` on ${tissue.training_examples.toLocaleString()} examples`:""}. Connections are fixed during inference. Brain shapes are illustrative; the activity is measured. Scores are not safety guarantees.</p>
+    {tissue && tissue.science_version!=="2.0-directed-controls"?<p role="alert" className="form-error">This API is serving an older experiment. Deploy the corrected backend before treating these outputs as current research.</p>:null}
+  </div>;
 }
