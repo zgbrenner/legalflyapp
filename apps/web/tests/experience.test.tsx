@@ -60,3 +60,14 @@ describe("inference integrity",()=>{
   expect(screen.queryByText("Live result")).toBeNull();
  });
 });
+
+
+describe("known synthetic examples",()=>{
+ it("shows a planted-identifier miss instead of treating agreement as success",async()=>{
+  const model={science_version:"2.0-directed-controls",labels:[{name:"NONE",confidence:.8}],contains_sensitive:false,simulation:{},inference_time_sec:.01,encoder_name:"hashing-384",demo_mode:false,anatomical_edges:true};
+  vi.mocked(classifyTwin).mockResolvedValue({tissue:model,twin:{...model,anatomical_edges:false},baseline:model,agree_on_sensitive:true} as any);
+  render(<TwinChamber/>);fireEvent.click(screen.getByRole("button",{name:"A private number"}));
+  expect(await screen.findByText(/Known example: SSN/)).toBeDefined();
+  expect(screen.getByText(/The fly missed the expected label/)).toBeDefined();
+ });
+});

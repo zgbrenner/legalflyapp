@@ -5,10 +5,10 @@ import { classifyTwin, recordedTwin, MAX_TEXT_CHARS, type ClassifyResponse, type
 import type { PlaybackClock } from "./ConnectomeViz";
 const ConnectomeViz = dynamic(()=>import("./ConnectomeViz").then(m=>m.ConnectomeViz), { ssr:false, loading:()=> <div className="brain-empty">Preparing the neural display…</div> });
 const EXAMPLES = [
-  { name:"An email", text:"Please email the draft to alex@example.com" },
-  { name:"A private number", text:"For the confidential personnel file, the employee's Social Security number is 000-12-3456. This is an invented example." },
-  { name:"A legal decoy", text:"Call Section 555 of the statute before filing the motion in limine." },
-  { name:"Nothing private", text:"The parties agree to meet next week to discuss the draft agreement." },
+  { name:"An email", expected:"EMAIL", text:"Please email the draft to alex@example.com" },
+  { name:"A private number", expected:"SSN", text:"For the confidential personnel file, the employee's Social Security number is 000-12-3456. This is an invented example." },
+  { name:"A legal decoy", expected:"NONE", text:"Call Section 555 of the statute before filing the motion in limine." },
+  { name:"Nothing private", expected:"NONE", text:"The parties agree to meet next week to discuss the draft agreement." },
 ];
 function encoderName(name?: string) { return name?.toLowerCase().includes("minilm") ? "MiniLM" : name?.startsWith("hashing") ? "Hashing text encoder" : "Text encoder not reported"; }
 function ResultLabel({ result }: { result: ClassifyResponse | null }) {
@@ -68,6 +68,8 @@ export function TwinChamber() {
   function submit(event:FormEvent) {event.preventDefault();void run(text);}
   const tissue=payload?.tissue ?? null,twin=payload?.twin ?? null;
   const actual=tissue?.anatomical_edges && !tissue.demo_mode;
+  const knownExample = EXAMPLES.find(example=>example.text===shownText);
+  const expectedMatched = knownExample && tissue?.labels.some(label=>label.name===knownExample.expected);
   const status=loading?"Running live":source==="recorded"?"Recorded example":source==="live"?"Live result":"Ready to test";
   return <div>
     <div className="experiment-heading"><div><p className="section-label">The specimen chamber</p><h2>Put the fly to the test.</h2></div><span className="status-tag" role="status">{status}</span></div>
@@ -86,6 +88,7 @@ export function TwinChamber() {
       </section>)}</div>
     </div>
     <div className="result-summary" aria-live="polite"><div><h3>{payload ? payload.agree_on_sensitive ? tissue?.contains_sensitive ? "Both flagged this passage." : "Neither flagged this passage." : "The two models disagree." : "One passage. Two sets of wiring."}</h3><p>{payload?"Agreement is not proof of correctness. A disagreement does not establish why the models differ.":"Both receive the same text features. Only their connections differ."}</p></div><div className="baseline-line">{payload?.baseline ? <><b>Standard classifier · {encoderName(payload.baseline.encoder_name)} + linear readout</b><span>{payload.baseline.contains_sensitive?"Flagged as sensitive":"No sensitive flag"} · {payload.baseline.labels[0]?.name} · {Math.round((payload.baseline.labels[0]?.confidence??0)*100)}% model score</span></> : <><b>Compared against a standard text classifier</b><span>The live API includes this baseline when available. The research results also compare MiniLM-based models.</span></>}</div></div>
+    {knownExample && tissue ? <p className="experiment-footnote" role="status">Known example: {knownExample.expected}. {expectedMatched ? "The fly matched the expected label." : "The fly missed the expected label. Agreement between models does not make this answer correct."}</p> : null}
     <p className="experiment-footnote">{source==="recorded"?`A saved inference, not a new run${recordedAt?` · ${new Date(recordedAt).toLocaleDateString()}`:""}. `:""}{shownText&&shownText!==text?"The display still shows the previous passage. Run your edits to update it. ":""}The model’s readout was trained{tissue?.training_examples?` on ${tissue.training_examples.toLocaleString()} examples`:""}. Connections are fixed during inference. Brain shapes are illustrative; the activity is measured. Scores are not safety guarantees.</p>
     {tissue && tissue.science_version!=="2.0-directed-controls"?<p role="alert" className="form-error">This API is serving an older experiment. Deploy the corrected backend before treating these outputs as current research.</p>:null}
   </div>;

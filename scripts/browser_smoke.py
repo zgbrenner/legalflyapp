@@ -44,7 +44,7 @@ async def main():
             checks.append('2D fallback preserves actual neuron activity')
         await page.get_by_label('Your passage, or one of ours').fill('   ')
         await page.get_by_role('button',name='Run the experiment').click()
-        assert 'Enter a passage' in await page.get_by_role('alert').inner_text()
+        assert 'Enter a passage' in await page.get_by_role('alert').filter(has_text='Enter a passage').inner_text()
         checks.append('Blank input rejected without clearing the previous result')
         await page.get_by_label('Your passage, or one of ours').fill('Please email the draft to alex@example.com')
         await page.route('**/twin',lambda route:route.abort())

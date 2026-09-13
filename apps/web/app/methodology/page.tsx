@@ -1,7 +1,7 @@
 export default function MethodologyPage() {
   return <article className="page-width reading-page"><p className="section-label">Tissue &amp; procedure</p><h1>What we kept.<br/>What we changed.</h1>
     <h2>The borrowed wiring</h2><p>The real-data mode uses a 3,072-neuron subgraph of Janelia’s hemibrain v1.2, with 293,766 directed connections. Each retained connection comes from the reconstructed dataset. We selected high-degree neurons; this is not the whole fly brain and not an intact learning circuit. Synapse counts are scaled into computational weights.</p>
-    <h2>What “trained” means</h2><p>A text encoder turns a passage into numbers. Those numbers stimulate selected neurons in a mathematical model of the wiring. A small classifier, called a readout, learns to turn the resulting activity into labels such as EMAIL, PHONE, or NONE. The wiring stays fixed during that training. The model does not understand law, and there is no living or conscious fly inside it.</p>
+    <h2>What “trained” means</h2><p>A text encoder turns a passage into numbers. Those numbers stimulate selected neurons in a mathematical model of the wiring. A small classifier, called a readout, learns to turn the resulting activity into labels such as EMAIL, PHONE, or NONE. The hybrid readout also receives the original text features, so the wiring is not its only source of information. The wiring stays fixed during that training. The model does not understand law, and there is no living or conscious fly inside it.</p>
     <pre>{`Text → shared encoder → neural stimulation
                      ↓
          directed fly-wiring dynamics
