@@ -1,0 +1,25 @@
+name: Dream verification dependencies
+on:
+  push:
+    branches: [feat/legal-dreaming]
+    paths: [.github/workflows/dream-deps.yml]
+permissions:
+  contents: read
+jobs:
+  dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - run: cd apps/web && npm ci
+      - run: tar -czf /tmp/legalfly-node.tar.gz -C apps/web node_modules
+      - uses: actions/upload-artifact@v4
+        with:
+          name: legalfly-dream-dependencies
+          path: /tmp/legalfly-node.tar.gz
+          retention-days: 1
+          compression-level: 0
