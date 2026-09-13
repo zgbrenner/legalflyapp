@@ -9,7 +9,10 @@ permissions:
   actions: read
 concurrency:
   group: legalfly-research-release
-  cancel-in-progress: false
+  cancel-in-progress: true
+defaults:
+  run:
+    shell: bash
 jobs:
   reproduce:
     if: github.ref == 'refs/heads/feat/the-legal-fly'
