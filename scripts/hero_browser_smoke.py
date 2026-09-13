@@ -1,8 +1,11 @@
-"""Verify the Legal Dreaming hero, scroll cue, responsive layout, and decorative-icon rules."""
+"""Verify the Legal Dreaming hero, scroll cue, responsive layout, and that the retired experiment is gone."""
 import asyncio
 import os
 from pathlib import Path
 from playwright.async_api import async_playwright
+
+
+RETIRED_ROUTES = ("/classification", "/benchmark", "/ablate", "/compare", "/methodology")
 
 
 async def main():
@@ -19,10 +22,14 @@ async def main():
         await page.get_by_role("heading", name="Can a fruit fly retain legal concepts after the text is gone?", exact=True).wait_for()
         assert await page.locator(".fly-head-hero").count() == 1
         assert await page.locator(".fly-head-brain").count() == 1
+        assert "Earlier experiment" not in await page.locator("header").inner_text()
         scroll = page.get_by_role("link", name="Scroll to test the experiment", exact=True)
         assert await scroll.get_attribute("href") == "#dream-lab"
         body = await page.locator("body").inner_text()
         assert "↗" not in body and "↘" not in body
+        for route in RETIRED_ROUTES:
+            response = await context.request.get(f"{base}{route}")
+            assert response.status == 404, f"Retired route still public: {route} returned {response.status}"
         await page.screenshot(path=str(out / "hero-desktop.png"), full_page=False)
         await scroll.click()
         await page.wait_for_timeout(350)
