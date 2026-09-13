@@ -86,6 +86,16 @@ With fewer labels, biological topology keeps a thin edge over random twins; line
 
 Scarcer labels widen the gap a little: connectome stays ahead of both random twins; linear MiniLM still leads. Artifact: `results/comparison_fewshot_80.json`.
 
+### Few-shot @ 60 labels × 6 seeds (MiniLM)
+| Model | Macro F1 | Binary F1 |
+|---|---|---|
+| Linear | ~0.847 | ~0.914 |
+| Degree-matched random | ~0.797 | ~0.881 |
+| Connectome | ~0.796 | ~0.879 |
+| Random Erdos–Renyi | ~0.796 | ~0.878 |
+
+At 60 labels the biological edge collapses into noise — connectome and random twins are statistically tied; linear MiniLM still leads. Artifact: `results/comparison_fewshot_60.json`.
+
 ### Few-shot @ 120 labels × 3 seeds (hashing encoder)
 | Model | Macro F1 |
 |---|---|

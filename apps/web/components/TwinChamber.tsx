@@ -1,7 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { classifyTwin, type ClassifyResponse, type TwinResponse } from "@/lib/api";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  classifyTwin,
+  type ClassifyResponse,
+  type TwinResponse,
+} from "@/lib/api";
 import { ConnectomeViz } from "@/components/ConnectomeViz";
 
 const EXAMPLES = [
@@ -54,7 +58,7 @@ function Side({
               playing={Boolean(result)}
               title={`${title} firing`}
               className="h-full"
-              heightClass="h-[320px] md:h-[420px]"
+              heightClass="h-[340px] md:h-[460px]"
             />
           </div>
           <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.16em] text-ink/45">
@@ -62,7 +66,10 @@ function Side({
           </p>
         </>
       ) : (
-        <p className="mt-10 text-sm text-ink/45">Awaiting stimulation…</p>
+        <div className="mt-8 space-y-3">
+          <div className="h-[340px] animate-pulse border border-ink/10 bg-gradient-to-b from-ink/[0.06] to-[#070a09] md:h-[460px]" />
+          <p className="text-sm text-ink/45">Awaiting stimulation…</p>
+        </div>
       )}
     </div>
   );
@@ -73,6 +80,7 @@ export function TwinChamber() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [payload, setPayload] = useState<TwinResponse | null>(null);
+  const autoStarted = useRef(false);
 
   const verdict = useMemo(() => {
     if (!payload) return null;
@@ -82,17 +90,16 @@ export function TwinChamber() {
     return "The stolen tissue and the scrambled twin disagree — topology mattered on this specimen.";
   }, [payload]);
 
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function stimulate(passage: string) {
     setError(null);
     setPayload(null);
-    if (!text.trim()) {
+    if (!passage.trim()) {
       setError("Offer both chambers a passage.");
       return;
     }
     setLoading(true);
     try {
-      const response = await classifyTwin(text, true);
+      const response = await classifyTwin(passage, true);
       setPayload(response);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Twin stimulation failed");
@@ -101,24 +108,42 @@ export function TwinChamber() {
     }
   }
 
+  useEffect(() => {
+    if (autoStarted.current) return;
+    autoStarted.current = true;
+    void stimulate(EXAMPLES[0]);
+  }, []);
+
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    await stimulate(text);
+  }
+
   return (
     <div className="animate-rise">
       <form onSubmit={onSubmit} className="border border-ink/15 bg-paper/85 p-5 shadow-soft md:p-6">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-blood">
-              Twin chamber
+              Twin chamber · live firing
             </p>
             <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight md:text-4xl">
               Real tissue vs random twin
             </h2>
+            <p className="mt-2 max-w-xl text-sm text-ink/60">
+              Auto-fires on load so you immediately see the connectome light up — then try your own
+              passage.
+            </p>
           </div>
           <div className="flex flex-wrap gap-2">
             {EXAMPLES.map((example) => (
               <button
                 key={example}
                 type="button"
-                onClick={() => setText(example)}
+                onClick={() => {
+                  setText(example);
+                  void stimulate(example);
+                }}
                 className="max-w-[14rem] truncate border border-ink/15 px-2 py-1 text-left text-[11px] text-ink/65 hover:border-blood/40 hover:text-blood"
               >
                 {example}
@@ -142,11 +167,14 @@ export function TwinChamber() {
             {loading ? "Stimulating both corpses…" : "Stimulate tissue + twin"}
           </button>
           <p className="text-xs text-ink/55">
-            Same encoder. Different graph. Text not saved by default.
+            Same encoder. Different graph. Watch synapses flash as activity spreads.
           </p>
         </div>
         {error ? (
-          <p className="mt-4 border border-accent/30 bg-accentsoft px-3 py-2 text-sm text-accent" role="alert">
+          <p
+            className="mt-4 border border-accent/30 bg-accentsoft px-3 py-2 text-sm text-accent"
+            role="alert"
+          >
             {error}
           </p>
         ) : null}

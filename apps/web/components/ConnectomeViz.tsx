@@ -317,7 +317,7 @@ export function ConnectomeViz({
     if (paused || trajectory.length === 0) return;
     const id = window.setInterval(() => {
       setFrame((f) => (f + 1) % trajectory.length);
-    }, 55);
+    }, 48);
     return () => window.clearInterval(id);
   }, [paused, trajectory.length]);
 
