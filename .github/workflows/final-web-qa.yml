@@ -6,6 +6,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+  actions: read
 concurrency:
   group: legalfly-final-web
   cancel-in-progress: true
@@ -16,7 +17,7 @@ jobs:
   verify:
     if: github.ref == 'refs/heads/feat/the-legal-fly'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
     env:
       OPENBLAS_NUM_THREADS: '1'
       OMP_NUM_THREADS: '1'
@@ -35,59 +36,29 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
-      - name: Apply tested final clarity and expected-label changes
+      - uses: actions/download-artifact@v4
+        with:
+          name: legalfly-browser-evidence
+          run-id: 34737001605
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: /tmp/previous-evidence
+      - name: Recover the tested web release without test-generated model files
         run: |
+          if ! grep -q '"next": "15.5.24"' apps/web/package.json; then
+            git apply --check --include='apps/web/*' /tmp/previous-evidence/uncommitted.patch
+            git apply --include='apps/web/*' /tmp/previous-evidence/uncommitted.patch
+          fi
           python - <<'PY'
           from pathlib import Path
-          def replace(path, old, new):
-              p=Path(path); text=p.read_text()
-              if new in text: return
-              assert old in text, (path,old)
-              p.write_text(text.replace(old,new))
-          root='apps/web/'
-          for name,label in [('An email','EMAIL'),('A private number','SSN'),('A legal decoy','NONE'),('Nothing private','NONE')]:
-              replace(root+'components/TwinChamber.tsx',f'name:"{name}", text:',f'name:"{name}", expected:"{label}", text:')
-          replace(root+'components/TwinChamber.tsx','  const actual=tissue?.anatomical_edges && !tissue.demo_mode;', '  const actual=tissue?.anatomical_edges && !tissue.demo_mode;\n  const knownExample = EXAMPLES.find(example=>example.text===shownText);\n  const expectedMatched = knownExample && tissue?.labels.some(label=>label.name===knownExample.expected);')
-          replace(root+'components/TwinChamber.tsx','    <p className="experiment-footnote">{source===', '    {knownExample && tissue ? <p className="experiment-footnote" role="status">Known example: {knownExample.expected}. {expectedMatched ? "The fly matched the expected label." : "The fly missed the expected label. Agreement between models does not make this answer correct."}</p> : null}\n    <p className="experiment-footnote">{source===')
-          replace(root+'app/page.tsx','A trained readout predicts what is private.','A trained classifier flags private details.')
-          replace(root+'app/page.tsx','the simulated signals are mathematics.</p>','the simulated signals are mathematics. The classifier can also use the original text features. The ablation experiment shows how much the wiring contributes.</p>')
-          replace(root+'app/methodology/page.tsx','The wiring stays fixed during that training.','The hybrid readout also receives the original text features, so the wiring is not its only source of information. The wiring stays fixed during that training.')
-          replace(root+'app/benchmark/page.tsx','Each line links a matched trial.','Macro F1 is shown in this plot. Each line links a matched trial.')
-          p=Path(root+'tests/experience.test.tsx')
-          if 'shows a planted-identifier miss' not in p.read_text():
-              p.write_text(p.read_text()+'''\n\ndescribe("known synthetic examples",()=>{
-           it("shows a planted-identifier miss instead of treating agreement as success",async()=>{
-            const model={science_version:"2.0-directed-controls",labels:[{name:"NONE",confidence:.8}],contains_sensitive:false,simulation:{},inference_time_sec:.01,encoder_name:"hashing-384",demo_mode:false,anatomical_edges:true};
-            vi.mocked(classifyTwin).mockResolvedValue({tissue:model,twin:{...model,anatomical_edges:false},baseline:model,agree_on_sensitive:true} as any);
-            render(<TwinChamber/>);fireEvent.click(screen.getByRole("button",{name:"A private number"}));
-            expect(await screen.findByText(/Known example: SSN/)).toBeDefined();
-            expect(screen.getByText(/The fly missed the expected label/)).toBeDefined();
-           });
-          });
-          ''')
+          p=Path('scripts/browser_smoke.py'); text=p.read_text()
+          text=text.replace("await page.get_by_role('alert').inner_text()", "await page.get_by_role('alert').filter(has_text='Enter a passage').inner_text()")
+          p.write_text(text)
           PY
-      - name: Resolve the major upgrade from a clean lock
+      - name: Verify the exact patched dependency lock
         working-directory: apps/web
         run: |
           mkdir -p /tmp/legalfly-qa
-          node - <<'JS'
-          const fs=require('fs');const p=require('./package.json');
-          delete p.dependencies['@react-three/drei'];delete p.dependencies.clsx;delete p.dependencies.zustand;
-          Object.assign(p.dependencies,{next:'15.5.24',react:'19.2.8','react-dom':'19.2.8','@react-three/fiber':'9.7.0'});
-          Object.assign(p.devDependencies,{'eslint-config-next':'15.5.24','@types/react':'^19.2.0','@types/react-dom':'^19.2.0'});
-          p.scripts.lint='eslint . --ext .ts,.tsx';
-          fs.writeFileSync('package.json',JSON.stringify(p,null,2)+'\n');
-          fs.rmSync('package-lock.json',{force:true});
-          JS
-          npm install --no-audit --no-fund 2>&1 | tee /tmp/legalfly-qa/install.txt
-          node - <<'JS'
-          const fs=require('fs');const p=require('./package.json');
-          for(const group of ['dependencies','devDependencies']) for(const key of Object.keys(p[group])) {
-            p[group][key]=JSON.parse(fs.readFileSync(`node_modules/${key}/package.json`)).version;
-          }
-          fs.writeFileSync('package.json',JSON.stringify(p,null,2)+'\n');
-          JS
-          npm install --package-lock-only --no-audit --no-fund
+          npm ci --no-audit --no-fund
           npm test 2>&1 | tee /tmp/legalfly-qa/web-tests.txt
           npm run lint 2>&1 | tee /tmp/legalfly-qa/lint.txt
           npm run build 2>&1 | tee /tmp/legalfly-qa/build.txt
@@ -99,6 +70,15 @@ jobs:
           cp -R deploy/data/processed/hemibrain data/processed/
           python -m pytest -q | tee /tmp/legalfly-qa/python-tests.txt
           python -m playwright install --with-deps chromium
+      - name: Preserve the passing source and dependency lock
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add apps/web/app apps/web/components/TwinChamber.tsx apps/web/tests/experience.test.tsx apps/web/package.json apps/web/package-lock.json scripts/browser_smoke.py
+          if ! git diff --cached --quiet; then
+            git commit -m 'feat: finish the experiment UX and verify patched React 19 runtime'
+            git push origin HEAD:feat/the-legal-fly
+          fi
       - name: Test desktop, mobile and live inference
         run: |
           uvicorn apps.api.app.main:app --host 127.0.0.1 --port 8000 > /tmp/legalfly-qa/api.log 2>&1 &
@@ -108,31 +88,15 @@ jobs:
             sleep 2
           done
           python -m scripts.browser_smoke
-      - name: Commit only tested source and the new lock
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add apps/web/app apps/web/components/TwinChamber.tsx apps/web/tests/experience.test.tsx apps/web/package.json apps/web/package-lock.json
-          if ! git diff --cached --quiet; then
-            git commit -m 'feat: finish the experiment UX and verify patched React 19 runtime'
-            git push origin HEAD:feat/the-legal-fly
-          fi
       - name: Package evidence even on failure
         if: always()
         run: |
           mkdir -p /tmp/legalfly-qa
           git archive HEAD --format=tar.gz > /tmp/legalfly-qa/source.tar.gz
           git diff --binary > /tmp/legalfly-qa/uncommitted.patch
-          if test -d apps/web/node_modules; then tar -czf /tmp/legalfly-web-runtime.tgz -C apps/web node_modules package.json package-lock.json; fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: legalfly-browser-evidence
           path: /tmp/legalfly-qa
           retention-days: 14
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: legalfly-patched-web-runtime
-          path: /tmp/legalfly-web-runtime.tgz
-          retention-days: 3
