@@ -9,13 +9,37 @@ Vercel alone cannot host the Python reservoir + sklearn readouts. Cloudflare Wor
 
 ## Fastest path (recommended)
 
-### 1. API on Render (free tier)
+### 1. API on Render — use **Web Service** (not Blueprint)
 
-1. Push this repo to GitHub (already on `main`).
-2. Go to [https://render.com](https://render.com) → **New** → **Blueprint**.
-3. Select `zgbrenner/legalflyapp` and apply `render.yaml`.
-4. Wait for the deploy. Copy the URL, e.g. `https://legalfly-api.onrender.com`.
-5. Check health: `curl https://YOUR-API/health`
+Blueprints are easy to miss on mobile. Do this instead:
+
+1. Open [https://dashboard.render.com](https://dashboard.render.com)
+2. Tap **New Web Service →** (under **Web Services**)
+3. Connect GitHub and pick **`zgbrenner/legalflyapp`**
+4. Settings:
+
+| Field | Value |
+|---|---|
+| Name | `legalfly-api` |
+| Language / Runtime | **Docker** |
+| Branch | `main` |
+| Dockerfile path | `Dockerfile.api` |
+| Instance type | **Free** |
+
+5. Environment variables (Add):
+
+| Key | Value |
+|---|---|
+| `LEGALFLY_ENCODER` | `hashing` |
+| `LEGALFLY_DEMO_MODE` | `false` |
+| `LEGALFLY_CORS_ORIGINS` | `*` |
+| `LEGALFLY_LOG_RAW_TEXT` | `false` |
+
+6. Create Web Service and wait for the first deploy (can take several minutes on free).
+7. Copy the service URL, e.g. `https://legalfly-api.onrender.com`
+8. Check: open `https://YOUR-API/health` — should return JSON `status: ok`
+
+> If you prefer Blueprints later (desktop): left sidebar → **Blueprints** → New Blueprint Instance → select the repo (needs `render.yaml` on `main`).
 
 ### 2. Web on Vercel
 
