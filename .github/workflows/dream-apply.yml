@@ -29,16 +29,18 @@ jobs:
           PY
           git apply --check /tmp/dream.patch
           git apply --index /tmp/dream.patch
+          # This token has contents permission, not workflows permission.
+          # Workflow updates are applied separately through the authorized connector.
+          git restore --source=HEAD --staged --worktree .github/workflows
       - name: Reproduce biological diagnostics
         run: |
           node apps/web/scripts/export-dream-graph.mjs
           mkdir -p results/dreaming
           node apps/web/scripts/probe-dream.mjs results/dreaming/diagnostics.json
           git add results/dreaming/diagnostics.json
-      - name: Remove transfer helpers and commit on feature branch only
+      - name: Commit application source on feature branch only
         run: |
           rm -rf .github/dream-transfer
-          rm .github/workflows/dream-source.yml .github/workflows/dream-deps.yml .github/workflows/dream-apply.yml
           git add -u
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
