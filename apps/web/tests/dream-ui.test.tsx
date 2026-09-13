@@ -16,3 +16,13 @@ it('exposes stable reading and experiment labels, independent of selected values
   expect(screen.getByLabelText('Random seed', { exact: true }).tagName).toBe('INPUT');
   expect(screen.getByLabelText('Injected noise', { exact: true }).tagName).toBe('SELECT');
 });
+
+it('presents the Legal Dreaming question, scroll cue, and no decorative arrow glyphs', () => {
+  render(<DreamChamber />);
+  expect(screen.getByRole('heading', { name: 'Can a fruit fly retain legal concepts after the text is gone?' })).toBeTruthy();
+  const scrollCue = screen.getByRole('link', { name: 'Scroll to test the experiment' });
+  expect(scrollCue.getAttribute('href')).toBe('#dream-lab');
+  expect(document.querySelector('.fly-head-hero')).toBeTruthy();
+  expect(document.body.textContent || '').not.toContain('↗');
+  expect(document.body.textContent || '').not.toContain('↘');
+});
