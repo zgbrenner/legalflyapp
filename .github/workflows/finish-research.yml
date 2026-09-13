@@ -32,11 +32,13 @@ jobs:
           ref: feat/the-legal-fly
       - name: Apply the locally tested source corrections
         run: |
-          if test -f scripts/reviewed-fixes.patch; then
-            git apply --check --unidiff-zero scripts/reviewed-fixes.patch
-            git apply --unidiff-zero scripts/reviewed-fixes.patch
-            git rm scripts/reviewed-fixes.patch
-          fi
+          for patch in scripts/reviewed-fixes.patch scripts/reviewed-integrity.patch; do
+            if test -f "$patch"; then
+              git apply --check --unidiff-zero "$patch"
+              git apply --unidiff-zero "$patch"
+              git rm "$patch"
+            fi
+          done
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
@@ -59,12 +61,14 @@ jobs:
           url='https://storage.googleapis.com/hemibrain/v1.2/exported-traced-adjacencies-v1.2.tar.gz'
           archive=Path('/tmp/hemibrain-source.tar.gz')
           urllib.request.urlretrieve(url,archive)
+          digest=hashlib.sha256(archive.read_bytes()).hexdigest()
+          assert digest=='07d8946eb0c4e3a5cb23d5769c9817847494f9fcadbc0ca239eed7bbd5555cf7', 'Source archive changed'
           with tarfile.open(archive) as f:
               f.extractall('/tmp/hemibrain-source',filter='data')
           raw=Path('/tmp/hemibrain-source/exported-traced-adjacencies-v1.2')
           rebuilt=build_hemibrain_subgraph(raw/'traced-neurons.csv',raw/'traced-total-connections.csv')
           packaged=ConnectomeGraph.load(Path('data/processed/hemibrain/biological'))
-          report={'source_url':url,'archive_sha256':hashlib.sha256(archive.read_bytes()).hexdigest(),'rebuilt_graph_hash':rebuilt.fingerprint(),'packaged_graph_hash':packaged.fingerprint(),'neurons':rebuilt.n_nodes,'edges':rebuilt.n_edges,'matches_original_source':rebuilt.fingerprint()==packaged.fingerprint()}
+          report={'source_url':url,'archive_sha256':digest,'rebuilt_graph_hash':rebuilt.fingerprint(),'packaged_graph_hash':packaged.fingerprint(),'neurons':rebuilt.n_nodes,'edges':rebuilt.n_edges,'matches_original_source':rebuilt.fingerprint()==packaged.fingerprint()}
           assert report['matches_original_source'],report
           Path('deploy/research-inputs').mkdir(parents=True,exist_ok=True)
           Path('deploy/research-inputs/hemibrain-provenance.json').write_text(json.dumps(report,indent=2)+'\n')
@@ -96,22 +100,36 @@ jobs:
           python -u -m research.experiments.search --cache .cache/research | tee /tmp/legalfly-qa/research.txt
           python -u -m research.experiments.surgery --cache .cache/research | tee /tmp/legalfly-qa/lesions.txt
           python -m scripts.export_public | tee /tmp/legalfly-qa/export.txt
-      - name: Update to the patched Next.js maintenance release and compatible React renderer
-        working-directory: apps/web
-        run: |
-          npm install --save-exact next@15.5.24 react@19 react-dom@19 @react-three/fiber@9 @react-three/drei@10
-          npm install --save-dev --save-exact eslint-config-next@15.5.24 @types/react@19 @types/react-dom@19
-          npm pkg set 'scripts.lint=eslint . --ext .ts,.tsx'
-          npm test | tee /tmp/legalfly-qa/web-tests.txt
-          npm run lint | tee /tmp/legalfly-qa/lint.txt
-          npm run build | tee /tmp/legalfly-qa/build.txt
-      - name: Preserve source and generated evidence on the feature branch
+      - name: Preserve tested source and generated research on the feature branch
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add apps/web research/experiments/search.py tests scripts/import_embeddings.py results/comparison_v2.json results/comparison_v2_selection.json results/ablation_latest.json deploy/research-inputs deploy/results
+          git add apps research tests scripts/import_embeddings.py results/comparison_v2.json results/comparison_v2_selection.json results/ablation_latest.json deploy/research-inputs deploy/results
           if ! git diff --cached --quiet; then
             git commit -m 'feat: publish verified biological research and corrected The Legal Fly runtime'
+            git push origin HEAD:feat/the-legal-fly
+          fi
+      - name: Install mutually compatible patched web dependencies
+        working-directory: apps/web
+        run: |
+          npm pkg set 'dependencies.next=15.5.24' 'dependencies.react=~19.2.0' 'dependencies.react-dom=~19.2.0' 'dependencies.@react-three/fiber=9.7.0' 'dependencies.@react-three/drei=10.7.8' 'devDependencies.eslint-config-next=15.5.24' 'devDependencies.@types/react=^19.2.0' 'devDependencies.@types/react-dom=^19.2.0' 'scripts.lint=eslint . --ext .ts,.tsx'
+          npm install --no-audit --no-fund 2>&1 | tee /tmp/legalfly-qa/install.txt
+          node - <<'JS'
+          const fs=require('fs');const p=require('./package.json');
+          for(const group of ['dependencies','devDependencies']) for(const key of Object.keys(p[group])) {
+            p[group][key]=JSON.parse(fs.readFileSync(`node_modules/${key}/package.json`)).version;
+          }
+          fs.writeFileSync('package.json',JSON.stringify(p,null,2)+'\n');
+          JS
+          npm install --package-lock-only --no-audit --no-fund
+          npm test | tee /tmp/legalfly-qa/web-tests.txt
+          npm run lint | tee /tmp/legalfly-qa/lint.txt
+          npm run build | tee /tmp/legalfly-qa/build.txt
+      - name: Preserve the tested dependency lock
+        run: |
+          git add apps/web/package.json apps/web/package-lock.json apps/web/next-env.d.ts
+          if ! git diff --cached --quiet; then
+            git commit -m 'build: upgrade to patched Next 15.5.24 and compatible React 19.2 renderer'
             git push origin HEAD:feat/the-legal-fly
           fi
       - name: Run real browser checks against the actual biological API
@@ -127,7 +145,9 @@ jobs:
       - name: Package reproducible source and browser evidence
         if: always()
         run: |
+          mkdir -p /tmp/legalfly-qa
           git archive HEAD --format=tar.gz > /tmp/legalfly-qa/source.tar.gz
+          git diff --binary > /tmp/legalfly-qa/uncommitted.patch
           if test -d apps/web/node_modules; then tar -czf /tmp/legalfly-web-runtime.tgz -C apps/web node_modules package.json package-lock.json; fi
           cp results/comparison_v2.json /tmp/legalfly-qa/ 2>/dev/null || true
           cp deploy/research-inputs/hemibrain-provenance.json /tmp/legalfly-qa/ 2>/dev/null || true
