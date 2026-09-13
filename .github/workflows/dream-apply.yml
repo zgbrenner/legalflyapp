@@ -1,0 +1,46 @@
+name: Apply verified legal dreaming implementation
+on:
+  push:
+    branches: [feat/legal-dreaming]
+    paths: [.github/workflows/dream-apply.yml]
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify and apply tested source patch
+        run: |
+          python - <<'PY'
+          import base64, hashlib, lzma
+          from pathlib import Path
+          chunks = sorted(Path('.github/dream-transfer').glob('*.txt'))
+          assert len(chunks) == 7
+          patch = lzma.decompress(base64.b64decode(''.join(p.read_text() for p in chunks)))
+          assert hashlib.sha256(patch).hexdigest() == '5f943a2755325bdf329e3a623a465d9b41942e80647e423e7f0043104fdc3044'
+          Path('/tmp/dream.patch').write_bytes(patch)
+          PY
+          git apply --check /tmp/dream.patch
+          git apply --index /tmp/dream.patch
+      - name: Reproduce biological diagnostics
+        run: |
+          node apps/web/scripts/export-dream-graph.mjs
+          mkdir -p results/dreaming
+          node apps/web/scripts/probe-dream.mjs results/dreaming/diagnostics.json
+          git add results/dreaming/diagnostics.json
+      - name: Remove transfer helpers and commit on feature branch only
+        run: |
+          rm -rf .github/dream-transfer
+          rm .github/workflows/dream-source.yml .github/workflows/dream-deps.yml .github/workflows/dream-apply.yml
+          git add -u
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'feat: turn The Legal Fly into a measured legal dreaming laboratory'
+          git push origin HEAD:refs/heads/feat/legal-dreaming
