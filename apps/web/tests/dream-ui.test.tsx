@@ -24,4 +24,5 @@ it('presents the Legal Dreaming question, scroll cue, and no decorative arrow gl
   expect(scrollCue.getAttribute('href')).toBe('#dream-lab');
   expect(document.querySelector('.fly-head-hero')).toBeTruthy();
   expect(document.body.textContent || '').not.toContain('↗');
+  expect(document.body.textContent || '').not.toContain('↘');
 });
