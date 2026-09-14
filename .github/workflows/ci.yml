@@ -39,6 +39,7 @@ jobs:
           cache-dependency-path: apps/web/package-lock.json
       - run: npm ci
       - run: npm test
+      - run: npm run test:legalfly
       - run: npm run test:dream
       - run: npm run build
         env:
@@ -81,4 +82,45 @@ jobs:
         with:
           name: browser-evidence
           path: /tmp/legalfly-qa
+          retention-days: 14
+  full-connectome-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+      QA_ARTIFACTS_DIR: /tmp/legalfly-full-qa
+      OPENBLAS_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - run: pip install numpy==2.1.3 pandas==2.2.3 pyarrow==17.0.0 playwright
+      - run: python -m playwright install --with-deps chromium
+      - uses: actions/cache@v4
+        with:
+          path: data/raw/malecns/v1.0
+          key: malecns-v1-1780494878811468-1780494887545976
+      - name: Acquire and verify official full graph
+        run: python tools/prepare_malecns.py --download --convert --export-browser --shuffled
+      - run: cd apps/web && npm ci && npm run test:legalfly && npm run build
+      - name: Run full MaleCNS in native browser
+        run: |
+          mkdir -p /tmp/legalfly-full-qa
+          (cd apps/web && npm start -- --hostname 127.0.0.1 > /tmp/legalfly-full-qa/web.log 2>&1) &
+          for i in $(seq 1 90); do
+            if curl -fsS http://127.0.0.1:3000 >/dev/null; then break; fi
+            sleep 2
+          done
+          python -m scripts.legalfly_full_browser
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: full-connectome-browser-evidence
+          path: /tmp/legalfly-full-qa
           retention-days: 14
