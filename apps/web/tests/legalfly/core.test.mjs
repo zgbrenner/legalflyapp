@@ -175,6 +175,17 @@ test('training cancellation is transactional', async () => {
   await assert.rejects(() => train(graph, cases, { seed: 1 }, () => { stop = true; }, () => stop), /cancel/i);
 });
 
+test('training emits actual per-step values and cancels before another update', async () => {
+  const graph = graphFixture(), anatomy = parseAnatomy(anatomyFixture(80), { neurons: 80, coordinateCount: 80 });
+  const frames = [];
+  await assert.rejects(() => train(graph, cases, { seed: 1, anatomy, frame: frame => frames.push(frame) }, () => {}, () => frames.length > 0), /cancel/i);
+  assert.equal(frames.length, 1);
+  assert.equal(frames[0].step, 1);
+  const reservoir = new Reservoir(graph, 1);
+  reservoir.step(encodeFacts(cases[0].facts));
+  for (const point of frames[0].points) assert.equal(point.activation, reservoir.x[point.index]);
+});
+
 test('corrective feedback returns an atomic replacement and preserves inputs on cancellation', async () => {
   const graph = graphFixture(), model = await train(graph, cases, { seed: 1 }), before = cases.slice();
   let stop = false;
@@ -187,6 +198,14 @@ test('corrective feedback returns an atomic replacement and preserves inputs on 
   const replacement = await correctModel(graph, cases, model, cases[0], 'refer-higher');
   assert.equal(replacement.cases.length, before.length + 1);
   assert.equal(replacement.model.cases.length, before.length + 1);
+});
+
+test('correction training streams real frames through its options', async () => {
+  const graph = graphFixture(), model = await train(graph, cases), frames = [];
+  const anatomy = parseAnatomy(anatomyFixture(80), { neurons: 80, coordinateCount: 80 });
+  await correctModel(graph, cases, model, cases[0], 'refer-higher', () => {}, () => false, { anatomy, frame: frame => frames.push(frame) });
+  assert.equal(frames.length, 68);
+  assert.ok(frames[0].points.some(point => point.active));
 });
 
 test('facts-only and charter-rule controls stay outside the neural readout', () => {
