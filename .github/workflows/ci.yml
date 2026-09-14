@@ -2,26 +2,40 @@ name: Village Lawyer verification
 on:
   push:
     branches: [main, feat/village-lawyer]
+  pull_request:
   workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: village-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
-  data-import:
+  complete-cns:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Mechanical unit tests (not biological evidence)
+        run: npm test
       - uses: actions/cache@v4
         with:
           path: data/compiled
           key: malecns-brain-v1-c29919aa-cc9bd1ec
-      - run: python -m pip install -r requirements-data.txt
-      - name: Verify complete MaleCNS data
-        run: python tools/prepare.py --skip-art
+      - name: Install data tooling
+        run: python -m pip install -r requirements-data.txt
+      - name: Download and verify the COMPLETE MaleCNS
+        run: python tools/prepare.py
+      - name: Actual full-graph training, inference and controls
+        run: npm run test:full
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: source-verification
-          path: site/data/manifest.json
+          name: full-male-cns-evidence
+          path: results/
+          if-no-files-found: warn

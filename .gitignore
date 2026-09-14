@@ -1,0 +1,12 @@
+.venv/
+node_modules/
+data/
+site/data/
+site/assets/village-lawyer.jpg
+site/assets/artwork.json
+dist/
+__pycache__/
+*.pyc
+results/*.png
+results/full-verification.json
+.DS_Store
