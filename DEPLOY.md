@@ -28,6 +28,7 @@ Serve these same-origin paths with normal static caching and byte-range support 
 /legalfly/core.mjs
 /legalfly/worker.mjs
 /legalfly/malecns.bin
+/legalfly/malecns-anatomy.bin
 ```
 
 If generated:
@@ -77,7 +78,7 @@ npm test
 npm run build
 ```
 
-Then serve the production build and exercise:
+Verify that `manifest.json` contains the graph and anatomy SHA-256 values and that both binary paths use `application/octet-stream`. Then serve the production build and exercise:
 
 ```text
 load graph -> teach ledger -> call petitioner -> hear case -> inspect sampled activity -> correct -> change evidence -> export -> reset -> import -> benchmark -> cancel

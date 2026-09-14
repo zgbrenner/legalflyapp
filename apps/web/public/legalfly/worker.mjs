@@ -1,30 +1,37 @@
-import { ACTIONS, ENGINE_VERSION, parseGraph, train, validateCases, validateModel, hearCase, yieldThread, actionName, factsOnlyTrain, factsOnlyRecommend, rulesRecommendation } from './core.mjs';
+import { ACTIONS, ENGINE_VERSION, parseGraph, parseAnatomy, train, correctModel, validateCases, validateModel, hearCase, hearCaseTrace, yieldThread, actionName, factsOnlyTrain, factsOnlyRecommend, rulesRecommendation } from './core.mjs';
 
-let generation = 0, aborter = null, graph = null, shuffled = null, graphManifest = null, model = null, cases = [], casebook = [], last = null;
+let generation = 0, aborter = null, graph = null, anatomy = null, shuffled = null, graphManifest = null, model = null, cases = [], casebook = [], last = null;
 const send = (id, type, data = {}) => postMessage({ id, type, ...data });
 const begin = () => { generation++; aborter?.abort(); aborter = new AbortController(); return generation; };
 const current = (token) => token === generation;
 async function sha256(buffer) { return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', buffer)), b => b.toString(16).padStart(2, '0')).join(''); }
 
-async function loadOne(info, signal) {
+async function loadVerified(info, signal, kind) {
   const res = await fetch(`/legalfly/${info.file}`, { signal });
-  if (!res.ok) throw Error('The MaleCNS graph file is unavailable');
+  if (!res.ok) throw Error(`The MaleCNS ${kind} file is unavailable`);
   const buffer = await res.arrayBuffer();
   if (!crypto.subtle) throw Error('A secure context is required for graph verification');
   const actual = await sha256(buffer);
-  if (actual !== info.sha256) throw Error('MaleCNS graph checksum failed');
-  return parseGraph(buffer, info);
+  if (actual !== info.sha256) throw Error(`MaleCNS ${kind} checksum failed`);
+  return buffer;
+}
+
+async function loadOne(info, signal) {
+  return parseGraph(await loadVerified(info, signal, 'graph'), info);
 }
 
 async function loadGraph(signal) {
-  if (graph) return graph;
+  if (graph && anatomy) return graph;
   const res = await fetch('/legalfly/manifest.json', { signal });
   if (!res.ok) throw Error('The MaleCNS manifest is unavailable');
   graphManifest = await res.json();
   if (graphManifest.schema !== 'legalfly-malecns-graph/1') throw Error('Invalid MaleCNS manifest');
   if (!graphManifest.available) throw Error(graphManifest.reason || 'The official MaleCNS browser graph has not been prepared');
-  graph = await loadOne(graphManifest.graph, signal);
-  graph.info = { ...graph.info, ...graphManifest.graph, sampleBodyIds: graphManifest.graph.sampleBodyIds || [] };
+  const candidateGraph = await loadOne(graphManifest.graph, signal);
+  if (!graphManifest.anatomy?.file) throw Error('The released MaleCNS soma map is missing from the manifest');
+  const candidateAnatomy = parseAnatomy(await loadVerified(graphManifest.anatomy, signal, 'anatomy'), graphManifest.anatomy);
+  candidateGraph.info = { ...candidateGraph.info, ...graphManifest.graph, sampleBodyIds: graphManifest.graph.sampleBodyIds || [] };
+  graph = candidateGraph; anatomy = candidateAnatomy;
   send(0, 'provenance', { manifest: graphManifest });
   return graph;
 }
@@ -45,7 +52,7 @@ function template(result) {
 
 async function handle(m) {
   const id = m.id;
-  if (m.type === 'cancel') { begin(); send(id, 'status', { state: model ? 'petition-ready' : 'idle' }); return; }
+  if (m.type === 'cancel') { begin(); if (!m.silent) send(id, 'status', { state: model ? 'petition-ready' : 'idle' }); return; }
   if (m.type === 'export-model') { if (!model) throw Error('No learned model to export'); send(id, 'download', { name: 'legalfly-model.json', content: JSON.stringify(model, null, 2) }); return; }
   if (m.type === 'export-casebook') { send(id, 'download', { name: 'legalfly-casebook.json', content: JSON.stringify({ schema: 'legalfly-casebook/1', engine: ENGINE_VERSION, exportedAt: new Date().toISOString(), entries: casebook }, null, 2) }); return; }
   const token = begin(), signal = aborter.signal;
@@ -60,8 +67,9 @@ async function handle(m) {
     await loadGraph(signal);
     if (m.type === 'train') {
       send(id, 'status', { state: 'computing' });
-      model = await train(graph, cases, { seed: m.seed ?? 42 }, p => current(token) && send(id, 'progress', p), () => !current(token));
+      const trainedModel = await train(graph, cases, { seed: m.seed ?? 42 }, p => current(token) && send(id, 'progress', p), () => !current(token));
       if (!current(token)) return;
+      model = trainedModel;
       send(id, 'trained', { modelSummary: { seed: model.seed, teaching: model.cases.filter(c => c.split === 'teach').length, heldout: model.cases.filter(c => c.split === 'holdout').length, reachability: model.reachability } });
       send(id, 'status', { state: 'petition-ready' }); return;
     }
@@ -70,17 +78,21 @@ async function handle(m) {
     if (m.type === 'hear') {
       if (!model) throw Error('The fly is untrained. Teach the ledger first.');
       send(id, 'status', { state: 'computing' }); await yieldThread();
-      const result = hearCase(graph, model, m.case);
+      const result = await hearCaseTrace(
+        graph, anatomy, model, m.case,
+        activity => current(token) && send(id, 'activity', { activity }),
+        () => !current(token)
+      );
+      if (!current(token)) return;
       last = { ...result, recommendation: template(result), at: new Date().toISOString() };
-      send(id, 'activity', { activity: result.activity });
       send(id, 'advice', { result: { case: result.case, advice: result.advice, recommendation: last.recommendation, energy: result.energy, sampledNodeIds: result.sampledNodeIds } });
       send(id, 'status', { state: 'advice-ready' }); return;
     }
     if (m.type === 'correct') {
       if (!last || !model) throw Error('No recent petition to correct');
-      const corrected = { ...last.case, label: m.label, split: 'teach', id: `${last.case.id}-correction-${Date.now()}` };
-      cases = [...cases, corrected];
-      model = await train(graph, cases, { seed: model.seed }, p => current(token) && send(id, 'progress', p), () => !current(token));
+      const replacement = await correctModel(graph, cases, model, last.case, m.label, p => current(token) && send(id, 'progress', p), () => !current(token));
+      if (!current(token)) return;
+      cases = replacement.cases; model = replacement.model;
       send(id, 'trained', { modelSummary: { seed: model.seed, corrected: true } });
       send(id, 'status', { state: 'petition-ready' }); return;
     }

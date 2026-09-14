@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type ChangeEvent, type CSSProperties } from "react";
+import Image from "next/image";
 import { FACT_OPTIONS, benchmarkMiniMind, checkMiniMind, encodePetition, verbalizeAdvice, type MiniMindDraft, type MiniMindHealth, type MiniMindNote, type StructuredFacts } from "@/lib/minimind";
+import { MaleCNSMap, type MaleCNSFrame } from "./MaleCNSMap";
 
 type LegalCase = { id: string; split: string; family: string; title: string; villager: string; prop: string; petition: string; facts: StructuredFacts; label?: string };
 type Advice = { case: LegalCase; advice: { action: string; confidence: number; margin: number; reason: string }; recommendation: string; energy: number; sampledNodeIds: string[] };
@@ -27,8 +29,9 @@ function download(name: string, content: string) {
   setTimeout(() => URL.revokeObjectURL(url), 800);
 }
 
-function ChamberArt({ cases, selected, phase, advice, reduced }: { cases: LegalCase[]; selected?: LegalCase; phase: string; advice: Advice | null; reduced: boolean }) {
+function ChamberArt({ cases, selected, phase, advice, reduced, activity }: { cases: LegalCase[]; selected?: LegalCase; phase: string; advice: Advice | null; reduced: boolean; activity: MaleCNSFrame | null }) {
   const called = Math.max(0, cases.findIndex(item => item.id === selected?.id));
+  const peak = activity ? Math.max(0, ...activity.points.filter(point => point.active).map(point => point.magnitude)) : 0;
   return <div className={`lf-chamber-art ${phase} ${reduced ? "motion-reduced" : ""}`} aria-hidden="true">
     <div className="lf-room-light" />
     <div className="lf-villagers">
@@ -40,23 +43,11 @@ function ChamberArt({ cases, selected, phase, advice, reduced }: { cases: LegalC
     <div className={`lf-petition ${["petition-ready", "computing", "advice-ready", "filing"].includes(phase) ? "is-visible" : ""}`}><span>{selected?.title ?? "Petition"}</span></div>
     <div className={`lf-quill ${phase === "computing" ? "is-writing" : ""}`} />
     <div className={`lf-seal ${actionClass[advice?.advice.action ?? "abstain"] ?? ""} ${["advice-ready", "filing"].includes(phase) ? "is-visible" : ""}`} />
-    <div className="lf-fly"><span className="wing left" /><span className="wing right" /><span className="body" /><span className="antenna a" /><span className="antenna b" /></div>
+    <div className={`lf-fly ${phase === "computing" ? "has-activity" : ""}`} style={{ "--brain-strength": Math.min(1, peak * 4) } as CSSProperties}>
+      <Image src="/art/legalfly/fly-counsel.webp" width={1000} height={667} alt="" priority />
+      <span className="lf-painted-brain" />
+    </div>
     <div className="lf-scene-caption"><span>Chamber</span><strong>{phaseCopy[phase] ?? phase}</strong></div>
-  </div>;
-}
-
-function NeuralInspection({ activity, active }: { activity: any; active: boolean }) {
-  if (!activity) return <p className="lf-muted">No sampled activity yet. Inspection begins when a petition is heard.</p>;
-  return <div className={`lf-neural ${active ? "is-live" : ""}`}>
-    <svg viewBox="0 0 520 280" role="img" aria-label="Sampled MaleCNS activity">
-      <path className="cord" d="M260 32 C220 80 220 138 260 170 C300 138 300 80 260 32 M260 168 C252 206 254 238 260 264" />
-      {activity.values.slice(0, 90).map((value: number, index: number) => {
-        const side = index % 2 ? 1 : -1, y = 28 + (index % 45) * 5.1, x = 260 + side * (24 + ((index * 29) % 190));
-        return <circle key={activity.node_ids[index] ?? index} cx={x} cy={y} r={2 + Math.min(7, value * 16)} opacity={0.28 + Math.min(0.7, value * 8)} />;
-      })}
-    </svg>
-    <p>Sampled activation tied to real source neuron IDs. The drawing is schematic. Computation uses the full loaded graph.</p>
-    <ol>{activity.node_ids.slice(0, 6).map((id: string, index: number) => <li key={id}>{id}: {(activity.values[index] ?? 0).toFixed(5)}</li>)}</ol>
   </div>;
 }
 
@@ -87,12 +78,12 @@ function BenchmarkPanel({ benchmark, miniMindReady }: { benchmark: any; miniMind
 }
 
 export function LegalFlyVillage() {
-  const worker = useRef<Worker | null>(null), seq = useRef(0), approachTimer = useRef<number | null>(null), languageOp = useRef(0), languageReady = useRef(false);
+  const worker = useRef<Worker | null>(null), seq = useRef(0), workerBusy = useRef(false), approachTimer = useRef<number | null>(null), languageOp = useRef(0), languageReady = useRef(false);
   const modelInput = useRef<HTMLInputElement>(null), casebookInput = useRef<HTMLInputElement>(null);
   const [phase, setPhase] = useState("loading"), [error, setError] = useState("");
   const [cases, setCases] = useState<LegalCase[]>([]), [actions, setActions] = useState<Action[]>([]), [selectedId, setSelectedId] = useState("");
   const [custom, setCustom] = useState<LegalCase | null>(null), [modelSummary, setModelSummary] = useState<any>(null), [graph, setGraph] = useState<any>(null);
-  const [advice, setAdvice] = useState<Advice | null>(null), [activity, setActivity] = useState<any>(null), [casebook, setCasebook] = useState<any[]>([]), [benchmark, setBenchmark] = useState<any>(null);
+  const [advice, setAdvice] = useState<Advice | null>(null), [activity, setActivity] = useState<MaleCNSFrame | null>(null), [casebook, setCasebook] = useState<any[]>([]), [benchmark, setBenchmark] = useState<any>(null);
   const [progress, setProgress] = useState({ current: 0, total: 1, title: "" }), [reduced, setReduced] = useState(false), [showLab, setShowLab] = useState(false), [seed, setSeed] = useState(42);
   const [languageState, setLanguageState] = useState<LanguageState>("checking"), [languageHealth, setLanguageHealth] = useState<MiniMindHealth | null>(null), [languageError, setLanguageError] = useState("");
   const [factDraft, setFactDraft] = useState<MiniMindDraft | null>(null), [miniNote, setMiniNote] = useState<MiniMindNote | null>(null);
@@ -101,7 +92,11 @@ export function LegalFlyVillage() {
   const visibleCases = cases.slice(0, 5), teachingCount = cases.filter(item => item.split === "teach").length, heldoutCount = cases.filter(item => item.split === "holdout").length;
   const narrative = custom && selectedId === "custom" ? custom.petition : selected?.petition ?? "";
 
-  const send = (type: string, payload: Record<string, unknown> = {}) => { setError(""); worker.current?.postMessage({ id: ++seq.current, type, ...payload }); };
+  const send = (type: string, payload: Record<string, unknown> = {}) => {
+    if (["train", "hear", "correct", "benchmark"].includes(type)) workerBusy.current = true;
+    if (type === "cancel") workerBusy.current = false;
+    setError(""); worker.current?.postMessage({ id: ++seq.current, type, ...payload });
+  };
   const inspectLanguageClerk = async () => {
     const operation = ++languageOp.current; setLanguageState("checking"); setLanguageError("");
     try { const value = await checkMiniMind(AbortSignal.timeout(6000)); if (operation !== languageOp.current) return; languageReady.current = value.ready; setLanguageHealth(value); setLanguageState(value.ready ? "ready" : "offline"); }
@@ -136,14 +131,14 @@ export function LegalFlyVillage() {
       activeWorker.onmessage = event => {
         const message = event.data;
         if (message.id && message.id !== seq.current && message.type !== "provenance") return;
-        if (message.type === "status") setPhase(message.state);
-        if (message.type === "error") { setError(message.message); setPhase("errored"); }
+        if (message.type === "status") { if (message.state !== "computing") workerBusy.current = false; setPhase(message.state); }
+        if (message.type === "error") { workerBusy.current = false; setError(message.message); setPhase("errored"); }
         if (message.type === "cases") { setCases(message.cases); setActions(message.actions); setSelectedId(message.cases[0]?.id ?? ""); }
         if (message.type === "loaded") setGraph(message.graph);
         if (message.type === "trained") setModelSummary(message.modelSummary);
         if (message.type === "model-reset") { setModelSummary(null); setAdvice(null); setMiniNote(null); setActivity(null); }
         if (message.type === "progress") setProgress(message);
-        if (message.type === "activity") setActivity(message.activity);
+        if (message.type === "activity") { setActivity(message.activity); setProgress({ current: message.activity.step, total: message.activity.total_steps, title: "full MaleCNS update" }); }
         if (message.type === "advice") { setAdvice(message.result); setMiniNote(null); void renderWithMiniMind(message.result); }
         if (message.type === "casebook") setCasebook(message.entries);
         if (message.type === "benchmark") { setBenchmark(message); void addMiniMindControl(message); }
@@ -161,6 +156,7 @@ export function LegalFlyVillage() {
 
   const callPetitioner = (item: LegalCase) => {
     if (approachTimer.current) clearTimeout(approachTimer.current);
+    if (workerBusy.current) send("cancel", { silent: true });
     languageOp.current++; setSelectedId(item.id); setAdvice(null); setMiniNote(null); setFactDraft(null); setActivity(null); setBenchmark(null); setPhase("petitioner-approaching");
     approachTimer.current = window.setTimeout(() => setPhase("petition-ready"), reduced ? 10 : 850);
   };
@@ -172,7 +168,7 @@ export function LegalFlyVillage() {
     catch (caught) { if (operation === languageOp.current) { setLanguageState("ready"); setLanguageError(caught instanceof Error ? caught.message : "MiniMind could not draft facts."); } }
   };
   const acceptDraft = () => { if (selected && factDraft) { setCustom({ ...selected, id: "custom", split: "holdout", title: "Custom petition", petition: narrative, facts: factDraft.facts, label: undefined }); setSelectedId("custom"); setFactDraft(null); } };
-  const hear = () => selected && send("hear", { case: custom && selectedId === "custom" ? custom : selected });
+  const hear = () => { if (selected) { setShowLab(true); send("hear", { case: custom && selectedId === "custom" ? custom : selected }); } };
   const openFile = async (event: ChangeEvent<HTMLInputElement>, kind: "model" | "casebook") => {
     const file = event.target.files?.[0]; event.target.value = ""; if (!file) return;
     try { const value = JSON.parse(await file.text()); send(kind === "model" ? "import-model" : "import-casebook", kind === "model" ? { model: value } : { casebook: value }); }
@@ -181,7 +177,7 @@ export function LegalFlyVillage() {
 
   return <div className="lf-page">
     <section className="lf-hero page-width">
-      <ChamberArt cases={visibleCases} selected={selected} phase={phase} advice={advice} reduced={reduced} />
+      <ChamberArt cases={visibleCases} selected={selected} phase={phase} advice={advice} reduced={reduced} activity={activity} />
       <div className="lf-hero-copy"><p className="lf-question">Can a fruit fly&apos;s brain learn to advise a village on its legal matters?</p><h1>The Legal Fly</h1><p className="lf-tagline">Can a fruit fly make a good lawyer?</p><p>Villagers bring ordinary trouble to a very small counsel. The counsel recommends a next step. It does not judge.</p><div className="lf-actions"><a className="lf-button primary" href="#docket">Bring a dispute</a><button className="lf-button inverse" type="button" onClick={() => setShowLab(value => !value)}>{showLab ? "Close the back room" : "Inspect the apparatus"}</button></div></div>
     </section>
     <section className="lf-process page-width" aria-label="Experiment boundary"><span>Petition</span><i>MiniMind clerk</i><span>Confirmed facts</span><i>MaleCNS</i><span>Fly action</span><i>MiniMind clerk</i><span>Counsel&apos;s note</span></section>
@@ -199,7 +195,7 @@ export function LegalFlyVillage() {
       <aside className="lf-advice"><div className="lf-panel-head"><span>Counsel&apos;s note</span><strong>{advice ? `${Math.round(advice.advice.confidence * 100)}% readout confidence` : "abstains if unsure"}</strong></div>{advice ? <><div className={`lf-result-seal ${actionClass[advice.advice.action] ?? "seal-abstain"}`} /><h2>{actions.find(([id]) => id === advice.advice.action)?.[1] ?? "Abstain."}</h2><p>{miniNote?.text ?? advice.recommendation}</p><div className="lf-boundary-note"><span>{miniNote ? "MiniMind rendering" : "Authored fallback"}</span><p>{miniNote ? "The decoder received the selected action and confirmed facts. Alternative actions were withheld." : "The action came from the fly readout. No language model changed it."}</p></div><div className="lf-controls slim"><button className="lf-button" type="button" onClick={() => send("file-case")}>File in casebook</button><select aria-label="Correct recommendation" onChange={event => event.target.value && send("correct", { label: event.target.value })} defaultValue=""><option value="">Correct the fly</option>{actions.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select></div></> : <p className="lf-muted">The fly waits beside the papers. Teach the ledger, call a petitioner, and ask for advice.</p>}</aside>
     </section>
 
-    <section className={`lf-lab page-width ${showLab ? "is-open" : ""}`} id="method"><div><div className="lf-panel-head"><span>Neural inspection</span><strong>{activity ? "sampled values" : "not a replay"}</strong></div><NeuralInspection activity={activity} active={phase === "computing"} /></div><div><div className="lf-panel-head"><span>Method and controls</span><strong>{teachingCount} teach / {heldoutCount} held out</strong></div><p>MiniMind proposes visible fields and renders a fixed fly action. The biological graph stays fixed. Only the artificial readout learns. Labels, benchmark IDs, and MiniMind hidden states never enter the connectome.</p><div className="lf-contract"><b>Encoder sees</b><span>petition text, field name, allowed field values</span><b>Fly sees</b><span>eight confirmed enums</span><b>Decoder sees</b><span>selected action, confirmed enums, confidence band</span></div><div className="lf-controls wrap"><button className="lf-button" disabled={!modelSummary || phase === "computing"} type="button" onClick={() => send("benchmark")}>Run five-way benchmark</button><button className="lf-button" disabled={!modelSummary} type="button" onClick={() => send("export-model")}>Export model</button><button className="lf-button" type="button" onClick={() => modelInput.current?.click()}>Import model</button><button className="lf-button" type="button" onClick={() => send("reset-model")}>Reset model</button><button className="lf-button" type="button" onClick={() => send("export-casebook")}>Export casebook</button><button className="lf-button" type="button" onClick={() => casebookInput.current?.click()}>Import casebook</button></div><input ref={modelInput} hidden type="file" accept="application/json,.json" onChange={event => void openFile(event, "model")} /><input ref={casebookInput} hidden type="file" accept="application/json,.json" onChange={event => void openFile(event, "casebook")} />
+    <section className={`lf-lab page-width ${showLab ? "is-open" : ""}`} id="method"><div><div className="lf-panel-head"><span>Counsel&apos;s nervous system</span><strong>{activity ? (phase === "computing" ? "live worker frame" : "last computation stopped") : "awaiting a petition"}</strong></div>{activity ? <MaleCNSMap frame={activity} active={phase === "computing"} /> : <div className="lf-map-empty"><Image src="/art/legalfly/fly-counsel.webp" width={1000} height={667} alt="The fruit-fly counsel on the office papers" /><p>The released soma map appears inside counsel&apos;s body when the full graph is computing. No decorative activity is shown.</p></div>}</div><div><div className="lf-panel-head"><span>Method and controls</span><strong>{teachingCount} teach / {heldoutCount} held out</strong></div><p>MiniMind proposes visible fields and renders a fixed fly action. The biological graph stays fixed. Only the artificial readout learns. Labels, benchmark IDs, and MiniMind hidden states never enter the connectome.</p><div className="lf-contract"><b>Encoder sees</b><span>petition text, field name, allowed field values</span><b>Fly sees</b><span>eight confirmed enums</span><b>Decoder sees</b><span>selected action, confirmed enums, confidence band</span></div><div className="lf-controls wrap"><button className="lf-button" disabled={!modelSummary || phase === "computing"} type="button" onClick={() => send("benchmark")}>Run five-way benchmark</button><button className="lf-button" disabled={!modelSummary} type="button" onClick={() => send("export-model")}>Export model</button><button className="lf-button" type="button" onClick={() => modelInput.current?.click()}>Import model</button><button className="lf-button" type="button" onClick={() => send("reset-model")}>Reset model</button><button className="lf-button" type="button" onClick={() => send("export-casebook")}>Export casebook</button><button className="lf-button" type="button" onClick={() => casebookInput.current?.click()}>Import casebook</button></div><input ref={modelInput} hidden type="file" accept="application/json,.json" onChange={event => void openFile(event, "model")} /><input ref={casebookInput} hidden type="file" accept="application/json,.json" onChange={event => void openFile(event, "casebook")} />
         {benchmark ? <BenchmarkPanel benchmark={benchmark} miniMindReady={Boolean(languageHealth?.ready)} /> : null}
       </div></section>
     <section className="lf-casebook page-width"><div className="lf-panel-head"><span>Casebook</span><strong>{casebook.length} filed</strong></div>{casebook.length ? casebook.map((entry, index) => <article key={String(entry.case.id) + "-" + String(index)}><b>{entry.case.title}</b><span>{entry.recommendation}</span></article>) : <p className="lf-muted">Filed cases appear here only when you choose to file them. Exports contain any text you entered.</p>}</section>

@@ -38,6 +38,65 @@ export function parseGraph(buffer, info) {
   return { n, indptr, indices, weights, info };
 }
 
+const ANATOMY_MISSING = -2147483648;
+export function parseAnatomy(buffer, info) {
+  if (!(buffer instanceof ArrayBuffer) || buffer.byteLength < 16) throw Error('Invalid MaleCNS anatomy file');
+  const view = new DataView(buffer);
+  const magic = new TextDecoder().decode(new Uint8Array(buffer, 0, 8));
+  if (magic !== 'LFLYAN1\0') throw Error('Invalid MaleCNS anatomy file');
+  const n = view.getUint32(8, true), coordinateCount = view.getUint32(12, true);
+  const expected = 16 + n * 4 + n * 3 * 4 + n;
+  if (n !== info.neurons || coordinateCount !== info.coordinateCount || coordinateCount > n || buffer.byteLength !== expected) throw Error('MaleCNS anatomy dimensions do not match manifest');
+  const bodyIds = new Uint32Array(buffer, 16, n);
+  const coordinates = new Int32Array(buffer, 16 + n * 4, n * 3);
+  const flags = new Uint8Array(buffer, 16 + n * 16, n);
+  return {
+    n, coordinateCount, bodyIds, coordinates, flags, info,
+    coordinate(index) {
+      if (!Number.isInteger(index) || index < 0 || index >= n || !(flags[index] & 8)) return null;
+      const offset = index * 3, coordinate = [coordinates[offset], coordinates[offset + 1], coordinates[offset + 2]];
+      return coordinate.some(value => value === ANATOMY_MISSING) ? null : coordinate;
+    },
+    roles(index) {
+      const value = flags[index] ?? 0, roles = [];
+      if (value & 1) roles.push('input');
+      if (value & 2) roles.push('output');
+      if (value & 4) roles.push('vnc');
+      return roles;
+    }
+  };
+}
+
+export function sampleActivity(anatomy, values, options = {}) {
+  if (!anatomy || !(values instanceof Float32Array) || values.length !== anatomy.n) throw Error('Activity does not match MaleCNS anatomy');
+  const activeLimit = Math.max(1, Math.min(1200, options.activeLimit ?? 420));
+  const contextLimit = Math.max(0, Math.min(2400, options.contextLimit ?? 900));
+  const active = [];
+  for (let index = 0; index < anatomy.n; index++) {
+    if (!(anatomy.flags[index] & 8)) continue;
+    const activation = values[index], magnitude = Math.abs(activation);
+    if (magnitude > 1e-7) active.push({ index, activation, magnitude });
+  }
+  active.sort((a, b) => b.magnitude - a.magnitude || a.index - b.index);
+  const selected = active.slice(0, activeLimit), selectedIds = new Set(selected.map(point => point.index));
+  if (contextLimit) {
+    const stride = Math.max(1, Math.floor(anatomy.coordinateCount / contextLimit));
+    let seen = 0;
+    for (let index = 0; index < anatomy.n && selected.length < activeLimit + contextLimit; index++) {
+      if (!(anatomy.flags[index] & 8)) continue;
+      if (seen++ % stride === 0 && !selectedIds.has(index)) selected.push({ index, activation: values[index], magnitude: Math.abs(values[index]) });
+    }
+  }
+  const points = selected.map(point => ({
+    ...point,
+    body_id: anatomy.bodyIds[point.index],
+    coordinate: anatomy.coordinate(point.index),
+    roles: anatomy.roles(point.index),
+    active: point.magnitude > 1e-7 && selectedIds.has(point.index),
+  }));
+  return { step: options.step ?? 0, total_steps: options.totalSteps ?? WAKE_STEPS, sampled: true, total_neurons: anatomy.n, coordinate_count: anatomy.coordinateCount, bounds: anatomy.info.bounds, points };
+}
+
 export function validateCase(c) {
   if (!c || typeof c !== 'object') throw Error('Invalid petition');
   const text = (v, max, name) => { if (typeof v !== 'string' || !v.trim() || v.length > max) throw Error(`Invalid ${name}`); return v.trim(); };
@@ -131,6 +190,15 @@ export async function train(graph, cases, options = {}, progress = () => {}, can
   const reachability = { activeAfterWake: reach.activeAfterWake, activeVnc: reach.activeVnc, maxVncActivity: reach.maxVncActivity, totalVnc: graph.info.vncIndices?.length ?? 0 };
   return { schema: ENGINE_VERSION, graphFingerprint: graph.info.fingerprint, graphSha256: graph.info.sha256, seed, actions: ACTIONS, settings: { ...DEFAULTS, inputDimensions: DIM, outputFeatures: FEATURES, wakeSteps: WAKE_STEPS }, cases: all, centroids: trainCentroids(samples), reachability };
 }
+export async function correctModel(graph, currentCases, currentModel, legalCase, label, progress = () => {}, cancelled = () => false) {
+  const checked = validateModel(currentModel, graph.info), source = validateCase(legalCase);
+  if (!ACTIONS.some(([id]) => id === label)) throw Error('Unknown corrective recommendation');
+  const corrected = { ...source, label, split: 'teach', id: `${source.id}-correction-${Date.now()}` };
+  const proposedCases = [...currentCases, corrected];
+  const proposedModel = await train(graph, proposedCases, { seed: checked.seed }, progress, cancelled);
+  if (cancelled()) throw Error('Correction cancelled');
+  return { cases: proposedCases, model: proposedModel, corrected };
+}
 export function validateModel(value, info) {
   if (!value || value.schema !== ENGINE_VERSION || value.graphFingerprint !== info.fingerprint || value.graphSha256 !== info.sha256) throw Error('Model does not match this MaleCNS graph and engine');
   if (!Number.isInteger(value.seed) || value.seed < 0 || value.seed > 0xffffffff) throw Error('Invalid model seed');
@@ -156,6 +224,27 @@ export function hearCase(graph, model, legalCase) {
   const features = reservoir.features(), energy = rms(reservoir.x), advice = recommendFromFeatures(features, checked, energy);
   const activity = displayGraph(graph, reservoir.x);
   return { case: c, advice, energy, activity, sampledNodeIds: activity.node_ids, featureIds: reservoir.featureIds, inputIds: reservoir.inputIds };
+}
+export async function hearCaseTrace(graph, anatomy, model, legalCase, frame = () => {}, cancelled = () => false) {
+  const c = validateCase(legalCase), checked = validateModel(model, graph.info);
+  if (!anatomy || anatomy.n !== graph.n) throw Error('MaleCNS anatomy does not match the computational graph');
+  const reservoir = new Reservoir(graph, checked.seed), u = encodeFacts(c.facts);
+  reservoir.reset();
+  let activity = null;
+  for (let step = 1; step <= WAKE_STEPS; step++) {
+    if (cancelled()) throw Error('Consultation cancelled');
+    reservoir.step(u);
+    activity = sampleActivity(anatomy, reservoir.x, { step, totalSteps: WAKE_STEPS });
+    frame(activity);
+    await yieldThread();
+  }
+  if (cancelled()) throw Error('Consultation cancelled');
+  const features = reservoir.features(), energy = rms(reservoir.x), advice = recommendFromFeatures(features, checked, energy);
+  return {
+    case: c, advice, energy, activity,
+    sampledNodeIds: activity.points.filter(point => point.active).map(point => String(point.body_id)),
+    featureIds: reservoir.featureIds, inputIds: reservoir.inputIds,
+  };
 }
 export function factsOnlyTrain(cases) {
   const teach = validateCases(cases).filter(c => c.split === 'teach' && c.label);

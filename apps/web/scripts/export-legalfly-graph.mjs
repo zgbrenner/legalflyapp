@@ -24,8 +24,9 @@ const unavailable = {
 
 const manifestPath = path.join(processed, 'manifest.json');
 const graphPath = path.join(processed, 'malecns.bin');
+const anatomyPath = path.join(processed, 'malecns-anatomy.bin');
 const shuffledPath = path.join(processed, 'malecns-shuffled.bin');
-if (!existsSync(manifestPath) || !existsSync(graphPath)) {
+if (!existsSync(manifestPath) || !existsSync(graphPath) || !existsSync(anatomyPath)) {
   writeFileSync(path.join(out, 'manifest.json'), JSON.stringify(unavailable, null, 2));
   console.log('Legal Fly graph unavailable: run tools/prepare_malecns.py for the official MaleCNS browser asset.');
   process.exit(0);
@@ -33,12 +34,15 @@ if (!existsSync(manifestPath) || !existsSync(graphPath)) {
 
 const source = JSON.parse(readFileSync(manifestPath, 'utf8'));
 const graph = readFileSync(graphPath);
+const anatomy = readFileSync(anatomyPath);
 writeFileSync(path.join(out, 'malecns.bin'), graph);
+writeFileSync(path.join(out, 'malecns-anatomy.bin'), anatomy);
 const manifest = {
   ...source,
   schema: 'legalfly-malecns-graph/1',
   available: true,
-  graph: { ...source.graph, file: 'malecns.bin', sha256: sha(graph) }
+  graph: { ...source.graph, file: 'malecns.bin', sha256: sha(graph) },
+  anatomy: { ...source.anatomy, file: 'malecns-anatomy.bin', sha256: sha(anatomy) }
 };
 if (existsSync(shuffledPath)) {
   const shuffled = readFileSync(shuffledPath);
@@ -46,4 +50,4 @@ if (existsSync(shuffledPath)) {
   manifest.shuffled = { ...source.shuffled, file: 'malecns-shuffled.bin', sha256: sha(shuffled) };
 }
 writeFileSync(path.join(out, 'manifest.json'), JSON.stringify(manifest, null, 2));
-console.log(`Legal Fly MaleCNS graph exported: ${manifest.graph.neurons} neurons, ${manifest.graph.connections} directed pairs.`);
+console.log(`Legal Fly MaleCNS graph exported: ${manifest.graph.neurons} neurons, ${manifest.graph.connections} directed pairs, ${manifest.anatomy.coordinateCount} mapped somas.`);

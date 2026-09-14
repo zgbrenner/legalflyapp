@@ -21,6 +21,12 @@ Retain every body whose release annotation `status` is exactly `Traced`. Retain 
 
 Counts are derived by the preparation script from the acquired files.
 
+## Anatomical Inspection
+
+The browser anatomy asset aligns every retained body ID with the release annotation's `somaLocation`. The current release supplies 140,024 soma locations for 165,122 retained traced bodies. Missing locations remain missing and are not interpolated. Released x and z coordinate components are projected onto the two-dimensional parchment view. That projection is a display choice, not another biological measurement.
+
+After each of four complete sparse graph updates, the worker selects up to 420 coordinate-mapped neurons with the largest absolute continuous activation and adds a stable bounded sample of mapped anatomical context. Positive and negative values remain signed. Each displayed point retains its source body ID, coordinate, input/output/VNC role flags, and update number. The larger canvas uses the released x/z projection. The small overlay repeats that projection across the painted fly silhouette and is not anatomical registration. Both canvases are sampled while the computation itself still considers every retained positive edge. Frames stop when computation completes or is cancelled.
+
 ## Model Boundary
 
 Visible structured facts are encoded deterministically and projected to 15,897 retained neurons selected from the release's sensory superclass and class annotations. Activity propagates through the fixed MaleCNS sparse graph with four leaky-tanh updates. A cosine-centroid artificial readout is trained from 256 seeded samples of a disjoint, release-annotated motor/descending population to one of eight recommendation categories or abstention.

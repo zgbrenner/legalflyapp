@@ -95151,6 +95151,27 @@
     "limitations": "Parallel source-target pairs and self-connections may be introduced; unique pair count and per-neuron incoming weight sums are not preserved.",
     "file": "malecns-shuffled.bin"
   },
+  "anatomy": {
+    "neurons": 165122,
+    "coordinateCount": 140024,
+    "sha256": "42d27435b12e880166ee9946adf16e42ce47b2ab2c644503b5235da82b913540",
+    "source": "MaleCNS v1.0 body-annotations somaLocation",
+    "policy": "Released somaLocation only. Missing soma coordinates remain missing; no positions are inferred.",
+    "bounds": [
+      [
+        2468,
+        4758,
+        10154
+      ],
+      [
+        93668,
+        68996,
+        134531
+      ]
+    ],
+    "projection": "Released x and z coordinate components projected onto the display plane.",
+    "file": "malecns-anatomy.bin"
+  },
   "provenance": {
     "release": "MaleCNS v1.0",
     "source": "https://male-cns.janelia.org/download/",
