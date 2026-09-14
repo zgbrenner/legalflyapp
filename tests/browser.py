@@ -52,9 +52,9 @@ try:
             assert page.locator('#painting').evaluate('(img)=>img.complete && img.naturalWidth>0'), 'Actual museum artwork must load.'
             page.screenshot(path=str(OUT / 'chamber-desktop.png'), full_page=True)
             preview=Image.open(OUT/'chamber-desktop.png').convert('RGB')
-            preview.thumbnail((800,900))
+            preview.thumbnail((640,680))
             image_bytes=io.BytesIO()
-            preview.save(image_bytes,format='WEBP',quality=35)
+            preview.save(image_bytes,format='WEBP',quality=20)
             print('SCREENSHOT_WEBP_BASE64 '+base64.b64encode(image_bytes.getvalue()).decode(),flush=True)
             page.locator('#primary').click()
             expect(page.locator('#brain-state')).to_have_text('Complete MaleCNS loaded', timeout=180000)
@@ -101,7 +101,7 @@ try:
             expect(page.locator('#ledger-count')).to_have_text('2')
             page.locator('[data-nav="casebook"]').click()
             expect(page.locator('.ledger-entry')).to_have_count(2)
-            expect(page.locator('.ledger-entry').first()).to_contain_text('A synthetic visitor')
+            expect(page.locator('.ledger-entry').first).to_contain_text('A synthetic visitor')
             with page.expect_download() as event:
                 page.locator('#export-ledger').click()
             ledger_file=OUT/'browser-casebook.json'
@@ -110,7 +110,20 @@ try:
             page.locator('[data-nav="inside"]').click()
             expect(page.locator('#activity-caption')).to_contain_text('1,536 sampled neurons')
             page.screenshot(path=str(OUT/'neural-activity.png'),full_page=True)
-            checks.update({'completeCNSLoad':True,'browserWorkerTraining':True,'inference':True,'firstAdvice':first_title,'feedback':True,'cancellationPreservesModel':True,'modelRoundtrip':True,'foreignModelRejected':True,'customCase':True,'casebookExport':True,'computedActivity':True,'artworkLoaded':True})
+            page.locator('[data-nav="schoolroom"]').click()
+            page.locator('#benchmark').click()
+            expect(page.locator('#message')).to_contain_text('Comparison complete', timeout=600000)
+            expect(page.locator('#benchmark-rows')).not_to_contain_text('Not run')
+            with page.expect_download() as event:
+                page.locator('#export-benchmark').click()
+            comparison_file=OUT/'browser-comparison.json'
+            event.value.save_as(comparison_file)
+            comparison=json.loads(comparison_file.read_text())
+            assert comparison['neurons']==166700 and comparison['connections']==25582938
+            assert comparison['train']==64 and comparison['test']==32
+            assert comparison['biological']['total']==32 and comparison['disconnected']['correct']==4
+            print('BROWSER_BENCHMARK '+json.dumps(comparison),flush=True)
+            checks.update({'benchmarkExport':True,'completeCNSLoad':True,'browserWorkerTraining':True,'inference':True,'firstAdvice':first_title,'feedback':True,'cancellationPreservesModel':True,'modelRoundtrip':True,'foreignModelRejected':True,'customCase':True,'casebookExport':True,'computedActivity':True,'artworkLoaded':True})
         else:
             page.locator('#primary').click()
             expect(page.locator('#message')).to_contain_text('not installed', timeout=60000)
@@ -123,6 +136,12 @@ try:
                 assert not page.evaluate('document.documentElement.scrollWidth > innerWidth'), f'{view} overflows at {width}'
             page.locator('[data-nav="chamber"]').click()
             page.screenshot(path=str(OUT/f'chamber-{width}.png'),full_page=True)
+            if width==390:
+                image=Image.open(OUT/f'chamber-{width}.png').convert('RGB')
+                image.thumbnail((330,1000))
+                encoded=io.BytesIO()
+                image.save(encoded,format='WEBP',quality=25)
+                print('MOBILE_SCREENSHOT_WEBP_BASE64 '+base64.b64encode(encoded.getvalue()).decode(),flush=True)
         assert not errors, errors
         assert not writes, writes
         assert not external, external
