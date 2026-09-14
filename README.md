@@ -1,104 +1,101 @@
-# The Legal Fly: Legal Dreaming
+# The Village Lawyer
 
-**Teach a fly-wired network a few legal ideas. Remove the text. Watch what lingers.**
+**Bring a grievance. Mind the wings.**
 
-Legal Dreaming remakes the homepage as a browser-local associative replay experiment. It preserves the repository's real Janelia hemibrain subgraph and brain visualization. It does not substitute a random graph, a decorative animation, or a language model.
+A browser experiment inspired by Pieter II Brueghel's crowded legal office. Six fictional villagers bring their disputes to a fruit-fly advocate. Confirm a fact sheet, teach the artificial readout, ask for counsel, challenge its answer, and keep a casebook.
 
-The graph has **3,072 neurons and 293,766 directed connections**. This is the existing high-degree hemibrain subset, **not a whole fly brain**. All retained connections participate in the computation; the visualization shows a sample in an illustrative layout.
+This replaces the previous LegalFly application. There is no legacy hemibrain fallback, language-model lawyer, server inference, or fabricated benchmark score.
 
-## Use it
+## Run this branch
 
-```sh
-cd apps/web
-npm ci
-npm run dev
-```
-
-Open `http://localhost:3000`. Select a reading set and a last-read card, then choose **Read, then dream**. Training and replay run in a dedicated browser worker. The graph exporter runs before development and production builds, using the checked-in biological NPZ and provenance. No Python API, AI service, or API key is needed for the new laboratory.
-
-Build from a full repository checkout: `apps/web/scripts/export-dream-graph.mjs` reads `deploy/data/processed/hemibrain/biological` and `deploy/research-inputs/hemibrain-provenance.json`. Hosting restricted to the `apps/web` subtree must include these root-level source files in its build input.
-
-## What it actually does
-
-1. A deterministic 64-dimensional word/character hashing encoder turns each teaching passage into numbers. No LLM is involved.
-2. Those numbers stimulate 384 seeded neurons in a leaky-tanh simulation of the measured connectivity.
-3. A small artificial ridge-regression readout learns to reconstruct each input vector from activity in 192 non-input neurons. **The original biological connections do not learn or change.**
-4. In **learned replay**, external text stops, but the learned numerical readout feeds back into the network. In **silence**, both external text and feedback are zero.
-5. A separate nearest-state atlas annotates activity. It abstains on quiet, ambiguous, or dissimilar states. The titles and legal concept labels do not drive the model.
-
-The important correction to an easy-to-make claim: labeling states in a fixed reservoir does not teach that reservoir to dream. Learned replay here has an explicit artificial feedback loop. It is not raw fly wiring spontaneously understanding law, and it is not biological sleep.
-
-## Available controls
-
-- Select mixed, contracts, torts, or privacy teaching sets.
-- Import 2–48 of your own JSON teaching cards, entirely locally.
-- Switch between learned replay and feedback-off silence.
-- Set the random seed and explicitly injected noise, including zero noise.
-- Pause, resume, restart from a different cue, and cancel reading or comparisons.
-- Inspect the actual sampled neural activity, rotate the original brain view, or use its 2D fallback.
-- Save/import a learned model with strict engine-version and graph-fingerprint checks.
-- Save a notebook containing the teaching text, cue, seed, mode, settings, sampled states, association scores, and controls.
-- Compare biological replay, feedback-off decay, and independently trained degree-matched rewired replay.
-
-Sessions stop after 2,048 steps and pause when the tab becomes hidden. Reduced-motion preferences suppress automatic replay after reading. Nothing is saved automatically. Downloaded files include your teaching text.
-
-## Scientific boundaries
-
-The starter set contains **16 original fictional legal scenarios**, not court opinions or verified holdings. The model uses lexical hashing, not a legal semantic encoder. Source notes and concept labels are supplied by the person preparing the corpus.
-
-A close atlas match is not a probability of legal correctness. An unmatched state is not a new doctrine or an unwritten case. A fixed point, repetition, or silence is a valid outcome. There is no prose generator and no hidden playlist of concepts.
-
-The display uses schematic positions, not EM coordinates. The model uses scaled positive connection counts and mathematical dynamics, not a neurotransmitter-signed spiking simulation. Model choices, the artificial feedback, and the sampled display are disclosed in `/dreaming-method`.
-
-## Measured first diagnostic
-
-Reproduce after graph export:
+Requirements: Node.js 20 or newer, Python 3.10 or newer with `venv`, and internet access for initial preparation. Start in a checkout of this branch, not the old application.
 
 ```sh
-cd apps/web
-npm run test:dream
-node scripts/probe-dream.mjs ../../results/dreaming/diagnostics.json
+npm run setup
+npm start
 ```
 
-The saved diagnostic uses 16 fictional cards, seeds 42/43/44, four preselected cues, 256 steps per run, and no injected noise. These are **dynamical diagnostics**, not held-out legal accuracy or proof of a biological advantage.
+Open `http://127.0.0.1:3000`. The setup command creates an isolated Python environment, installs the pinned NumPy dependency, downloads and checksums the full compiled MaleCNS graph, creates browser-readable data chunks, and downloads the museum artwork. The application has no npm runtime dependencies or API keys.
 
-| Mode | Runs | Mean matched steps / 256 | Mean label changes | Final activity RMS range |
-|---|---:|---:|---:|---:|
-| Biological learned replay | 12 | 101.17 | 0.67 | 0.06119–0.07174 |
-| Biological feedback off | 12 | 46.17 | 1.33 | 0.00000012–0.00000677 |
-| Degree-matched rewired replay | 12 | 256.00 | 0.00 | 0.06138–0.07049 |
+In the chamber, select **Load the complete fly**, then **Teach the village customs**, then **Ask for counsel**. Model and casebook data stay in the tab unless explicitly exported. Export a learned model to avoid repeating the apprenticeship in the next session.
 
-Label changes include transitions to abstention, not just jumps between cases. The initial biological runs mostly held an association or lost a clear match. They did **not** produce rich legal narratives, and the rewired control retained taught associations more consistently on this diagnostic. The interface does not hide either result.
+The browser graph is **205,997,124 bytes**, roughly 206 MB before HTTP compression. Desktop browsers are the intended compute target. A mobile layout is included, but phones with limited memory may not run the entire graph. Allocation or checksum failures stop the experiment; they never select a smaller network.
 
-For the biological model at seed 42, the thinned-card recognition diagnostic was 14/16; the same cards were used for teaching, so this is not an independent test set. Full raw traces and settings are in `results/dreaming/diagnostics.json`.
+## What it includes
 
-## Verification
+- **The chamber:** six authored clients, editable facts, custom fictional cases, eight kinds of counsel, an uncertainty state, and human corrections.
+- **Schoolroom:** 64 teaching fact sheets, model import/export with graph/schema validation, and a separately trained held-out comparison with downloadable confusion matrices.
+- **Casebook:** explicitly saved advice and facts, JSON export, and clear. No automatic persistence or case uploads.
+- **Inside the fly:** live worker-computed activity, exact loaded counts, graph fingerprint, source credit, and the distinction between measured wiring and invented dynamics.
+
+Advice is selected computationally. Its written explanation is an authored template, not language generated or understood by the fly. The fly illustration is decorative, not a decoded biological motor action. The app does not resolve actual legal matters or emulate the original animal's consciousness.
+
+## Exactly which graph?
+
+The application retains **166,700 superclass-annotated MaleCNS v1.0 neurons** and **25,582,938 directed connections between those neurons**, covering the brain and ventral nerve cord. It does not restrict the population to `Traced` status. Unannotated segmentation fragments are not counted as neurons. The upstream synapse-confidence threshold is 0.5; no additional edge threshold, sensory-edge removal, crop, random replacement, or weight quantization is applied here.
+
+Official data: <https://male-cns.janelia.org/download/>. Paper: <https://doi.org/10.1016/j.cell.2026.08.015>. Biological data is CC BY 4.0; credit HHMI Janelia FlyEM, Cambridge, MRC LMB, Google Research, and collaborators.
+
+For practical installation, this repository consumes the **third-party `alextitonis/fly.ai` `brain-v1` compiled arrays**, not an official Janelia binary. Their source is <https://github.com/alextitonis/fly.ai/tree/main/flybrain>. Both downloaded archives are pinned:
+
+| Artifact | SHA-256 |
+| --- | --- |
+| `brain.npz` | `cc9bd1ecd00bd703a6fa648bc6ad145c93c7c1ee53debdcc9ce0d1f4305e6aca` |
+| `weights.npz` | `c29919aa44069a271b1ee978abe05fa9bf6e45e4ba3e436e92b624ef1b5be40c` |
+
+The independently written exporter checks those hashes, array types and dimensions, CSR structure, ordered identities, finite signed weights, and sensory annotations. It preserves the compiled float32 weights exactly. Every browser chunk and the assembled graph are SHA-256 checked again. The exported graph fingerprint is `177b379c324efb0385f77b221a5eb81558e202364ccdb296f93976de37d557f3`.
+
+**This is not an independent re-audit of the original billion-byte raw connectome against the compiled artifact.** The manifest records the compiler, filtering policy, transformations, and original archive hashes so this dependency is visible.
+
+## How counsel is computed
+
+Nine categorical fact fields become a 23-component one-hot vector. A deterministic mapping stimulates four annotated sensory neurons per component. Raw prose, case titles, answer labels, and the customs-rule function do not enter consultation inference.
+
+A module worker updates all retained neurons and all retained edges for twelve recurrent steps. The signed leaky-tanh units are a mathematical rate-network approximation, not a validated spiking emulation. State resets between cases. Inherited compiled weights treat predicted GABA, glutamate, and histamine sources as negative, other predictions as positive, and normalize absolute incoming weights. These are simplifying modeling assumptions, not measured receptor physiology.
+
+A fixed signed 128-bin projection summarizes the last four steps of **non-input** activity. Directly stimulated neurons are excluded, preventing the readout from simply copying the injected feature vector. A regularized eight-class linear softmax readout learns the authored customs. Human corrections change only this artificial classifier. There is no dopamine-gated biological synaptic plasticity in this version.
+
+The leading score margin below 0.08 produces abstention. Neither softmax output nor margin is a calibrated probability of legal correctness.
+
+## Tests and honest measurements
 
 ```sh
-pytest -q                            # existing Python research/API regression tests
-cd apps/web
-npm test                             # existing frontend tests
-npm run test:dream                   # real-graph engine and control tests
-npm run build                       # production build, lint, TypeScript
-# With a local production server running at http://127.0.0.1:3000:
-cd ../..
-python -m scripts.dream_browser_smoke # real browser-worker flows, not mocked scores
+npm test                    # Small mechanical fixtures only
+npm run test:full           # Requires the real complete graph
+npm run build               # Refuses missing/corrupted data or missing artwork
 ```
 
-GitHub Actions also verifies the retained classifier against its actual Python API. Browser evidence and exact current verification boundaries belong in `DREAMING_VERIFICATION.md`.
+The full test verifies checksums, exact graph coverage, deterministic inference, signal reaching non-input units, mid-run cancellation, training, feedback, model roundtrip, foreign-model rejection, and the disconnected no-bypass control. It writes `results/full-verification.json` with actual timings and scores.
 
-## Earlier experiment
+The benchmark trains on 64 fact combinations and tests on 32 distinct combinations, balanced across eight labels. Labels come from the disclosed **fictional customs**, not independent lawyer annotations. It compares a fresh full-CNS readout with an independently trained input-only classifier and an exactly zero-recurrence control. No held-out labels enter feature construction or fitting. A disconnected network's non-input state stays zero; the full test checks this equivalence. This is not a legal-reasoning benchmark, and without a rewired-topology control it cannot establish an advantage of biological wiring.
 
-The prior sensitive-information classifier remains at `/classification`; results and lesion studies remain at `/benchmark` and `/ablate`. That older feature still sends text to its configured Python API. It is not covered by the new laboratory's browser-only processing claim.
+GitHub Actions additionally builds the complete static site, runs Chromium against the real graph, and captures desktop/mobile screenshots. Browser checks cover loading, teaching, advice, correction, cancellation preserving the previous model, valid/invalid imports, casebook export, computed activity, horizontal overflow, runtime errors, and unwanted network writes. Actual run results, not this description, determine whether those checks passed.
 
-The earlier project README is preserved in `docs/CLASSIFIER_README.md`. Its original verification record remains in `RELEASE_VERIFICATION.md` and does not certify the new dreaming code.
+For local browser tests:
 
-## Source and license
+```sh
+python -m pip install playwright==1.55.0 pillow==11.3.0
+python -m playwright install chromium
+FULL_CNS=1 python tests/browser.py
+```
 
-Code and original fictional teaching cards: MIT. Biological connectivity: Janelia FlyEM hemibrain v1.2, CC BY 4.0, Scheffer and colleagues (2020). The retained source archive was independently verified in the earlier corrected-engine work; this build verifies the packaged graph against that recorded provenance rather than redownloading the archive each time.
+On Windows PowerShell, set `$env:FULL_CNS='1'` before the last command. `CHROMIUM_PATH` optionally selects a locally installed Chromium. A run without `FULL_CNS=1` is only a missing-data failure-path test and expects an unprepared checkout.
 
-- Source archive SHA-256: `07d8946eb0c4e3a5cb23d5769c9817847494f9fcadbc0ca239eed7bbd5555cf7`
-- Biological graph fingerprint: `9d10adb17bf5a7a9287f55e78e11e1e8a63b6bcd1d99e0fb1b1b190a1feda56b`
-- Generated browser graph SHA-256: `74224a10d083123cb17ddabc663222b3f93c5d0e3d05533f766b0a66dc788831`
+## Deployment
 
-The rewired control is generated afresh from that graph with exact directed degree, edge-count, and weight-multiset preservation. It does not reuse the stale packaged rewired artifact. Fingerprints, normalization factors, and accepted swap counts are in the generated `/dream/manifest.json`.
+```sh
+npm run setup
+npm run build
+```
+
+Deploy **all of `dist/`**, including the data chunks, on an HTTPS static host. Relative paths support hosting under a subdirectory. Do not deploy `site/` before preparation or omit large data files: the UI deliberately refuses a data-free production build. The successful CI run also produces a `village-lawyer-static-site` artifact containing a ready-built package.
+
+`vercel.json` configures the repository root as a static application. `apps/web/` is a small compatibility build entry for an existing Vercel project whose root was the old Next.js app. It builds the same new application; it does not retain the old product. A monorepo-root project must permit build access to files outside that directory. Account-level settings, deployment protection, and custom-domain changes are separate from the repository configuration.
+
+Browser simulations use no API server. The included read-only development server sends a restrictive content-security policy and rejects writes and path traversal. Vercel receives equivalent security headers. Other hosts should apply the same policy and serve `.mjs` as JavaScript. Ordinary asset requests may appear in host logs; case facts and prose are not placed in those requests. Do not add analytics or request logging of case inputs.
+
+## Art and license
+
+Pieter II Brueghel, **Village Lawyer (1621)**, MSK Ghent, inventory 1952-G: <https://www.mskgent.be/en/collection/1952-g>. The public-domain painting is downloaded from the museum and credited in the app. The visual fiction is not a reconstruction of seventeenth-century legal doctrine.
+
+Application code: MIT, retaining the existing repository's copyright notice. Biological data: CC BY 4.0. The independently drawn fly mark is part of the application.

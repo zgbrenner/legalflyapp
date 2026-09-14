@@ -1,88 +1,58 @@
-name: Verify The Legal Fly
+name: Village Lawyer verification
 on:
   push:
-    branches: [main, 'feat/**']
+    branches: [main, feat/village-lawyer]
   pull_request:
+  workflow_dispatch:
 permissions:
   contents: read
 concurrency:
-  group: verify-${{ github.ref }}
+  group: village-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  python:
+  complete-cns:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    env:
-      LEGALFLY_ENCODER: hashing
-      OPENBLAS_NUM_THREADS: '1'
-      OMP_NUM_THREADS: '1'
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - run: pip install fastapi uvicorn pydantic-settings numpy scipy scikit-learn httpx rich joblib typer pytest pytest-asyncio
-      - run: pip install --no-deps -e .
-      - run: pytest -q
-  web:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    defaults:
-      run:
-        working-directory: apps/web
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: npm
-          cache-dependency-path: apps/web/package-lock.json
-      - run: npm ci
-      - run: npm test
-      - run: npm run test:dream
-      - run: npm run build
-        env:
-          NEXT_TELEMETRY_DISABLED: '1'
-  browser:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    env:
-      LEGALFLY_ENCODER: hashing
-      LEGALFLY_CORS_ORIGINS: http://127.0.0.1:3000
-      OPENBLAS_NUM_THREADS: '1'
-      OMP_NUM_THREADS: '1'
-      NEXT_PUBLIC_API_URL: http://127.0.0.1:8000
-      NEXT_TELEMETRY_DISABLED: '1'
-      QA_ARTIFACTS_DIR: /tmp/legalfly-qa
-    steps:
-      - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - uses: actions/setup-node@v4
+      - name: Mechanical unit tests (not biological evidence)
+        run: npm test
+      - uses: actions/cache@v4
         with:
-          node-version: '22'
-          cache: npm
-          cache-dependency-path: apps/web/package-lock.json
-      - run: pip install fastapi uvicorn pydantic-settings numpy scipy scikit-learn httpx rich joblib typer playwright
-      - run: pip install --no-deps -e . && python -m playwright install --with-deps chromium
-      - run: mkdir -p data/processed && cp -R deploy/data/processed/hemibrain data/processed/
-      - run: cd apps/web && npm ci && npm run build
-      - name: Run real API and frontend
+          path: data/compiled
+          key: malecns-brain-v1-c29919aa-cc9bd1ec
+      - name: Install data tooling
+        run: python -m pip install -r requirements-data.txt
+      - name: Download and verify the COMPLETE MaleCNS
+        run: python tools/prepare.py
+      - name: Actual full-graph training, inference and controls
+        run: npm run test:full
+      - name: Build the complete static site
+        run: VILLAGE_DATA_READY=1 node apps/web/build.mjs
+      - name: Install browser test tooling
         run: |
-          mkdir -p /tmp/legalfly-qa
-          uvicorn apps.api.app.main:app --host 127.0.0.1 --port 8000 > /tmp/legalfly-qa/api.log 2>&1 &
-          (cd apps/web && npm start -- --hostname 127.0.0.1 > /tmp/legalfly-qa/web.log 2>&1) &
-          for i in $(seq 1 90); do
-            if curl -fsS http://127.0.0.1:8000/ready >/dev/null && curl -fsS http://127.0.0.1:3000 >/dev/null; then break; fi
-            sleep 2
-          done
-          python -m scripts.browser_smoke
-          python -m scripts.dream_browser_smoke
-          python -m scripts.hero_browser_smoke
+          python -m pip install playwright==1.55.0 pillow==11.3.0
+          python -m playwright install --with-deps chromium
+      - name: Real browser, real biological graph
+        env:
+          FULL_CNS: '1'
+          SERVE_DIST: '1'
+        run: python tests/browser.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: browser-evidence
-          path: /tmp/legalfly-qa
-          retention-days: 14
+          name: full-male-cns-evidence
+          path: results/
+          if-no-files-found: warn
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: village-lawyer-static-site
+          path: dist/
+          compression-level: 1

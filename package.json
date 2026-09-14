@@ -1,0 +1,1 @@
+{"name":"the-village-lawyer","version":"1.0.0","private":true,"type":"module","engines":{"node":">=20"},"scripts":{"dev":"node tools/serve.mjs","start":"node tools/serve.mjs","setup":"node tools/setup.mjs","build":"node tools/build.mjs","test":"node --test tests/*.test.mjs","test:full":"node tests/full.mjs"}}
