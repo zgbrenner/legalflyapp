@@ -1,0 +1,15 @@
+import {readFile,writeFile,cp,mkdir} from 'node:fs/promises';
+import {readGraph,hash} from './graph_io.mjs';
+import {fitStarter,audit} from '../web/experiment.mjs';
+const root=process.argv[2]||'dist';
+await cp('web',root,{recursive:true});
+const {graph,manifest}=await readGraph(root);
+console.log('Loaded complete graph',graph.n,graph.targets.length);
+const model=await fitStarter(graph,{onProgress:p=>console.log('Teaching',p.done,'/',p.total)});
+const bytes=Buffer.from(JSON.stringify(model));
+await writeFile(root+'/data/starter.json',bytes);
+await writeFile(root+'/data/model-manifest.json',JSON.stringify({sha256:hash(bytes),fingerprint:manifest.fingerprint}));
+const report=await audit(graph,model,{onProgress:p=>console.log('Testing',p.done,'/',p.total)});
+await writeFile(root+'/data/audit.json',JSON.stringify(report,null,2));
+await mkdir('results',{recursive:true});await writeFile('results/full-data-audit.json',JSON.stringify(report,null,2));
+console.log(JSON.stringify({scores:report.scores,trainingCorrect:report.trainingCorrect,train:report.train,milliseconds:report.milliseconds},null,2));

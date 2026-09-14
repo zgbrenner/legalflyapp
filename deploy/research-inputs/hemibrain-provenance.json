@@ -1,9 +1,0 @@
-{
-  "source_url": "https://storage.googleapis.com/hemibrain/v1.2/exported-traced-adjacencies-v1.2.tar.gz",
-  "archive_sha256": "07d8946eb0c4e3a5cb23d5769c9817847494f9fcadbc0ca239eed7bbd5555cf7",
-  "rebuilt_graph_hash": "9d10adb17bf5a7a9287f55e78e11e1e8a63b6bcd1d99e0fb1b1b190a1feda56b",
-  "packaged_graph_hash": "9d10adb17bf5a7a9287f55e78e11e1e8a63b6bcd1d99e0fb1b1b190a1feda56b",
-  "neurons": 3072,
-  "edges": 293766,
-  "matches_original_source": true
-}

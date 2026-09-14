@@ -1,76 +1,8 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-.venv/
-venv/
-env/
-*.egg-info/
-.eggs/
-dist/
-build/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-htmlcov/
-*.pkl
-*.pt
-*.pth
-
-# Node / Next.js
-node_modules/
-apps/web/.next/
-apps/web/out/
-apps/web/node_modules/
-.npm
-*.tsbuildinfo
-next-env.d.ts
-
-# Env / secrets
-.env
-.env.local
-.env.*.local
-!.env.example
-
-# Data (large / generated)
-data/raw/
-data/processed/
-!data/demo/
-!data/demo/**
-models/checkpoints/
-models/mlp/
-results/experiment_*/
-!results/.gitkeep
-!results/comparison_latest.json
-!results/comparison_fewshot_latest.json
-!results/comparison_fewshot_120.json
-!results/comparison_fewshot_80.json
-!results/comparison_fewshot_60.json
-!results/comparison_hashing_fewshot.json
-!results/comparison_hashing_fewshot_80.json
-# Deploy / public image bundles
-!deploy/
-!deploy/**
-deploy/**/__pycache__/
-
-
-# OS / IDE
-.DS_Store
-.idea/
-.vscode/
-*.swp
-*.swo
-
-# Logs
-*.log
-logs/
-
-# Docker
-.docker/
-
-# Hugging Face cache (local)
 .cache/
-huggingface/
+dist/
+node_modules/
+__pycache__/
+*.pyc
+.DS_Store
+.env
+*.log
