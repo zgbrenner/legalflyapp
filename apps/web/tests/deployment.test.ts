@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 import { mkdtempSync, truncateSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { createRequire } from "node:module";
+import type { NextConfig } from "next";
 
-import nextConfig from "../next.config.js";
+const nextConfig: NextConfig = createRequire(import.meta.url)("../next.config.js");
 import { createHealthResponse } from "../app/api/health/readiness";
 
 describe("production deployment contract", () => {
@@ -12,7 +14,7 @@ describe("production deployment contract", () => {
   });
 
   it("serves revalidated connectome binaries with explicit byte semantics", async () => {
-    const groups = await nextConfig.headers();
+    const groups = await nextConfig.headers!();
     for (const asset of ["malecns.bin", "malecns-anatomy.bin", "malecns-shuffled.bin"]) {
       const binary = groups.find((group) => group.source === `/legalfly/${asset}`);
       const headers = Object.fromEntries(binary?.headers.map(({ key, value }) => [key, value]) ?? []);
