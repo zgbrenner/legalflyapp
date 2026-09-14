@@ -1,0 +1,27 @@
+name: Village graph preparation
+on:
+  push:
+    branches: [codex/village-lawyer]
+    paths: ['scripts/prepare_data.py', '.github/workflows/village-prepare.yml']
+permissions:
+  contents: read
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pyarrow==21.0.0 numpy==2.2.6
+      - run: python scripts/prepare_data.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: village-complete-graph
+          path: dist
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        with:
+          name: village-preparer-source
+          path: scripts/prepare_data.py
