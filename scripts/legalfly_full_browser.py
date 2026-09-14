@@ -1,5 +1,6 @@
 """Native Chromium acceptance against acquired MaleCNS, never a substitute graph."""
 import asyncio
+import base64
 import json
 import os
 import time
@@ -42,6 +43,9 @@ async def main():
             current = await hero.bounding_box()
             assert abs(current["height"] - initial["height"]) < 3, (initial, current)
         await page.screenshot(path=str(out / "desktop-idle.png"), full_page=True)
+        # Small browser-produced previews in logs allow review through text-only
+        # CI connectors. Full-resolution evidence remains in the private artifact.
+        print("CHAMBER_DESKTOP_JPEG=" + base64.b64encode(await page.screenshot(type="jpeg", quality=25)).decode(), flush=True)
         started = time.monotonic()
         await teach.click()
         hear = page.get_by_role("button", name="Hear the case", exact=True).first
@@ -71,6 +75,8 @@ async def main():
         measurements["recommendation"] = await page.locator(".lf-advice").inner_text()
         measurements["memory"] = await page.evaluate("performance.memory ? {usedJSHeapSize: performance.memory.usedJSHeapSize, note: 'main realm only, worker memory excluded'} : null")
         await page.screenshot(path=str(out / "desktop-advice.png"), full_page=True)
+        await canvas.scroll_into_view_if_needed()
+        print("CHAMBER_NEURONS_JPEG=" + base64.b64encode(await page.screenshot(type="jpeg", quality=25)).decode(), flush=True)
         await page.get_by_role("button", name="File in casebook", exact=True).click()
         await page.get_by_text("1 filed", exact=True).wait_for()
         async with page.expect_download() as export:
@@ -89,6 +95,11 @@ async def main():
             bounds = await canvas.bounding_box()
             assert bounds and bounds["height"] > 50 and bounds["width"] > 50
             await page.screenshot(path=str(out / f"chamber-{width}.png"), full_page=True)
+            if width == 390:
+                await hear.scroll_into_view_if_needed()
+                button_bounds = await hear.bounding_box()
+                assert button_bounds and 0 <= button_bounds["y"] < height
+                print("CHAMBER_PHONE_JPEG=" + base64.b64encode(await page.screenshot(type="jpeg", quality=25)).decode(), flush=True)
         measurements["browser"] = browser.version
         measurements["page_errors"] = errors
         measurements["mode"] = "native Chromium; official full MaleCNS; no injected graph or activity"
