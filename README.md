@@ -34,10 +34,13 @@ MiniMind is an optional local linguistic adapter. Its 63.9M parameters stay fixe
 ```sh
 python -m pip install -e '.[linguistic]'
 python tools/prepare_minimind.py
+python tools/prepare_minimind.py --check
 CUDA_VISIBLE_DEVICES='' python -m uvicorn apps.minimind_adapter.service:app --host 127.0.0.1 --port 8123
 ```
 
 Then run the web app in a second terminal. The browser talks only to that loopback service. MiniMind drafts structured facts for confirmation and selects among action-locked counsel-note templates. Manual fields and authored notes remain available when the adapter is offline.
+
+Hosted pages do not start MiniMind or probe the visitor's machine by default. Only localhost pages get an automatic loopback default. See `docs/MINIMIND_SETUP.md` for explicit private-preview configuration, health states, and checkpoint verification. Non-loopback endpoints and redirects are blocked; there is no server proxy or external language fallback.
 
 Pinned sources:
 
