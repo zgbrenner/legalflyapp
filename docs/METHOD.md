@@ -17,17 +17,31 @@ The pipeline also records locally computed SHA-256 hashes in `data/raw/malecns/v
 
 ## Selection Policy
 
-Retain all annotated traced neuronal bodies from the body annotations table. Retain every positive released minconf-0.5 directed body-pair connection where both endpoints are retained. Preserve isolated retained neurons. Exclude glia, untraced fragments, endpoints absent from the retained body set, and nonpositive connection rows.
+Retain every body whose release annotation `status` is exactly `Traced`. Retain every positive released minconf-0.5 directed body-pair connection where both endpoints are retained. Preserve isolated retained neurons. Exclude annotation rows labeled Glia, Orphan, Unimportant, Assign, or Anchor, endpoints absent from the retained body set, and nonpositive connection rows.
 
 Counts are derived by the preparation script from the acquired files.
 
 ## Model Boundary
 
-Visible structured facts are encoded deterministically and stimulate selected input neurons. Activity propagates through the fixed MaleCNS sparse graph with leaky-tanh dynamics. A separate artificial readout is trained from non-input neural features to one of eight recommendation categories or abstention.
+Visible structured facts are encoded deterministically and projected to 15,897 retained neurons selected from the release's sensory superclass and class annotations. Activity propagates through the fixed MaleCNS sparse graph with four leaky-tanh updates. A cosine-centroid artificial readout is trained from 256 seeded samples of a disjoint, release-annotated motor/descending population to one of eight recommendation categories or abstention.
 
 The readout does not receive the original structured facts directly. Labels, expected answers, split identifiers, and benchmark IDs never enter the neural input.
 
 The biological graph does not learn. There is no dopamine-learning claim, no biological synaptic plasticity, no spiking model, and no legal understanding claim.
+
+## MiniMind Boundary
+
+The optional language adapter uses MiniMind-3 with all 63.9M model parameters frozen. It is pinned to Hugging Face revision `f92512d4cd6142fa9acc0d6022375049a8974bf6`; the source implementation is pinned to `jingyaogong/minimind` commit `21ec325dbaa0942ac667323a509aac60a58044a4`.
+
+The encoder extracts a normalized final-layer text representation. Teaching-only centroid readouts propose each of the eight structured fields. Recommendation labels are not available to these field readouts. The proposed fields are visible and must be confirmed before they reach MaleCNS.
+
+The decoder receives only the selected fly action, confirmed facts, and a coarse confidence band. It uses MiniMind candidate likelihood to select between authored, action-locked counsel notes. Alternative actions, class scores, teaching labels, and hidden biological activity are withheld. Invalid responses fail closed to an authored note.
+
+The MiniMind-alone benchmark has its own teaching-only action readout over the same frozen text representation. It is never used for the visitor's active fly recommendation.
+
+## Shuffled Control
+
+The shuffled control applies a seeded uniform permutation to all target entries in the full CSR edge array. This preserves source out-degree, target in-degree, the edge-record count, and the global weight multiset. It may introduce self-connections and parallel source-target pairs, so unique pair count and per-neuron incoming weight sums are not preserved. It is independently normalized and trained with the same cases, seed, and update count.
 
 ## Fictional Charter
 

@@ -1,63 +1,96 @@
 # The Legal Fly Verification Notes
 
-## Commands
-
-Prepare the official data:
+## Reproduce
 
 ```sh
 python -m pip install pyarrow pandas numpy
-python tools/prepare_malecns.py --download --convert --export-browser
+python tools/prepare_malecns.py --download --convert --export-browser --shuffled
+python -m pip install -e '.[linguistic,dev]'
+python tools/prepare_minimind.py
+python tools/benchmark_minimind.py
 cd apps/web
 npm run test:legalfly
 npm test
 npm run build
 ```
 
-The generated browser binaries are intentionally ignored by git. `npm run dev` and `npm run build` copy them from `data/processed/malecns/v1.0/browser` into `apps/web/public/legalfly`.
+Large graph binaries and MiniMind weights are ignored by git.
 
-## Current Native Dataset Attempt
+## MaleCNS Acquisition
 
-On 2026-09-14, the official annotations and weights files were downloaded successfully.
+Official MaleCNS v1.0 objects acquired on 2026-09-14:
 
-| File | Size | SHA-256 | Publisher MD5 |
+| File | Bytes | Computed SHA-256 | Publisher MD5 |
 |---|---:|---|---|
 | `body-annotations-male-cns-v1.0-minconf-0.5.feather` | 14,483,314 | `2177e246113e4cfbf1e7772ec37c6da1955ff22e8063d0b1f833101f99a9a3b2` | `UKdxh3DFciDxYLpPQxq4ng==` |
 | `connectome-weights-male-cns-v1.0-minconf-0.5.feather` | 1,051,241,946 | `e35da783d1c686b2b58b3b87cd6a403ae43bfcfba8bff28e08ef752c1a56afc1` | `8w6dzKJc/QIb8eez2XVZng==` |
 
-Derived conversion counts:
+The publisher object generations are `1780494878811468` and `1780494887545976` respectively.
+
+## Converted Graph
+
+Selection is `status == Traced`, including isolated retained bodies and every positive released minconf-0.5 pair whose endpoints are retained.
 
 | Count | Value |
 |---|---:|
-| Retained neuronal bodies | 211,577 |
-| Directed neuron-pair connections | 26,028,386 |
-| Summed synaptic contacts | 125,365,933 |
-| Source records excluded by policy | 125,828,298 |
+| Retained neuronal bodies | 165,122 |
+| Directed neuron-pair records | 25,563,197 |
+| Summed synaptic contacts | 124,025,046 |
+| Excluded annotation rows | 46,455 |
+| Excluded connection rows | 126,293,487 |
+| Annotated sensory inputs | 15,897 |
+| Disjoint motor/descending output candidates | 2,022 |
+| VNC-tagged retained bodies | 28,187 |
 
-Browser verification must still be treated separately from conversion. Synthetic fixtures prove engine invariants only; they do not certify native full-network browser operation.
+Biological browser graph SHA-256: `c7cce7d82cf5a228b92de425e04ecd1ce35795bc3b76ce479ec72b6cb9ea29eb`.
 
-## Full-Graph Engine Smoke
+Shuffled browser graph SHA-256: `23723b5fa5d2fa93b50ca4f525d9457f068f2fb9046f172b8b362c4630452354`.
 
-The browser-facing core module was exercised in Node against the generated full MaleCNS binary:
+The shuffled seed is `20260914`. It preserves source out-degree, target in-degree, edge-record count, and the global weight multiset. It may introduce parallel pairs and self-connections.
+
+## Full-Graph Measurements
+
+Measured in Node 22 on the workspace CPU using the same browser-facing core, seed 42, 32 teaching cases, 16 held-out cases, and four updates:
+
+| Measurement | Biological | Shuffled |
+|---|---:|---:|
+| Training | 5,390 ms | 4,272 ms |
+| Mean paired inference, both graphs | 312.6 ms | included |
+| Held-out exact | 13/16 | 11/16 |
+| Abstentions | 1 | 5 |
+| Forced-choice exact | 14/16 | 15/16 |
+
+Other controls: facts-only 14/16, frozen MiniMind plus action readout 7/16, and fictional charter rules 9/16.
+
+Teaching signal touched 75,232 retained bodies. It touched 26,190 of 28,187 VNC-tagged bodies; maximum observed absolute VNC activation was 0.3436. These are continuous leaky-tanh activations, not spikes.
+
+## MiniMind Measurements
+
+Pinned MiniMind-3 revision: `f92512d4cd6142fa9acc0d6022375049a8974bf6`. The `model.safetensors` file is 127,834,168 bytes with computed SHA-256 `3adf69402b5d22e693151cabadc12528f923c4ba6bf343738aaf13f0892162e8`.
+
+Measured on the same CPU with all 63.9M MiniMind parameters frozen:
 
 | Measurement | Result |
 |---|---:|
-| Graph parse/load | 175 ms |
-| Teach 32 petitions, 4 sparse wake steps each | 5,887 ms |
-| Hear one held-out petition | 139 ms |
-| Sampled display nodes | 361 |
-| Recommendation for sampled held-out petition | abstention, confidence 0.125 |
+| Model load plus teaching-only readout fit | 4.85 s |
+| Mean held-out petition encoding | 50.0 ms |
+| Structured field accuracy | 82/128, 64.1% |
+| Exact eight-field parses | 1/16 |
+| MiniMind-only action exact | 7/16 |
 
-This is a real full-graph core run, but it is not native browser-worker verification.
+An earlier zero-shot candidate-likelihood encoder scored only 21.1% per field and 0/16 exact parses. It was replaced by frozen embeddings with teaching-only field readouts. Confirmation remains mandatory because the improved encoder is still wrong on most complete parses.
 
-## Browser Blocker In This Runtime
+## Tests Executed
 
-Native browser verification was attempted but blocked:
+- `python -m pytest -q`: 42 passed, with two upstream Pydantic deprecation warnings.
+- `npm run test:legalfly`: 10 passed.
+- `npm test`: 17 passed.
+- `npm run build`: passed.
 
-| Attempt | Result |
-|---|---|
-| `python -m playwright install chromium` | Repeated CDN timeout, then 502 from `cdn.playwright.dev` |
-| System browser lookup | No `chromium`, `chromium-browser`, `google-chrome`, `chrome`, or `firefox` on `PATH` |
-| Next production server, `127.0.0.1:3000` | Next reported ready, but independent `curl` and Node `fetch` returned `ECONNREFUSED` |
-| Next dev server, `127.0.0.1:3001` and `0.0.0.0:3010` | Next reported ready, but `/proc/net/tcp` showed no listener on the requested port and `curl` returned `ECONNREFUSED` |
+## Browser Status
 
-Because of that, desktop/mobile screenshots and the requested animation recording were not captured in this environment. They remain required before any public deployment.
+The managed Chrome browser was connected successfully, but its policy blocked both `http://localhost:3000` and `http://127.0.0.1:3000` with `ERR_BLOCKED_BY_CLIENT`. The Vercel preview generated by the existing repository integration redirected to an access-protected Vercel login. No credentials were entered.
+
+The local Next and MiniMind processes each reported ready, but this execution environment isolates listeners between command sessions, so independent loopback requests could not reach those processes. A Playwright Chromium install had previously failed on repeated CDN timeouts and a 502, and no system browser binary is installed.
+
+Therefore native browser-worker interaction, desktop/mobile captures, and an animation recording are still not certified in this runtime. Build and fixture tests do not substitute for that acceptance step.
