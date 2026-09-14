@@ -21,7 +21,7 @@ async def main():
         await page.get_by_role("heading", name="The Legal Fly").wait_for()
         checks.append("Current village chamber renders")
 
-        alert = page.get_by_role("alert")
+        alert = page.get_by_role("alert").filter(has_text="MaleCNS")
         await alert.wait_for(timeout=10_000)
         assert "MaleCNS" in await alert.inner_text()
         assert await page.get_by_role("button", name="Teach the ledger").is_disabled()
