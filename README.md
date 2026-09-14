@@ -55,7 +55,8 @@ Pinned sources:
 5. Activity propagates through the fixed MaleCNS graph using leaky-tanh dynamics.
 6. A trained artificial readout maps 256 disjoint motor/descending neural features to one of eight recommendations or abstention.
 7. MiniMind may select an action-locked authored rendering. It cannot change the action.
-8. The UI animates the petitioner, fly consultation, seal/paper result, corrections, case filing, and sampled neural inspection.
+8. Each of the four full-graph updates emits a bounded inspection frame from the worker.
+9. The UI maps the strongest real values to released soma coordinates inside the painted fly and on an accessible parchment inspector. The simulation still uses every retained edge.
 
 Narrative petition text is casebook context. It is not magically understood.
 
@@ -79,6 +80,9 @@ Derived counts from the current acquisition:
 | Summed synaptic contacts | 124,025,046 |
 | Annotation rows excluded by policy | 46,455 |
 | Connection rows excluded by policy | 126,293,487 |
+| Retained bodies with released `somaLocation` | 140,024 |
+
+The remaining retained bodies have no released soma coordinate and are not given an invented display position. The anatomy binary SHA-256 is `42d27435b12e880166ee9946adf16e42ce47b2ab2c644503b5235da82b913540`.
 
 ## Current Held-Out Result
 
@@ -105,7 +109,7 @@ npm test
 npm run build
 ```
 
-The Legal Fly unit tests include fixture-based checks for edge direction, deterministic encoding, answer-label isolation, strict model validation, abstention, correction safety, and cancellation. Fixture tests do not certify full MaleCNS browser performance.
+The Legal Fly unit tests include fixture-based checks for edge direction, deterministic encoding, answer-label isolation, strict model validation, abstention, correction safety, anatomy provenance, and cancellation between neural updates. Fixture tests do not certify full MaleCNS browser performance.
 
 ## Privacy
 

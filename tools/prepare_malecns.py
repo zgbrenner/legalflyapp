@@ -68,14 +68,20 @@ def download() -> None:
     (RAW / "provenance.json").write_text(json.dumps(provenance, indent=2))
 
 
+def load_annotations():
+    try:
+        import pyarrow.feather as feather
+    except ModuleNotFoundError as exc:
+        raise SystemExit("Install pyarrow first: python -m pip install pyarrow pandas numpy") from exc
+    return feather.read_table(RAW / "body-annotations-male-cns-v1.0-minconf-0.5.feather").to_pandas()
+
+
 def load_tables():
     try:
         import pyarrow.feather as feather
     except ModuleNotFoundError as exc:
         raise SystemExit("Install pyarrow first: python -m pip install pyarrow pandas numpy") from exc
-    annotations = feather.read_table(RAW / "body-annotations-male-cns-v1.0-minconf-0.5.feather").to_pandas()
-    weights = feather.read_table(RAW / "connectome-weights-male-cns-v1.0-minconf-0.5.feather").to_pandas()
-    return annotations, weights
+    return load_annotations(), feather.read_table(RAW / "connectome-weights-male-cns-v1.0-minconf-0.5.feather").to_pandas()
 
 
 def first_col(df, names):
@@ -88,6 +94,88 @@ def first_col(df, names):
         if all(part in lc for part in names[0].lower().split("_")):
             return c
     raise SystemExit(f"Could not find any of {names} in columns: {list(df.columns)}")
+
+
+ANATOMY_MISSING = np.iinfo(np.int32).min
+
+
+def write_anatomy_bin(path: Path, body_ids, coordinates, flags) -> str:
+    """Write the aligned released soma coordinates used by the browser inspector."""
+    body_ids = np.asarray(body_ids, dtype="<u4")
+    coordinates = np.asarray(coordinates, dtype="<i4")
+    flags = np.asarray(flags, dtype=np.uint8)
+    if body_ids.ndim != 1 or coordinates.shape != (len(body_ids), 3) or flags.shape != (len(body_ids),):
+        raise ValueError("Anatomy arrays have incompatible dimensions")
+    has_coordinate = (flags & 8) != 0
+    if np.any(has_coordinate & np.any(coordinates == ANATOMY_MISSING, axis=1)):
+        raise ValueError("Anatomy flags claim a missing coordinate is present")
+    payload = (
+        b"LFLYAN1\0"
+        + struct.pack("<II", len(body_ids), int(np.count_nonzero(has_coordinate)))
+        + body_ids.tobytes()
+        + coordinates.tobytes()
+        + flags.tobytes()
+    )
+    path.write_bytes(payload)
+    return hashlib.sha256(payload).hexdigest()
+
+
+def build_anatomy(annotations, meta: dict) -> dict:
+    """Align soma coordinates and released annotations to the retained graph order."""
+    body_col = first_col(annotations, ["bodyId", "body", "body_id"])
+    status_col = first_col(annotations, ["status"])
+    soma_col = first_col(annotations, ["somaLocation", "soma_location"])
+    superclass_col = first_col(annotations, ["superclass"])
+    class_col = first_col(annotations, ["class"])
+    neuromere_col = first_col(annotations, ["somaNeuromere"])
+    body_ids = np.asarray([int(body) for body in meta["body_ids"]], dtype=np.uint32)
+    index = {int(body): i for i, body in enumerate(body_ids)}
+    coordinates = np.full((len(body_ids), 3), ANATOMY_MISSING, dtype=np.int32)
+    flags = np.zeros(len(body_ids), dtype=np.uint8)
+    input_superclasses = {"vnc_sensory", "ol_sensory", "cb_sensory", "sensory_ascending"}
+    output_superclasses = {"vnc_motor", "descending_neuron"}
+    retained = annotations[annotations[status_col].astype(str).eq("Traced")]
+    for _, row in retained.iterrows():
+        body = row[body_col]
+        if body is None or not math.isfinite(float(body)) or int(body) not in index:
+            continue
+        i = index[int(body)]
+        superclass = "" if row[superclass_col] is None else str(row[superclass_col])
+        class_name = "" if row[class_col] is None else str(row[class_col])
+        neuromere = "" if row[neuromere_col] is None else str(row[neuromere_col])
+        if superclass in input_superclasses or "sensory" in class_name.lower():
+            flags[i] |= 1
+        if superclass in output_superclasses:
+            flags[i] |= 2
+        if superclass.startswith("vnc_") or (neuromere and neuromere.lower() != "nan"):
+            flags[i] |= 4
+        soma = row[soma_col]
+        if isinstance(soma, (list, tuple, np.ndarray)) and len(soma) >= 3:
+            values = np.asarray(soma[:3], dtype=np.float64)
+            if np.all(np.isfinite(values)) and np.all(values >= np.iinfo(np.int32).min + 1) and np.all(values <= np.iinfo(np.int32).max):
+                coordinates[i] = values.astype(np.int32)
+                flags[i] |= 8
+    PROCESSED.mkdir(parents=True, exist_ok=True)
+    np.savez_compressed(PROCESSED / "malecns-anatomy.npz", body_ids=body_ids, coordinates=coordinates, flags=flags)
+    present = (flags & 8) != 0
+    valid_coordinates = coordinates[present]
+    anatomy = {
+        "coordinate_count": int(np.count_nonzero(present)),
+        "coordinate_source": "MaleCNS v1.0 body-annotations somaLocation",
+        "coordinate_policy": "Released somaLocation only. Missing soma coordinates remain missing; no positions are inferred.",
+        "coordinate_bounds": [valid_coordinates.min(axis=0).tolist(), valid_coordinates.max(axis=0).tolist()],
+    }
+    meta.update(anatomy)
+    (PROCESSED / "meta.json").write_text(json.dumps(meta, indent=2))
+    return anatomy
+
+
+def convert_anatomy() -> None:
+    meta_path = PROCESSED / "meta.json"
+    if not meta_path.exists():
+        raise SystemExit("Convert the graph before exporting anatomy: python tools/prepare_malecns.py --convert")
+    anatomy = build_anatomy(load_annotations(), json.loads(meta_path.read_text()))
+    print(json.dumps(anatomy, indent=2))
 
 
 def convert() -> None:
@@ -164,6 +252,7 @@ def convert() -> None:
         "raw": json.loads((RAW / "provenance.json").read_text()) if (RAW / "provenance.json").exists() else {},
     }
     (PROCESSED / "meta.json").write_text(json.dumps(meta, indent=2))
+    build_anatomy(annotations, meta)
     print(json.dumps({k: meta[k] for k in ["neuronal_bodies", "directed_neuron_pair_connections", "summed_synaptic_contacts", "annotation_records_excluded", "connection_records_excluded"]}, indent=2))
 
 
@@ -190,10 +279,25 @@ def write_bin(path: Path, indptr, indices, data) -> str:
 
 def export_browser(include_shuffled: bool = False) -> None:
     BROWSER.mkdir(parents=True, exist_ok=True)
+    previous_manifest_path = BROWSER / "manifest.json"
+    previous_manifest = json.loads(previous_manifest_path.read_text()) if previous_manifest_path.exists() else {}
     meta = json.loads((PROCESSED / "meta.json").read_text())
     z = np.load(PROCESSED / "malecns-csr.npz")
     indptr, indices, data = z["indptr"], z["indices"], z["data"]
     graph_sha = write_bin(BROWSER / "malecns.bin", indptr, indices, data)
+    previous_graph = previous_manifest.get("graph", {})
+    graph_scale = previous_graph.get("recurrenceScale") if previous_graph.get("sha256") == graph_sha else None
+    if not isinstance(graph_scale, (int, float)) or not math.isfinite(graph_scale) or graph_scale <= 0:
+        graph_scale = recurrence_scale(indptr, indices, data)
+    anatomy_path = PROCESSED / "malecns-anatomy.npz"
+    if not anatomy_path.exists():
+        build_anatomy(load_annotations(), meta)
+        meta = json.loads((PROCESSED / "meta.json").read_text())
+    anatomy_arrays = np.load(anatomy_path)
+    anatomy_sha = write_anatomy_bin(
+        BROWSER / "malecns-anatomy.bin",
+        anatomy_arrays["body_ids"], anatomy_arrays["coordinates"], anatomy_arrays["flags"]
+    )
     stride = max(1, len(meta["body_ids"]) // 360)
     sample_body_ids = [[i, meta["body_ids"][i]] for i in range(0, len(meta["body_ids"]), stride)]
     body_index = {body: i for i, body in enumerate(meta["body_ids"])}
@@ -207,7 +311,7 @@ def export_browser(include_shuffled: bool = False) -> None:
             "annotationExcluded": meta["annotation_records_excluded"],
             "connectionExcluded": meta["connection_records_excluded"],
             "fingerprint": hashlib.sha256((json.dumps(meta["body_ids"]) + graph_sha).encode()).hexdigest(),
-            "recurrenceScale": recurrence_scale(indptr, indices, data),
+            "recurrenceScale": graph_scale,
             "sha256": graph_sha,
             "selectionPolicy": meta["selection_policy"],
             "sampleBodyIds": sample_body_ids,
@@ -216,6 +320,15 @@ def export_browser(include_shuffled: bool = False) -> None:
             "vncIndices": [body_index[body] for body in meta["vnc_body_ids"]],
         },
         "shuffled": None,
+        "anatomy": {
+            "neurons": meta["neuronal_bodies"],
+            "coordinateCount": meta["coordinate_count"],
+            "sha256": anatomy_sha,
+            "source": "MaleCNS v1.0 body-annotations somaLocation",
+            "policy": meta["coordinate_policy"],
+            "bounds": meta["coordinate_bounds"],
+            "projection": "Released x and z coordinate components projected onto the display plane.",
+        },
         "provenance": meta["raw"],
     }
     if include_shuffled:
@@ -233,6 +346,8 @@ def export_browser(include_shuffled: bool = False) -> None:
             "preserves": "Source out-degree sequence, target in-degree sequence, edge count, and global weight multiset.",
             "limitations": "Parallel source-target pairs and self-connections may be introduced; unique pair count and per-neuron incoming weight sums are not preserved.",
         }
+    elif (BROWSER / "malecns-shuffled.bin").exists() and previous_manifest.get("shuffled"):
+        manifest["shuffled"] = previous_manifest["shuffled"]
     (BROWSER / "manifest.json").write_text(json.dumps(manifest, indent=2))
 
 
@@ -240,6 +355,7 @@ def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("--download", action="store_true")
     p.add_argument("--convert", action="store_true")
+    p.add_argument("--anatomy", action="store_true", help="Rebuild anatomy from annotations and an existing converted graph")
     p.add_argument("--export-browser", action="store_true")
     p.add_argument("--shuffled", action="store_true", help="Also build the large degree-preserving shuffled browser control")
     args = p.parse_args()
@@ -247,6 +363,8 @@ def main() -> None:
         download()
     if args.convert:
         convert()
+    if args.anatomy:
+        convert_anatomy()
     if args.export_browser:
         export_browser(args.shuffled)
 

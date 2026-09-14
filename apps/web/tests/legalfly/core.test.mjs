@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { ACTIONS, parseGraph, Reservoir, encodeFacts, validateCases, train, hearCase, validateModel, actionName, factsOnlyTrain, factsOnlyRecommend, rulesRecommendation } from '../../public/legalfly/core.mjs';
+import { ACTIONS, parseGraph, parseAnatomy, sampleActivity, Reservoir, encodeFacts, validateCases, train, correctModel, hearCase, hearCaseTrace, validateModel, actionName, factsOnlyTrain, factsOnlyRecommend, rulesRecommendation } from '../../public/legalfly/core.mjs';
 
 const fullManifest = JSON.parse(readFileSync(new URL('../../public/legalfly/manifest.json', import.meta.url), 'utf8'));
 
@@ -21,6 +21,26 @@ function graphFixture() {
   const bytes = new Uint8Array(16 + indptr.byteLength + indices.byteLength + weights.byteLength);
   bytes.set(header); bytes.set(new Uint8Array(indptr.buffer), 16); bytes.set(new Uint8Array(indices.buffer), 16 + indptr.byteLength); bytes.set(new Uint8Array(weights.buffer), 16 + indptr.byteLength + indices.byteLength);
   return parseGraph(bytes.buffer, { neurons: n, connections: indptr[n], recurrenceScale: 0.1, fingerprint: 'fixture', sha256: 'fixture-sha', contacts: 120, bodyIds: Array.from({ length: n }, (_, i) => String(i)) });
+}
+
+function anatomyFixture(n = 4) {
+  const header = new Uint8Array(16);
+  new TextEncoder().encode('LFLYAN1\0').forEach((byte, index) => { header[index] = byte; });
+  const view = new DataView(header.buffer);
+  view.setUint32(8, n, true);
+  view.setUint32(12, n === 4 ? 3 : n, true);
+  const bodyIds = Uint32Array.from({ length: n }, (_, i) => 101 + i);
+  const missing = -2147483648;
+  const coordinates = n === 4
+    ? new Int32Array([10, 20, 30, 40, 50, 60, missing, missing, missing, 70, 80, 90])
+    : Int32Array.from({ length: n * 3 }, (_, i) => 10 + i);
+  const flags = n === 4 ? new Uint8Array([9, 10, 0, 14]) : Uint8Array.from({ length: n }, (_, i) => 8 | (i < 4 ? 1 : 0) | (i >= n - 4 ? 2 : 0) | (i % 9 === 0 ? 4 : 0));
+  const bytes = new Uint8Array(16 + bodyIds.byteLength + coordinates.byteLength + flags.byteLength);
+  bytes.set(header);
+  bytes.set(new Uint8Array(bodyIds.buffer), 16);
+  bytes.set(new Uint8Array(coordinates.buffer), 16 + bodyIds.byteLength);
+  bytes.set(flags, 16 + bodyIds.byteLength + coordinates.byteLength);
+  return bytes.buffer;
 }
 
 const cases = ACTIONS.flatMap(([label], i) => [0, 1].map(j => ({
@@ -59,6 +79,30 @@ test('official MaleCNS manifest pins the traced-neuron full graph', () => {
   assert.equal(graph.vncIndices.length, 28187);
   assert.equal(graph.sha256, 'c7cce7d82cf5a228b92de425e04ecd1ce35795bc3b76ce479ec72b6cb9ea29eb');
   assert.match(graph.selectionPolicy, /status is exactly Traced/);
+  assert.equal(fullManifest.anatomy.neurons, 165122);
+  assert.equal(fullManifest.anatomy.coordinateCount, 140024);
+  assert.equal(fullManifest.anatomy.sha256, '42d27435b12e880166ee9946adf16e42ce47b2ab2c644503b5235da82b913540');
+  assert.match(fullManifest.anatomy.policy, /no positions are inferred/i);
+});
+
+test('anatomy parser preserves released body IDs, coordinates, and roles', () => {
+  const anatomy = parseAnatomy(anatomyFixture(), { neurons: 4, coordinateCount: 3 });
+  assert.equal(anatomy.bodyIds[1], 102);
+  assert.deepEqual(anatomy.coordinate(1), [40, 50, 60]);
+  assert.equal(anatomy.coordinate(2), null);
+  assert.deepEqual(anatomy.roles(3), ['output', 'vnc']);
+});
+
+test('activity sampling shows the strongest genuinely active mapped neurons', () => {
+  const anatomy = parseAnatomy(anatomyFixture(), { neurons: 4, coordinateCount: 3 });
+  const frame = sampleActivity(anatomy, new Float32Array([0.01, -0.9, 1, 0.4]), { activeLimit: 2, contextLimit: 1, step: 3 });
+  assert.equal(frame.step, 3);
+  assert.equal(frame.sampled, true);
+  assert.equal(frame.total_neurons, 4);
+  assert.deepEqual(frame.points.filter(point => point.active).map(point => point.body_id), [102, 104]);
+  assert.equal(frame.points.find(point => point.body_id === 102).activation, -0.8999999761581421);
+  assert.deepEqual(frame.points.find(point => point.body_id === 104).coordinate, [70, 80, 90]);
+  assert.ok(frame.points.every(point => point.body_id !== 103));
 });
 
 test('annotated sensory inputs and disjoint output populations are used when present', () => {
@@ -102,6 +146,20 @@ test('hearing a petition uses neural features and can abstain without inventing 
   assert.equal(quiet.advice.action, 'abstain');
 });
 
+test('traced hearing emits each actual reservoir update and cancels between updates', async () => {
+  const graph = graphFixture(), anatomy = parseAnatomy(anatomyFixture(80), { neurons: 80, coordinateCount: 80 });
+  const model = await train(graph, cases, { seed: 7 }), frames = [];
+  const result = await hearCaseTrace(graph, anatomy, model, cases[0], frame => frames.push(frame));
+  assert.deepEqual(frames.map(frame => frame.step), [1, 2, 3, 4]);
+  assert.ok(frames.every(frame => frame.points.some(point => point.active)));
+  assert.equal(result.activity, frames[3]);
+  let cancelled = false;
+  await assert.rejects(
+    () => hearCaseTrace(graph, anatomy, model, cases[0], () => { cancelled = true; }, () => cancelled),
+    /cancel/i
+  );
+});
+
 test('the readout normalizes neural feature scale before abstention', async () => {
   const graph = graphFixture(), model = await train(graph, cases, { seed: 7 });
   const first = hearCase(graph, model, cases[0]).advice;
@@ -115,6 +173,20 @@ test('training cancellation is transactional', async () => {
   const graph = graphFixture();
   let stop = false;
   await assert.rejects(() => train(graph, cases, { seed: 1 }, () => { stop = true; }, () => stop), /cancel/i);
+});
+
+test('corrective feedback returns an atomic replacement and preserves inputs on cancellation', async () => {
+  const graph = graphFixture(), model = await train(graph, cases, { seed: 1 }), before = cases.slice();
+  let stop = false;
+  await assert.rejects(
+    () => correctModel(graph, cases, model, cases[0], 'refer-higher', () => { stop = true; }, () => stop),
+    /cancel/i
+  );
+  assert.deepEqual(cases, before);
+  assert.equal(model.cases.length, before.length);
+  const replacement = await correctModel(graph, cases, model, cases[0], 'refer-higher');
+  assert.equal(replacement.cases.length, before.length + 1);
+  assert.equal(replacement.model.cases.length, before.length + 1);
 });
 
 test('facts-only and charter-rule controls stay outside the neural readout', () => {

@@ -41,10 +41,13 @@ Selection is `status == Traced`, including isolated retained bodies and every po
 | Annotated sensory inputs | 15,897 |
 | Disjoint motor/descending output candidates | 2,022 |
 | VNC-tagged retained bodies | 28,187 |
+| Released soma locations mapped | 140,024 |
 
 Biological browser graph SHA-256: `c7cce7d82cf5a228b92de425e04ecd1ce35795bc3b76ce479ec72b6cb9ea29eb`.
 
 Shuffled browser graph SHA-256: `23723b5fa5d2fa93b50ca4f525d9457f068f2fb9046f172b8b362c4630452354`.
+
+Anatomy browser asset SHA-256: `42d27435b12e880166ee9946adf16e42ce47b2ab2c644503b5235da82b913540`. Its coordinate bounds are `[2468, 4758, 10154]` to `[93668, 68996, 134531]` in the released coordinate columns. The inspector projects x and z and does not infer missing positions.
 
 The shuffled seed is `20260914`. It preserves source out-degree, target in-degree, edge-record count, and the global weight multiset. It may introduce parallel pairs and self-connections.
 
@@ -64,6 +67,8 @@ Other controls: facts-only 14/16, frozen MiniMind plus action readout 7/16, and 
 
 Teaching signal touched 75,232 retained bodies. It touched 26,190 of 28,187 VNC-tagged bodies; maximum observed absolute VNC activation was 0.3436. These are continuous leaky-tanh activations, not spikes.
 
+An additional full-data inspection smoke run used the browser-facing core with a checksum-verified graph and anatomy asset. Graph plus anatomy loading took 348.2 ms, one four-update consultation took 276.1 ms, and process RSS was 494.1 MB. The four frames contained 30, 420, 420, and 420 strongest mapped active points. VNC-tagged points among those were 2, 273, 275, and 275. The strongest displayed body ID was `816764`. This was measured under Node in the workspace, not a native browser, and used a deliberately neutral readout that abstained so it tests propagation and mapping rather than benchmark accuracy.
+
 ## MiniMind Measurements
 
 Pinned MiniMind-3 revision: `f92512d4cd6142fa9acc0d6022375049a8974bf6`. The `model.safetensors` file is 127,834,168 bytes with computed SHA-256 `3adf69402b5d22e693151cabadc12528f923c4ba6bf343738aaf13f0892162e8`.
@@ -82,9 +87,9 @@ An earlier zero-shot candidate-likelihood encoder scored only 21.1% per field an
 
 ## Tests Executed
 
-- `python -m pytest -q`: 42 passed, with two upstream Pydantic deprecation warnings.
-- `npm run test:legalfly`: 10 passed.
-- `npm test`: 17 passed.
+- `python -m pytest -q`: 44 passed, with two upstream dependency deprecation warnings.
+- `npm run test:legalfly`: 14 passed.
+- `npm test`: 20 passed.
 - `npm run build`: passed.
 
 ## Browser Status
