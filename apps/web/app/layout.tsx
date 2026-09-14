@@ -4,7 +4,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 export const metadata: Metadata = {
   title: { default: "The Legal Fly", template: "%s | The Legal Fly" },
-  description: "A browser-local village-lawyer experiment using the official MaleCNS fruit fly connectome and a fictional charter.",
+  description: "A local-first village-lawyer experiment using the official MaleCNS fruit fly connectome and a constrained MiniMind language clerk.",
   metadataBase: new URL("https://thelegalfly.vercel.app"),
   openGraph: { title: "The Legal Fly", description: "Can a fruit fly make a good lawyer?", type: "website" },
 };

@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { ACTIONS, parseGraph, Reservoir, encodeFacts, validateCases, train, hearCase, validateModel, actionName } from '../../public/legalfly/core.mjs';
+import { readFileSync } from 'node:fs';
+import { ACTIONS, parseGraph, Reservoir, encodeFacts, validateCases, train, hearCase, validateModel, actionName, factsOnlyTrain, factsOnlyRecommend, rulesRecommendation } from '../../public/legalfly/core.mjs';
+
+const fullManifest = JSON.parse(readFileSync(new URL('../../public/legalfly/manifest.json', import.meta.url), 'utf8'));
 
 function graphFixture() {
   const n = 80;
@@ -42,6 +45,32 @@ test('MaleCNS binary parser keeps directed positive edges', () => {
   assert.ok(r.x[1] > 0);
 });
 
+test('official MaleCNS manifest pins the traced-neuron full graph', () => {
+  const graph = fullManifest.graph;
+  assert.equal(fullManifest.dataset.name, 'MaleCNS');
+  assert.equal(fullManifest.dataset.release, 'v1.0');
+  assert.equal(graph.neurons, 165122);
+  assert.equal(graph.connections, 25563197);
+  assert.equal(graph.contacts, 124025046);
+  assert.equal(graph.annotationExcluded, 46455);
+  assert.equal(graph.connectionExcluded, 126293487);
+  assert.equal(graph.inputIndices.length, 15897);
+  assert.equal(graph.outputIndices.length, 2022);
+  assert.equal(graph.vncIndices.length, 28187);
+  assert.equal(graph.sha256, 'c7cce7d82cf5a228b92de425e04ecd1ce35795bc3b76ce479ec72b6cb9ea29eb');
+  assert.match(graph.selectionPolicy, /status is exactly Traced/);
+});
+
+test('annotated sensory inputs and disjoint output populations are used when present', () => {
+  const graph = graphFixture();
+  graph.info.inputIndices = [2, 3, 4];
+  graph.info.outputIndices = [4, 7, 9, 11];
+  const reservoir = new Reservoir(graph, 2);
+  assert.deepEqual(reservoir.inputIds, [2, 3, 4]);
+  assert.ok(reservoir.featureIds.includes(7));
+  assert.ok(!reservoir.featureIds.includes(4));
+});
+
 test('structured encoding is deterministic and excludes recommendation labels', () => {
   const a = encodeFacts(cases[0].facts);
   const renamed = { ...cases[0], title: 'Different', label: 'refer-higher' };
@@ -73,8 +102,25 @@ test('hearing a petition uses neural features and can abstain without inventing 
   assert.equal(quiet.advice.action, 'abstain');
 });
 
+test('the readout normalizes neural feature scale before abstention', async () => {
+  const graph = graphFixture(), model = await train(graph, cases, { seed: 7 });
+  const first = hearCase(graph, model, cases[0]).advice;
+  const scaled = { ...model, centroids: model.centroids.map(row => row.map(value => value * 1e-6)) };
+  const second = hearCase(graph, scaled, cases[0]).advice;
+  assert.equal(first.action, second.action);
+  assert.ok(Math.abs(first.confidence - second.confidence) < 1e-5);
+});
+
 test('training cancellation is transactional', async () => {
   const graph = graphFixture();
   let stop = false;
   await assert.rejects(() => train(graph, cases, { seed: 1 }, () => { stop = true; }, () => stop), /cancel/i);
+});
+
+test('facts-only and charter-rule controls stay outside the neural readout', () => {
+  const factsModel = factsOnlyTrain(cases);
+  const result = factsOnlyRecommend(factsModel, cases[0].facts);
+  assert.ok(ACTIONS.some(([id]) => id === result.action));
+  assert.ok(Number.isFinite(result.confidence));
+  assert.equal(rulesRecommendation({ ...cases[0].facts, matter: 'threat', urgency: 'high', harm: 'high' }), 'refer-higher');
 });

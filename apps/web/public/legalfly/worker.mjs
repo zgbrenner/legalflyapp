@@ -1,6 +1,6 @@
-import { ACTIONS, ENGINE_VERSION, parseGraph, train, validateCases, validateModel, hearCase, yieldThread, actionName } from './core.mjs';
+import { ACTIONS, ENGINE_VERSION, parseGraph, train, validateCases, validateModel, hearCase, yieldThread, actionName, factsOnlyTrain, factsOnlyRecommend, rulesRecommendation } from './core.mjs';
 
-let generation = 0, aborter = null, graph = null, shuffled = null, model = null, cases = [], casebook = [], last = null;
+let generation = 0, aborter = null, graph = null, shuffled = null, graphManifest = null, model = null, cases = [], casebook = [], last = null;
 const send = (id, type, data = {}) => postMessage({ id, type, ...data });
 const begin = () => { generation++; aborter?.abort(); aborter = new AbortController(); return generation; };
 const current = (token) => token === generation;
@@ -20,14 +20,21 @@ async function loadGraph(signal) {
   if (graph) return graph;
   const res = await fetch('/legalfly/manifest.json', { signal });
   if (!res.ok) throw Error('The MaleCNS manifest is unavailable');
-  const manifest = await res.json();
-  if (manifest.schema !== 'legalfly-malecns-graph/1') throw Error('Invalid MaleCNS manifest');
-  if (!manifest.available) throw Error(manifest.reason || 'The official MaleCNS browser graph has not been prepared');
-  graph = await loadOne(manifest.graph, signal);
-  graph.info = { ...graph.info, ...manifest.graph, sampleBodyIds: manifest.graph.sampleBodyIds || [] };
-  if (manifest.shuffled?.file) shuffled = await loadOne(manifest.shuffled, signal);
-  send(0, 'provenance', { manifest });
+  graphManifest = await res.json();
+  if (graphManifest.schema !== 'legalfly-malecns-graph/1') throw Error('Invalid MaleCNS manifest');
+  if (!graphManifest.available) throw Error(graphManifest.reason || 'The official MaleCNS browser graph has not been prepared');
+  graph = await loadOne(graphManifest.graph, signal);
+  graph.info = { ...graph.info, ...graphManifest.graph, sampleBodyIds: graphManifest.graph.sampleBodyIds || [] };
+  send(0, 'provenance', { manifest: graphManifest });
   return graph;
+}
+
+async function loadShuffled(signal) {
+  if (shuffled) return shuffled;
+  if (!graphManifest?.shuffled?.file) return null;
+  shuffled = await loadOne(graphManifest.shuffled, signal);
+  shuffled.info = { ...shuffled.info, ...graphManifest.shuffled, sampleBodyIds: graphManifest.shuffled.sampleBodyIds || [] };
+  return shuffled;
 }
 
 function template(result) {
@@ -59,7 +66,7 @@ async function handle(m) {
       send(id, 'status', { state: 'petition-ready' }); return;
     }
     if (m.type === 'import-model') { model = validateModel(m.model, graph.info); send(id, 'trained', { modelSummary: { seed: model.seed, imported: true } }); send(id, 'status', { state: 'petition-ready' }); return; }
-    if (m.type === 'reset-model') { model = null; send(id, 'status', { state: 'idle' }); return; }
+    if (m.type === 'reset-model') { model = null; last = null; send(id, 'model-reset'); send(id, 'status', { state: 'idle' }); return; }
     if (m.type === 'hear') {
       if (!model) throw Error('The fly is untrained. Teach the ledger first.');
       send(id, 'status', { state: 'computing' }); await yieldThread();
@@ -91,15 +98,20 @@ async function handle(m) {
     }
     if (m.type === 'benchmark') {
       if (!model) throw Error('Train the fly before benchmarking');
-      const rows = [];
+      send(id, 'status', { state: 'computing' });
+      await loadShuffled(signal); if (!current(token)) return;
+      const rows = [], factsModel = factsOnlyTrain(model.cases);
+      const shuffledModel = shuffled ? await train(shuffled, model.cases, { seed: model.seed }, p => current(token) && send(id, 'progress', { ...p, title: `Shuffled control: ${p.title}` }), () => !current(token)) : null;
       for (const c of cases.filter(x => x.split === 'holdout')) {
         if (!current(token)) return;
         const b = hearCase(graph, model, c);
-        rows.push({ id: c.id, title: c.title, expected: c.label, biological: b.advice.action, abstained: b.advice.action === 'abstain', confidence: b.advice.confidence });
+        const random = shuffledModel ? hearCase(shuffled, shuffledModel, c).advice : null;
+        rows.push({ id: c.id, title: c.title, petition: c.petition, expected: c.label, biological: b.advice.action, forcedChoice: b.advice.forcedChoice, factsOnly: factsOnlyRecommend(factsModel, c.facts).action, shuffled: random?.action ?? null, rules: rulesRecommendation(c.facts), abstained: b.advice.action === 'abstain', confidence: b.advice.confidence });
         await yieldThread();
       }
       const correct = rows.filter(r => r.biological === r.expected).length;
-      send(id, 'benchmark', { rows, summary: { heldout: rows.length, correct, abstentions: rows.filter(r => r.abstained).length, forcedChoiceAccuracy: rows.length ? correct / rows.length : 0, controls: shuffled ? 'Shuffled graph asset available for independent retraining.' : 'Shuffled MaleCNS asset not present; no shuffled score reported.' } });
+      const forcedCorrect = rows.filter(r => (r.biological === 'abstain' ? r.forcedChoice : r.biological) === r.expected).length;
+      send(id, 'benchmark', { rows, summary: { heldout: rows.length, correct, abstentions: rows.filter(r => r.abstained).length, forcedChoiceAccuracy: rows.length ? forcedCorrect / rows.length : 0, factsOnlyCorrect: rows.filter(r => r.factsOnly === r.expected).length, shuffledCorrect: shuffled ? rows.filter(r => r.shuffled === r.expected).length : null, rulesCorrect: rows.filter(r => r.rules === r.expected).length, controls: shuffled ? 'The shuffled graph was independently trained with the same cases and seed.' : 'Shuffled MaleCNS asset not present; no shuffled score reported.' } });
       send(id, 'status', { state: 'petition-ready' }); return;
     }
     throw Error('Unknown worker command');

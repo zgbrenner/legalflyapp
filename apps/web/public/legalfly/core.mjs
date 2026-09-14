@@ -1,4 +1,4 @@
-export const ENGINE_VERSION = 'legalfly-village/1';
+export const ENGINE_VERSION = 'legalfly-village/2';
 export const ACTIONS = [
   ['let-rest', 'Let the matter rest.'],
   ['seek-small-reparation', 'Seek small reparation.'],
@@ -12,7 +12,7 @@ export const ACTIONS = [
 export const DIM = 96;
 export const FEATURES = 256;
 export const WAKE_STEPS = 4;
-export const DEFAULTS = Object.freeze({ leak: 0.28, inputScale: 1.15, margin: 0.045, confidence: 0.28, quietRMS: 1e-5 });
+export const DEFAULTS = Object.freeze({ leak: 0.28, inputScale: 1.15, margin: 0.045, confidence: 0.28, quietRMS: 1e-5, readoutTemperature: 4 });
 const FIELDS = ['matter', 'property', 'harm', 'proof', 'intent', 'relationship', 'urgency', 'ability'];
 const finite = (x, max = 1e6) => typeof x === 'number' && Number.isFinite(x) && Math.abs(x) <= max;
 export const yieldThread = () => new Promise(resolve => setTimeout(resolve, 0));
@@ -20,7 +20,8 @@ export function rng(seed) { let x = seed >>> 0; return () => { x = (Math.imul(x,
 export function rms(a) { let s = 0; for (const x of a) s += x * x; return Math.sqrt(s / Math.max(1, a.length)); }
 function hash(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
 function dot(a, b) { let s = 0; for (let i = 0; i < a.length; i++) s += a[i] * b[i]; return s; }
-function softmax(scores) { const m = Math.max(...scores), e = scores.map(x => Math.exp(x - m)), z = e.reduce((a, b) => a + b, 0) || 1; return e.map(x => x / z); }
+function cosine(a, b) { return dot(a, b) / Math.max(1e-12, Math.sqrt(dot(a, a) * dot(b, b))); }
+function softmax(scores, temperature = 1) { const m = Math.max(...scores), e = scores.map(x => Math.exp((x - m) * temperature)), z = e.reduce((a, b) => a + b, 0) || 1; return e.map(x => x / z); }
 
 export function parseGraph(buffer, info) {
   const v = new DataView(buffer);
@@ -69,12 +70,18 @@ export class Reservoir {
     this.graph = graph; this.n = graph.n; this.x = new Float32Array(this.n); this.sum = new Float64Array(this.n); this.input = new Float64Array(this.n);
     const random = rng(seed), order = Array.from({ length: this.n }, (_, i) => i);
     for (let i = order.length - 1; i > 0; i--) { const j = Math.floor(random() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
+    const annotatedInputs = graph.info.inputIndices?.filter(i => Number.isInteger(i) && i >= 0 && i < this.n) ?? [];
+    const inputSet = new Set(annotatedInputs);
+    const annotatedOutputs = graph.info.outputIndices?.filter(i => Number.isInteger(i) && i >= 0 && i < this.n && !inputSet.has(i)) ?? [];
     const inputCount = Math.min(this.n, Math.max(64, Math.floor(this.n / 180)));
-    this.inputIds = order.slice(0, inputCount);
-    this.featureIds = order.slice(inputCount, inputCount + FEATURES);
-    while (this.featureIds.length < FEATURES) this.featureIds.push(order[this.featureIds.length % this.n]);
-    this.projection = new Float32Array(inputCount * DIM);
-    for (let k = 0; k < inputCount; k++) {
+    this.inputIds = annotatedInputs.length ? annotatedInputs : order.slice(0, inputCount);
+    const outputOrder = annotatedOutputs.length ? annotatedOutputs.slice() : order.slice(inputCount);
+    for (let i = outputOrder.length - 1; i > 0; i--) { const j = Math.floor(random() * (i + 1)); [outputOrder[i], outputOrder[j]] = [outputOrder[j], outputOrder[i]]; }
+    this.featureIds = outputOrder.slice(0, FEATURES);
+    const fallbackOutputs = order.filter(i => !inputSet.has(i));
+    while (this.featureIds.length < FEATURES) this.featureIds.push(fallbackOutputs[this.featureIds.length % fallbackOutputs.length]);
+    this.projection = new Float32Array(this.inputIds.length * DIM);
+    for (let k = 0; k < this.inputIds.length; k++) {
       let norm = 0;
       for (let j = 0; j < DIM; j++) { const v = random() * 2 - 1; this.projection[k * DIM + j] = v; norm += v * v; }
       for (let j = 0; j < DIM; j++) this.projection[k * DIM + j] *= DEFAULTS.inputScale / Math.sqrt(norm);
@@ -95,31 +102,34 @@ export class Reservoir {
   }
 }
 
-function trainCentroids(samples) {
-  const centroids = ACTIONS.map(() => new Float64Array(FEATURES));
+function trainCentroids(samples, dimensions = FEATURES) {
+  const centroids = ACTIONS.map(() => new Float64Array(dimensions));
   const counts = ACTIONS.map(() => 0);
   for (const s of samples) {
     const idx = ACTIONS.findIndex(([id]) => id === s.label);
     if (idx < 0) continue;
     counts[idx]++;
-    for (let i = 0; i < FEATURES; i++) centroids[idx][i] += s.features[i];
+    for (let i = 0; i < dimensions; i++) centroids[idx][i] += s.features[i];
   }
   return centroids.map((c, i) => Array.from(c, v => counts[i] ? v / counts[i] : 0));
 }
 export async function train(graph, cases, options = {}, progress = () => {}, cancelled = () => false) {
   const all = validateCases(cases), teach = all.filter(c => c.split === 'teach' && c.label);
   if (teach.length < 8) throw Error('At least eight labeled teaching petitions are required');
-  const seed = options.seed ?? 42, reservoir = new Reservoir(graph, seed), samples = [], reach = { touched: new Uint8Array(graph.n), maxVncActivity: 0, activeAfterWake: 0 };
+  const seed = options.seed ?? 42, reservoir = new Reservoir(graph, seed), samples = [], reach = { touched: new Uint8Array(graph.n), maxVncActivity: 0, activeAfterWake: 0, activeVnc: 0 };
   for (let i = 0; i < teach.length; i++) {
     if (cancelled()) throw Error('Training cancelled');
     const u = encodeFacts(teach[i].facts); reservoir.reset();
     for (let t = 0; t < WAKE_STEPS; t++) reservoir.step(u);
     for (let k = 0; k < reservoir.x.length; k++) if (Math.abs(reservoir.x[k]) > 1e-6) reach.touched[k] = 1;
+    for (const k of graph.info.vncIndices ?? []) reach.maxVncActivity = Math.max(reach.maxVncActivity, Math.abs(reservoir.x[k]));
     samples.push({ label: teach[i].label, features: reservoir.features() });
     progress({ current: i + 1, total: teach.length, title: teach[i].title }); await yieldThread();
   }
   reach.activeAfterWake = reach.touched.reduce((a, b) => a + b, 0);
-  return { schema: ENGINE_VERSION, graphFingerprint: graph.info.fingerprint, graphSha256: graph.info.sha256, seed, actions: ACTIONS, settings: { ...DEFAULTS, inputDimensions: DIM, outputFeatures: FEATURES, wakeSteps: WAKE_STEPS }, cases: all, centroids: trainCentroids(samples), reachability: reach };
+  reach.activeVnc = (graph.info.vncIndices ?? []).reduce((count, index) => count + reach.touched[index], 0);
+  const reachability = { activeAfterWake: reach.activeAfterWake, activeVnc: reach.activeVnc, maxVncActivity: reach.maxVncActivity, totalVnc: graph.info.vncIndices?.length ?? 0 };
+  return { schema: ENGINE_VERSION, graphFingerprint: graph.info.fingerprint, graphSha256: graph.info.sha256, seed, actions: ACTIONS, settings: { ...DEFAULTS, inputDimensions: DIM, outputFeatures: FEATURES, wakeSteps: WAKE_STEPS }, cases: all, centroids: trainCentroids(samples), reachability };
 }
 export function validateModel(value, info) {
   if (!value || value.schema !== ENGINE_VERSION || value.graphFingerprint !== info.fingerprint || value.graphSha256 !== info.sha256) throw Error('Model does not match this MaleCNS graph and engine');
@@ -131,12 +141,13 @@ export function validateModel(value, info) {
 }
 export function recommendFromFeatures(features, model, energy) {
   if (energy < DEFAULTS.quietRMS) return { action: 'abstain', confidence: 0, margin: 0, scores: [], reason: 'silent' };
-  const scores = model.centroids.map(c => dot(features, c));
-  const probs = softmax(scores);
+  const scores = model.centroids.map(c => cosine(features, c));
+  const probs = softmax(scores, model.settings?.readoutTemperature ?? DEFAULTS.readoutTemperature);
   const ranked = probs.map((p, i) => ({ i, p })).sort((a, b) => b.p - a.p);
   const margin = ranked[0].p - (ranked[1]?.p ?? 0);
-  if (ranked[0].p < DEFAULTS.confidence || margin < DEFAULTS.margin) return { action: 'abstain', confidence: ranked[0].p, margin, scores: probs, reason: 'ambiguous' };
-  return { action: ACTIONS[ranked[0].i][0], confidence: ranked[0].p, margin, scores: probs, reason: 'readout' };
+  const forcedChoice = ACTIONS[ranked[0].i][0];
+  if (ranked[0].p < DEFAULTS.confidence || margin < DEFAULTS.margin) return { action: 'abstain', forcedChoice, confidence: ranked[0].p, margin, scores: probs, reason: 'ambiguous' };
+  return { action: forcedChoice, forcedChoice, confidence: ranked[0].p, margin, scores: probs, reason: 'readout' };
 }
 export function hearCase(graph, model, legalCase) {
   const c = validateCase(legalCase), checked = validateModel(model, graph.info), reservoir = new Reservoir(graph, checked.seed);
@@ -148,7 +159,22 @@ export function hearCase(graph, model, legalCase) {
 }
 export function factsOnlyTrain(cases) {
   const teach = validateCases(cases).filter(c => c.split === 'teach' && c.label);
-  return trainCentroids(teach.map(c => ({ label: c.label, features: encodeFacts(c.facts).slice(0, FEATURES) })));
+  return { centroids: trainCentroids(teach.map(c => ({ label: c.label, features: encodeFacts(c.facts) })), DIM) };
+}
+export function factsOnlyRecommend(model, facts) {
+  const features = encodeFacts(facts), scores = model.centroids.map(c => cosine(features, c));
+  const probabilities = softmax(scores, DEFAULTS.readoutTemperature), ranked = probabilities.map((p, i) => ({ p, i })).sort((a, b) => b.p - a.p);
+  return { action: ACTIONS[ranked[0].i][0], confidence: ranked[0].p };
+}
+export function rulesRecommendation(facts) {
+  if (facts.urgency === 'high' && (facts.harm === 'high' || facts.matter === 'threat' || facts.matter === 'official')) return 'refer-higher';
+  if (facts.proof === 'unclear' && ['boundary', 'insult', 'property'].includes(facts.matter)) return 'find-witness';
+  if (facts.matter === 'property' && facts.property !== 'none') return 'request-return';
+  if (facts.ability === 'unable' || facts.matter === 'debt') return 'propose-settlement';
+  if (facts.matter === 'account' || facts.matter === 'charter') return 'sworn-account';
+  if (facts.harm === 'high' || facts.intent === 'deliberate') return 'seek-full-reparation';
+  if (facts.harm === 'moderate' || facts.harm === 'low' || ['damage', 'delivery'].includes(facts.matter)) return 'seek-small-reparation';
+  return 'let-rest';
 }
 export function displayGraph(graph, values = null) {
   const stride = Math.max(1, Math.floor(graph.n / 360)), indices = [];

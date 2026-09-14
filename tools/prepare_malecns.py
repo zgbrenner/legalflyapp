@@ -15,7 +15,6 @@ import hashlib
 import json
 import math
 import os
-import random
 import struct
 import urllib.request
 from pathlib import Path
@@ -97,9 +96,28 @@ def convert() -> None:
     pre_col = first_col(weights, ["body_pre", "pre", "bodyId_pre", "body_pre_id"])
     post_col = first_col(weights, ["body_post", "post", "bodyId_post", "body_post_id"])
     weight_col = first_col(weights, ["weight", "syn_count", "count"])
+    status_col = first_col(annotations, ["status"])
+    superclass_col = first_col(annotations, ["superclass"])
+    class_col = first_col(annotations, ["class"])
+    neuromere_col = first_col(annotations, ["somaNeuromere"])
 
-    bodies = sorted(int(x) for x in annotations[body_col].dropna().unique())
+    retained_annotations = annotations[annotations[status_col].astype(str).eq("Traced")].copy()
+    bodies = sorted(int(x) for x in retained_annotations[body_col].dropna().unique())
     index = {b: i for i, b in enumerate(bodies)}
+    input_superclasses = {"vnc_sensory", "ol_sensory", "cb_sensory", "sensory_ascending"}
+    output_superclasses = {"vnc_motor", "descending_neuron"}
+    input_bodies, output_bodies, vnc_bodies = [], [], []
+    for _, row in retained_annotations.iterrows():
+        body = int(row[body_col])
+        superclass = str(row[superclass_col]) if not __import__("pandas").isna(row[superclass_col]) else ""
+        class_name = str(row[class_col]) if not __import__("pandas").isna(row[class_col]) else ""
+        neuromere = str(row[neuromere_col]) if not __import__("pandas").isna(row[neuromere_col]) else ""
+        if superclass in input_superclasses or "sensory" in class_name.lower():
+            input_bodies.append(body)
+        if superclass in output_superclasses:
+            output_bodies.append(body)
+        if superclass.startswith("vnc_") or neuromere:
+            vnc_bodies.append(body)
     rows: list[tuple[int, int, float]] = []
     excluded = 0
     contacts = 0
@@ -128,19 +146,25 @@ def convert() -> None:
 
     PROCESSED.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(PROCESSED / "malecns-csr.npz", indptr=indptr, indices=indices, data=data)
+    input_body_set = set(input_bodies)
     meta = {
-        "selection_policy": "All annotated traced neuronal bodies in body-annotations; all positive released minconf-0.5 directed body-pair connections between retained bodies. Isolated retained bodies are preserved.",
-        "exclusions": "Glia, untraced fragments, bodies absent from body-annotations, nonpositive weights, and connection rows whose endpoint was excluded.",
+        "selection_policy": "All bodies whose release annotation status is exactly Traced; all positive released minconf-0.5 directed body-pair connections between retained bodies. Isolated retained bodies are preserved.",
+        "exclusions": "Annotation rows not labeled Traced, including Glia, Orphan, Unimportant, Assign, and Anchor; bodies absent from retained annotations; nonpositive weights; and connection rows whose endpoint was excluded.",
         "confidence_filter": "Publisher flat-connectome files labeled minconf-0.5.",
         "neuronal_bodies": len(bodies),
         "directed_neuron_pair_connections": len(rows),
         "summed_synaptic_contacts": contacts,
         "source_records_excluded": excluded,
+        "annotation_records_excluded": int(len(annotations) - len(retained_annotations)),
+        "connection_records_excluded": excluded,
         "body_ids": [str(x) for x in bodies],
+        "input_body_ids": [str(x) for x in input_bodies if x in index],
+        "output_body_ids": [str(x) for x in output_bodies if x in index and x not in input_body_set],
+        "vnc_body_ids": [str(x) for x in vnc_bodies if x in index],
         "raw": json.loads((RAW / "provenance.json").read_text()) if (RAW / "provenance.json").exists() else {},
     }
     (PROCESSED / "meta.json").write_text(json.dumps(meta, indent=2))
-    print(json.dumps({k: meta[k] for k in ["neuronal_bodies", "directed_neuron_pair_connections", "summed_synaptic_contacts", "source_records_excluded"]}, indent=2))
+    print(json.dumps({k: meta[k] for k in ["neuronal_bodies", "directed_neuron_pair_connections", "summed_synaptic_contacts", "annotation_records_excluded", "connection_records_excluded"]}, indent=2))
 
 
 def recurrence_scale(indptr, indices, data) -> float:
@@ -172,6 +196,7 @@ def export_browser(include_shuffled: bool = False) -> None:
     graph_sha = write_bin(BROWSER / "malecns.bin", indptr, indices, data)
     stride = max(1, len(meta["body_ids"]) // 360)
     sample_body_ids = [[i, meta["body_ids"][i]] for i in range(0, len(meta["body_ids"]), stride)]
+    body_index = {body: i for i, body in enumerate(meta["body_ids"])}
     manifest = {
         "dataset": {"name": "MaleCNS", "release": "v1.0", "source": "https://male-cns.janelia.org/download/", "license": "CC BY 4.0"},
         "graph": {
@@ -179,31 +204,35 @@ def export_browser(include_shuffled: bool = False) -> None:
             "connections": meta["directed_neuron_pair_connections"],
             "contacts": meta["summed_synaptic_contacts"],
             "excluded": meta["source_records_excluded"],
+            "annotationExcluded": meta["annotation_records_excluded"],
+            "connectionExcluded": meta["connection_records_excluded"],
             "fingerprint": hashlib.sha256((json.dumps(meta["body_ids"]) + graph_sha).encode()).hexdigest(),
             "recurrenceScale": recurrence_scale(indptr, indices, data),
             "sha256": graph_sha,
             "selectionPolicy": meta["selection_policy"],
             "sampleBodyIds": sample_body_ids,
+            "inputIndices": [body_index[body] for body in meta["input_body_ids"]],
+            "outputIndices": [body_index[body] for body in meta["output_body_ids"]],
+            "vncIndices": [body_index[body] for body in meta["vnc_body_ids"]],
         },
         "shuffled": None,
         "provenance": meta["raw"],
     }
     if include_shuffled:
         shuffled = indices.copy()
-        rng = random.Random(20260914)
-        sources = np.repeat(np.arange(len(indptr) - 1, dtype=np.uint32), np.diff(indptr))
-        used = set(zip(sources.tolist(), shuffled.tolist()))
-        swaps = 0
-        for _ in range(min(len(shuffled) * 6, 20_000_000)):
-            a, b = rng.randrange(len(shuffled)), rng.randrange(len(shuffled))
-            s, t, u, v = int(sources[a]), int(sources[b]), int(shuffled[a]), int(shuffled[b])
-            if s == t or u == v or s == v or t == u or (s, v) in used or (t, u) in used:
-                continue
-            used.remove((s, u)); used.remove((t, v)); used.add((s, v)); used.add((t, u))
-            shuffled[a], shuffled[b] = v, u
-            swaps += 1
+        seed = 20260914
+        np.random.default_rng(seed).shuffle(shuffled)
         shuffled_sha = write_bin(BROWSER / "malecns-shuffled.bin", indptr, shuffled, data)
-        manifest["shuffled"] = {"sha256": shuffled_sha, "acceptedSwaps": swaps, "preserves": "source out-degree sequence, target in-degree sequence after accepted swaps, and weight multiset"}
+        manifest["shuffled"] = {
+            **manifest["graph"],
+            "sha256": shuffled_sha,
+            "fingerprint": hashlib.sha256(("shuffled-target-permutation" + str(seed) + shuffled_sha).encode()).hexdigest(),
+            "recurrenceScale": recurrence_scale(indptr, shuffled, data),
+            "seed": seed,
+            "method": "Uniform seeded permutation of all target entries in the full CSR edge array.",
+            "preserves": "Source out-degree sequence, target in-degree sequence, edge count, and global weight multiset.",
+            "limitations": "Parallel source-target pairs and self-connections may be introduced; unique pair count and per-neuron incoming weight sums are not preserved.",
+        }
     (BROWSER / "manifest.json").write_text(json.dumps(manifest, indent=2))
 
 
