@@ -7,7 +7,8 @@ import { webcrypto } from 'node:crypto';
 
 const manifest = JSON.parse(await readFile(new URL('../../public/legalfly/manifest.json', import.meta.url), 'utf8'));
 const fullDataAvailable = manifest.available && ['malecns.bin', 'malecns-anatomy.bin'].every(file => existsSync(new URL(`../../public/legalfly/${file}`, import.meta.url)));
-test('full released graph loads once, reports bounded progress, and supplies genuine idle and training frames', { skip: fullDataAvailable ? false : 'Full MaleCNS binary assets unavailable; run after data generation' }, async t => {
+test('full released graph loads once, reports bounded progress, and supplies genuine idle and training frames', { skip: fullDataAvailable || process.env.LEGALFLY_REQUIRE_FULL === '1' ? false : 'Full MaleCNS binary assets unavailable; run after data generation' }, async t => {
+  assert.ok(fullDataAvailable, 'Full MaleCNS is required for this integration run');
   const original = { fetch: globalThis.fetch, postMessage: globalThis.postMessage, onmessage: globalThis.onmessage };
   const messages = [], requests = new Map();
   let started, release;
