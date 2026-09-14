@@ -27,7 +27,7 @@ async def main():
         assert await page.get_by_role("button", name="Teach the ledger").is_disabled()
         checks.append("Missing full graph fails closed and disables teaching")
 
-        await page.get_by_role("button", name="Inspect the apparatus").click()
+        await page.get_by_role("region", name="Brain visualization and controls").wait_for()
         await page.get_by_text("Counsel's nervous system", exact=True).wait_for()
         checks.append("Neural inspection remains accessible")
 
