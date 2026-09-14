@@ -65,7 +65,8 @@ test('MaleCNS binary parser keeps directed positive edges', () => {
   assert.ok(r.x[1] > 0);
 });
 
-test('official MaleCNS manifest pins the traced-neuron full graph', () => {
+test('official MaleCNS manifest pins the traced-neuron full graph', { skip: fullManifest.available || process.env.LEGALFLY_REQUIRE_FULL === '1' ? false : 'Full MaleCNS manifest not generated in fixture-only run' }, () => {
+  assert.equal(fullManifest.available, true, 'Full MaleCNS is required for this integration run');
   const graph = fullManifest.graph;
   assert.equal(fullManifest.dataset.name, 'MaleCNS');
   assert.equal(fullManifest.dataset.release, 'v1.0');
