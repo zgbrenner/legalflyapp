@@ -1,43 +1,12 @@
-"use client";
-import { useEffect, useMemo, useState } from "react";
-import { fetchBenchmark } from "@/lib/api";
-import { DownloadIcon } from "@/components/ActionIcon";
-const NAMES: Record<string,string> = {connectome:"MiniLM + fly wiring",random_erdos:"MiniLM + random wiring",random_degree_preserving:"MiniLM + degree-matched wiring",linear:"MiniLM + linear readout",mlp:"MiniLM + small neural readout"};
-type Row = { macro_f1_mean:number; binary_sensitive_f1_mean:number; ci95?:number[]; n_runs:number; trainable_params:number; trainable_params_range?:number[]; reservoir_size?:number; edge_count?:number };
-type Trial = { pair_id:string; model:string; data_seed:number; graph_seed:number; macro_f1:number; binary_sensitive_f1:number; validation_f1:number };
-type Effect = { reference:string; delta:number; ci95?:number[]; status:string; p_value_unadjusted?:number };
-type Report = { status:string; interpretation:string; models:Record<string,Row>; comparisons?:Effect[]; pairs?:Trial[]; n_pairs?:number; max_train?:number; n_validation?:number; n_test?:number; data_seeds?:number[]; graph_seeds?:number[]; timestamp?:string; delivery?:string; limitations?:string[] };
-const ORDER=["connectome","linear","mlp","random_erdos","random_degree_preserving"];
-function PairPlot({ trials, reference }: { trials:Trial[]; reference:string }) {
-  const pairs=trials.filter(t=>t.model==="connectome").map(fly=>({fly,other:trials.find(t=>t.model===reference&&t.pair_id===fly.pair_id)})).filter(p=>p.other);
-  const values=pairs.flatMap(p=>[p.fly.macro_f1,p.other!.macro_f1]);
-  const low=Math.max(0,Math.min(...values,.95)-.015),high=Math.min(1,Math.max(...values,.96)+.015);
-  const y=(value:number)=>155-(value-low)/(high-low)*125;
-  return <svg className="paired-chart" viewBox="0 0 620 190" role="img" aria-label={`Paired macro F1 scores comparing ${NAMES[reference]} and fly wiring. Each line connects the same training-data and graph seed.`}>
-    {[low,(low+high)/2,high].map(v=><g key={v}><line x1="50" x2="595" y1={y(v)} y2={y(v)} stroke="#d0d4c6" strokeDasharray="3 5"/><text x="0" y={y(v)+4} fill="#60675d" fontSize="10">{v.toFixed(2)}</text></g>)}
-    {pairs.map(p=><g key={p.fly.pair_id}><title>{p.fly.pair_id}: baseline {p.other!.macro_f1.toFixed(4)}, fly {p.fly.macro_f1.toFixed(4)}</title><line x1="120" x2="505" y1={y(p.other!.macro_f1)} y2={y(p.fly.macro_f1)} stroke="#758c70" strokeOpacity=".35"/><circle cx="120" cy={y(p.other!.macro_f1)} r="3" fill="#384f3e"/><circle cx="505" cy={y(p.fly.macro_f1)} r="3" fill="#823d32"/></g>)}
-    <text x="120" y="182" textAnchor="middle" fill="#60675d" fontSize="11">Comparison model</text><text x="505" y="182" textAnchor="middle" fill="#60675d" fontSize="11">Fly wiring</text>
-  </svg>;
-}
+import Link from "next/link";
+
 export default function BenchmarkPage() {
-  const [report,setReport]=useState<Report|null>(null),[error,setError]=useState<string|null>(null);
-  const [metric,setMetric]=useState("macro"),[reference,setReference]=useState("linear");
-  useEffect(()=>{let alive=true;fetchBenchmark().then(d=>{if(alive)setReport(d as Report);}).catch(e=>{if(alive)setError(e.message);});return()=>{alive=false;};},[]);
-  const models=report?.models??{};
-  const current=report?.comparisons?.find(e=>e.reference==="linear");
-  const range=useMemo(()=>Math.max(.01,...(report?.comparisons??[]).flatMap(e=>(e.ci95??[e.delta]).map(Math.abs)))*1.2,[report]);
-  const percent=(v:number)=>(v/range*.5+.5)*100;
-  return <div className="page-width results-page"><div className="results-header"><div><p className="section-label">The autopsy report</p><h1>Does the wiring help?</h1><p>The fly, scrambled controls, and standard classifiers. Same text features, same passages, same validation budget.</p></div><span className="status-pill">{(current?.delta??0)<0?"Linear baseline leads":current?.status==="fly_ahead"?"Fly mean is higher":"Evidence under review"}</span></div>
-    {error?<p role="alert" className="empty-notice">{error}</p>:!report?<p className="empty-notice" role="status">Loading the measured results…</p>:report.status!=="measured"?<p className="empty-notice">{report.interpretation}</p>:<>
-      <div className="results-meta"><span>{report.n_pairs} paired trials</span><span>{report.max_train} training examples</span><span>{report.n_validation} validation examples</span><span>{report.n_test} test passages</span><span>{report.data_seeds?.length} data seeds × {report.graph_seeds?.length} graph/input seeds</span></div>
-      <div className="results-grid"><div><div className="results-controls"><label htmlFor="metric">Score</label><select id="metric" value={metric} onChange={e=>setMetric(e.target.value)}><option value="macro">Macro F1 · all information types</option><option value="binary">Binary F1 · sensitive or not</option></select></div>
-        <table className="results-table"><thead><tr><th>Model</th><th>Mean F1</th><th>{metric==="macro"?"95% interval":"Trials"}</th></tr></thead><tbody>{ORDER.filter(key=>models[key]).map(key=><tr key={key} className={key==="connectome"?"fly-row":""}><td>{NAMES[key]}</td><td>{(metric==="macro"?models[key].macro_f1_mean:models[key].binary_sensitive_f1_mean).toFixed(4)}</td><td>{metric==="macro"?models[key].ci95?.map(v=>v.toFixed(3)).join(" to ")??"Not computed":models[key].n_runs}</td></tr>)}</tbody><caption>F1 balances missed detections and false alarms. Higher is better. Macro F1 gives each information type equal weight.</caption></table>
-        <div className="results-controls" style={{marginTop:32}}><label htmlFor="reference">Pair the fly with</label><select id="reference" value={reference} onChange={e=>setReference(e.target.value)}>{ORDER.filter(k=>k!=="connectome").map(k=><option key={k} value={k}>{NAMES[k]}</option>)}</select></div>
-        {report.pairs?.length?<PairPlot trials={report.pairs} reference={reference}/>:null}<p style={{fontSize:11,color:"var(--muted)"}}>Macro F1 is shown in this plot. Each line links a matched trial. Upward toward the fly means a higher fly score. These trials share the same test passages.</p>
-      </div><aside className="effects-panel"><h2>The fly’s margin.</h2><p>Difference in macro F1, with a paired 95% interval. The center line is a tie. Crossing it means the direction is uncertain.</p>{report.comparisons?.map(effect=><div className="effect-row" key={effect.reference}><div className="effect-row-top"><span>vs. {NAMES[effect.reference]?.replace("MiniLM + ","")}</span><b>{effect.delta>=0?"+":""}{(effect.delta*100).toFixed(2)} pts</b></div><div className="effect-track" role="img" aria-label={`Difference ${effect.delta.toFixed(4)}; interval ${effect.ci95?.join(" to ")}`}><span className="effect-ci" style={{left:`${percent(effect.ci95?.[0]??effect.delta)}%`,width:`${((effect.ci95?.[1]??effect.delta)-(effect.ci95?.[0]??effect.delta))/range*50}%`}}/><span className="effect-dot" style={{left:`${percent(effect.delta)}%`}}/></div><div className="effect-note">{effect.status==="inconclusive"?"INCONCLUSIVE":effect.delta<0?"COMPARISON MEAN HIGHER":"FLY MEAN HIGHER"} · p {effect.p_value_unadjusted?.toFixed(3)??"not computed"}</div></div>)}<p>Intervals cluster on training-data seed. Permutation p-values are exploratory and not adjusted for multiple comparisons.</p></aside></div>
-      <details className="trials-details"><summary>Inspect every paired trial</summary><div className="trials-scroll"><table className="results-table"><thead><tr><th>Data / graph seed</th><th>Model</th><th>Test macro F1</th><th>Validation F1</th></tr></thead><tbody>{report.pairs?.map(t=><tr key={`${t.pair_id}-${t.model}`}><td>{t.data_seed} / {t.graph_seed}</td><td>{NAMES[t.model]}</td><td>{t.macro_f1.toFixed(4)}</td><td>{t.validation_f1.toFixed(4)}</td></tr>)}</tbody></table></div></details>
-      <section className="field-notes" style={{marginTop:35,paddingTop:30}}><div><p className="section-label">Read the fine print</p><h2>A harder test.<br/>Not a final verdict.</h2></div><div><p>{report.interpretation}</p><p>The fly models in this experiment are hybrids: they retain MiniLM’s original features and add fly activity. This is not a fly replacing MiniLM. All five model families received 18 validation candidates; the test was evaluated after those choices were saved.</p><p>{report.limitations?.join(" ")}</p><a href="/research/comparison_v2.json" download className="text-link result-download"><span className="with-icon">Download the complete measurement record <DownloadIcon/></span></a><br/><a href="/research/comparison_v2_selection.json.gz" download className="text-link result-download"><span className="with-icon">Download all validation choices (.json.gz) <DownloadIcon/></span></a></div></section>
-      <p className="experiment-footnote">Measured {report.timestamp?new Date(report.timestamp).toLocaleString():"date not reported"}. {report.delivery==="bundled_results"?"Showing the bundled research artifact, not a live measurement.":"Loaded from the API’s published research artifact."} Earlier results used a different, incorrect propagation/control implementation and are not comparable.</p>
-    </>}
-  </div>;
+  return <article className="page-width reading-page">
+    <p className="section-label">Benchmarks</p>
+    <h1>Run the held-out docket<br />from the chamber.</h1>
+    <p>The benchmark is intentionally visitor-local for this release. Train the ledger on the homepage, open &quot;Inspect the apparatus,&quot; and run the held-out benchmark there. The worker reports exact matches, abstentions, forced-choice coverage, and per-case outputs.</p>
+    <p>The benchmark uses the same authored 32 teaching and 16 held-out split as the app. The ground truth is the fictional village charter, not real law and not historical doctrine.</p>
+    <p>Shuffled-wiring results are displayed only if the MaleCNS shuffled asset was generated by the preparation pipeline. Missing controls are reported as missing, not filled with old hemibrain or synthetic scores.</p>
+    <p><Link href="/#docket">Bring a dispute</Link> / <Link href="/methodology">Read the method</Link></p>
+  </article>;
 }

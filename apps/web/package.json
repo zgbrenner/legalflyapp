@@ -9,8 +9,9 @@
     "lint": "eslint . --ext .ts,.tsx",
     "test": "vitest run",
     "test:watch": "vitest",
-    "predev": "node scripts/export-dream-graph.mjs",
-    "prebuild": "node scripts/export-dream-graph.mjs",
+    "predev": "node scripts/export-legalfly-graph.mjs",
+    "prebuild": "node scripts/export-legalfly-graph.mjs",
+    "test:legalfly": "node scripts/export-legalfly-graph.mjs && node --test tests/legalfly/*.test.mjs",
     "test:dream": "node scripts/export-dream-graph.mjs && node --test tests/dream/*.test.mjs"
   },
   "dependencies": {

@@ -55,6 +55,7 @@ results/experiment_*/
 !deploy/
 !deploy/**
 deploy/**/__pycache__/
+apps/web/public/legalfly/*.bin
 
 
 # OS / IDE
