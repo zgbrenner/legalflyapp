@@ -66,20 +66,16 @@ jobs:
           cache-dependency-path: apps/web/package-lock.json
       - run: pip install fastapi uvicorn pydantic-settings numpy scipy scikit-learn httpx rich joblib typer playwright
       - run: pip install --no-deps -e . && python -m playwright install --with-deps chromium
-      - run: mkdir -p data/processed && cp -R deploy/data/processed/hemibrain data/processed/
       - run: cd apps/web && npm ci && npm run build
-      - name: Run real API and frontend
+      - name: Run current chamber without a substitute graph
         run: |
           mkdir -p /tmp/legalfly-qa
-          uvicorn apps.api.app.main:app --host 127.0.0.1 --port 8000 > /tmp/legalfly-qa/api.log 2>&1 &
           (cd apps/web && npm start -- --hostname 127.0.0.1 > /tmp/legalfly-qa/web.log 2>&1) &
           for i in $(seq 1 90); do
-            if curl -fsS http://127.0.0.1:8000/ready >/dev/null && curl -fsS http://127.0.0.1:3000 >/dev/null; then break; fi
+            if curl -fsS http://127.0.0.1:3000 >/dev/null; then break; fi
             sleep 2
           done
-          python -m scripts.browser_smoke
-          python -m scripts.dream_browser_smoke
-          python -m scripts.hero_browser_smoke
+          python -m scripts.legalfly_browser_smoke
       - uses: actions/upload-artifact@v4
         if: always()
         with:

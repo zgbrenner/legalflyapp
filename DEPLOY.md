@@ -18,9 +18,27 @@ npm run build
 
 `apps/web/scripts/export-legalfly-graph.mjs` copies the ignored generated binaries from `data/processed/malecns/v1.0/browser` into `apps/web/public/legalfly` during `predev` and `prebuild`. The binaries are large and ignored by git.
 
+
+## Render
+
+The repository Blueprint preserves the legacy `legalfly-api` service and adds a separate `legalfly-web` Docker service for the village application. `Dockerfile.web` performs the official download, publisher MD5 verification, independent SHA-256 recording, conversion, and shuffled-control generation in a disposable build stage. The final image contains the browser application and generated binaries, not the 1 GB source Feather files or Python conversion environment.
+
+From the Render dashboard, sync the Blueprint and inspect the proposed `legalfly-web` service before applying it. This creates a second service and does not replace the existing API. Do not point a public build at a shared MiniMind adapter.
+
+For a local image build using Docker:
+
+```sh
+docker build --file Dockerfile.web --tag legalfly-web:local .
+docker run --rm --publish 3000:3000 legalfly-web:local
+curl --fail http://127.0.0.1:3000/api/health
+curl --fail --range 0-31 http://127.0.0.1:3000/legalfly/malecns.bin --output /dev/null
+```
+
+The connectome build downloads roughly 1 GB from the pinned official release and emits roughly 413 MB of graph, shuffled-control, and anatomy assets. A cold Render build will therefore take materially longer than an ordinary frontend deployment. Docker layer caching avoids repeating the conversion when the acquisition stage and pinned inputs do not change. The free service is suitable only for a private preview: it has 512 MB RAM, spins down when idle, and does not provide edge caching. Expect a cold-start delay and substantial bandwidth use when browsers fetch the graph assets.
+
 ## Required Static Assets
 
-Serve these same-origin paths with normal static caching and byte-range support where available:
+Serve these same-origin paths with revalidation and byte-range support. The binary filenames are stable, so they must not be marked immutable unless a future release fingerprints the filenames:
 
 ```text
 /legalfly/manifest.json
