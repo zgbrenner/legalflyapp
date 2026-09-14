@@ -43,6 +43,11 @@ OBJECTS = {
 }
 
 
+def versioned_url(meta: dict[str, str | int]) -> str:
+    """Return the immutable GCS object generation recorded by the publisher."""
+    return f"{meta['url']}?generation={meta['generation']}"
+
+
 def digest(path: Path) -> dict[str, str | int]:
     h = hashlib.sha256()
     m = hashlib.md5()
@@ -59,12 +64,13 @@ def download() -> None:
     for name, meta in OBJECTS.items():
         dest = RAW / Path(meta["url"]).name
         if not dest.exists() or dest.stat().st_size != meta["size"]:
-            print(f"Downloading {name}: {meta['url']}")
-            urllib.request.urlretrieve(meta["url"], dest)
+            acquisition_url = versioned_url(meta)
+            print(f"Downloading {name}: {acquisition_url}")
+            urllib.request.urlretrieve(acquisition_url, dest)
         got = digest(dest)
         if got["size"] != meta["size"] or got["md5_b64"] != meta["md5_b64"]:
             raise SystemExit(f"Integrity check failed for {dest}")
-        provenance["objects"][name] = {**meta, **got}
+        provenance["objects"][name] = {**meta, "acquisition_url": versioned_url(meta), **got}
     (RAW / "provenance.json").write_text(json.dumps(provenance, indent=2))
 
 
