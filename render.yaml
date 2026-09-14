@@ -1,4 +1,5 @@
 services:
+  # Existing legacy classifier API. The village application does not call it.
   - type: web
     name: legalfly-api
     runtime: docker
@@ -22,4 +23,18 @@ services:
       - key: OMP_NUM_THREADS
         value: "1"
       - key: PYTHONUNBUFFERED
+        value: "1"
+
+  # Browser-local Legal Fly village and the complete MaleCNS v1.0 assets.
+  - type: web
+    name: legalfly-web
+    runtime: docker
+    dockerfilePath: ./Dockerfile.web
+    dockerContext: .
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_TELEMETRY_DISABLED
         value: "1"
