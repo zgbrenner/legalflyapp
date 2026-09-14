@@ -14,6 +14,7 @@ export type MaleCNSPoint = {
 };
 
 export type MaleCNSFrame = {
+  kind?: "anatomy" | "activity";
   step: number;
   total_steps: number;
   sampled: true;
@@ -27,9 +28,11 @@ function drawMap(canvas: HTMLCanvasElement | null, frame: MaleCNSFrame, selected
   if (!canvas || typeof CanvasRenderingContext2D === "undefined") return;
   const context = canvas.getContext("2d");
   if (!context) return;
-  const scale = window.devicePixelRatio || 1;
+  const scale = Math.min(2, window.devicePixelRatio || 1);
   const width = Math.max(1, canvas.clientWidth), height = Math.max(1, canvas.clientHeight);
-  canvas.width = Math.round(width * scale); canvas.height = Math.round(height * scale);
+  const pixelWidth = Math.round(width * scale), pixelHeight = Math.round(height * scale);
+  if (canvas.width !== pixelWidth) canvas.width = pixelWidth;
+  if (canvas.height !== pixelHeight) canvas.height = pixelHeight;
   context.setTransform(scale, 0, 0, scale, 0, 0);
   context.clearRect(0, 0, width, height);
   const fallbackMin: [number, number, number] = [2468, 4758, 10154];
@@ -70,7 +73,10 @@ export function MaleCNSMap({ frame, active }: { frame: MaleCNSFrame; active: boo
   useEffect(() => {
     const render = () => { drawMap(mapRef.current, frame, selectedIndex); drawMap(bodyRef.current, frame, selectedIndex, true); };
     render(); window.addEventListener("resize", render);
-    return () => window.removeEventListener("resize", render);
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(render);
+    if (mapRef.current) observer?.observe(mapRef.current);
+    if (bodyRef.current) observer?.observe(bodyRef.current);
+    return () => { observer?.disconnect(); window.removeEventListener("resize", render); };
   }, [frame, selectedIndex]);
 
   const chooseNearest = (event: React.PointerEvent<HTMLCanvasElement>) => {
@@ -95,7 +101,7 @@ export function MaleCNSMap({ frame, active }: { frame: MaleCNSFrame; active: boo
       <span>Same worker frame projected over counsel&apos;s body</span>
     </div>
     <div className="lf-anatomy-sheet">
-      <div className="lf-map-heading"><span>MaleCNS soma map</span><strong>update {frame.step}/{frame.total_steps}</strong></div>
+      <div className="lf-map-heading"><span>MaleCNS soma map</span><strong>{frame.kind === "anatomy" ? "released anatomy · idle" : `update ${frame.step}/${frame.total_steps}`}</strong></div>
       <canvas ref={mapRef} onPointerDown={chooseNearest} role="img" aria-label="Actual sampled MaleCNS activity mapped to released soma coordinates" />
       <div className="lf-map-key"><span><i className="positive" />positive activation</span><span><i className="negative" />negative activation</span><span><i className="context" />mapped context</span></div>
     </div>
