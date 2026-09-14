@@ -67,4 +67,4 @@ export const VILLAGERS=[
  {id:'insult',name:'Anke the baker',title:'Words at the market',offering:'Half a loaf',story:'Someone called her bread a building material. There were witnesses. Anke reports no loss, but has taken considerable offense.',facts:{...base,claim:'insult',loss:'none'}},
  {id:'mill',name:'Willem the miller',title:'A threat at the mill',offering:'A sack of flour',story:'A dispute over a watercourse has turned into a grave threat. Willem wants advice before returning to the mill.',facts:{...base,claim:'land',loss:'large',danger:'grave'}}
 ];
-export function factSummary(f){f=validateFacts(f);return Object.entries(FIELDS).map(([k,d])=>`${d.label}: ${d.options[f[k]]}`).join('. ')+'.';
+export function factSummary(f){f=validateFacts(f);return Object.entries(FIELDS).map(([k,d])=>`${d.label}: ${d.options[f[k]]}`).join('. ')+'.';}

@@ -10,3 +10,5 @@ __pycache__/
 results/*.png
 results/full-verification.json
 .DS_Store
+apps/web/dist/
+results/browser-*.json
