@@ -1,26 +1,30 @@
-export default function MethodologyPage() {
-  return <article className="page-width reading-page"><p className="section-label">Tissue &amp; procedure</p><h1>What we kept.<br/>What we changed.</h1>
-    <h2>The borrowed wiring</h2><p>The real-data mode uses a 3,072-neuron subgraph of Janelia’s hemibrain v1.2, with 293,766 directed connections. Each retained connection comes from the reconstructed dataset. We selected high-degree neurons; this is not the whole fly brain and not an intact learning circuit. Synapse counts are scaled into computational weights.</p>
-    <h2>What “trained” means</h2><p>A text encoder turns a passage into numbers. Those numbers stimulate selected neurons in a mathematical model of the wiring. A small classifier, called a readout, learns to turn the resulting activity into labels such as EMAIL, PHONE, or NONE. The hybrid readout also receives the original text features, so the wiring is not its only source of information. The wiring stays fixed during that training. The model does not understand law, and there is no living or conscious fly inside it.</p>
-    <pre>{`Text → shared encoder → neural stimulation
-                     ↓
-         directed fly-wiring dynamics
-                     ↓
-         activity → trained readout
+import Link from "next/link";
 
-A[source, destination] = connection weight
-x(t+1) = (1−λ)x(t) + λ tanh(Aᵀx(t) + Win·u(t))`}</pre>
-    <h2>What the controls preserve</h2><p>The random graph preserves the exact number of neurons, edges, and the weight multiset. The degree-matched control also preserves every neuron’s incoming and outgoing edge count. The weight control preserves all connection locations and permutes the original weights. Collision checks prevent duplicate edges from being merged. Global normalization for the dynamics is recorded separately.</p>
-    <h2>The MiniLM comparison</h2><p>MiniLM supplies the same frozen text features to every model in the published search. The fly hybrid combines those features with compact neural activity; scrambled hybrids use the same construction. Standard alternatives are a linear readout and a small neural readout. Each model family receives 18 validation candidates. Configuration choices are saved before the test is scored. Training, validation, and test label counts are reported separately.</p>
-    <p>Paired trials vary training samples and graph/input seeds. Confidence intervals resample training-data-seed groups because several trials share the same training sample. These intervals condition on the existing synthetic test set. They do not establish real-world performance, and independent datasets are still needed.</p>
-    <h2>About the pictures</h2><p>The points identify sampled neurons, and the connections and activity come from the model. The brain-shaped layout is an illustration, not microscopy coordinates. Signals are replayed with interpolation and a fixed display gain. Both panels use the same gain, clock, layout rule, and camera angle. Moving sparks illustrate direction; they are not a measurement of biological spike timing.</p>
-    <h2>Data and privacy</h2><p>This public demo processes text on a server. The application does not save the passage, but that is not a promise about every hosting provider’s infrastructure. Only submit invented or redacted text. The interface’s initial recorded example is a saved inference on synthetic text and is labeled as such.</p>
-    <h2>Reproduce the work</h2><pre>{`make fetch-hemibrain
-make build-hemibrain
-pip install -e '.[research,dev]'
-python -m research.experiments.search
-python -m research.experiments.surgery
-pytest -q`}</pre><p>Graph hashes, encoder identity, dataset hashes, individual trials, and validation selection records accompany the measurements. Serving artifacts are versioned and checked before loading. Production does not train missing models on a request.</p>
-    <h2>Attribution</h2><p>Hemibrain v1.2: Janelia FlyEM, Scheffer and colleagues, CC BY 4.0. The project code and synthetic examples use the MIT license. The live graph source is reported next to each specimen. Synthetic mode is explicitly labeled and must not be treated as anatomical data.</p>
+export default function MethodologyPage() {
+  return <article className="page-width reading-page">
+    <p className="section-label">Method</p>
+    <h1>The fly is counsel.<br />The charter is fiction.</h1>
+    <h2>Dataset</h2>
+    <p>The intended biological substrate is the official MaleCNS v1.0 release from Janelia FlyEM: male fruit fly brain plus ventral nerve cord, licensed CC BY 4.0. The preparation command is <code>python tools/prepare_malecns.py --download --convert --export-browser</code>.</p>
+    <p>The active worker refuses to substitute hemibrain, a female brain, a tiny mushroom-body circuit, or a random graph when the MaleCNS browser asset is missing. That refusal is deliberate.</p>
+    <h2>Selection Policy</h2>
+    <p>The pipeline keeps all annotated traced neuronal bodies from the released body annotations and every positive minconf-0.5 directed body-pair connection between retained bodies. Isolated retained bodies stay in the graph. Glia, untraced fragments, missing endpoints, and nonpositive connection rows are excluded and counted.</p>
+    <h2>Computation</h2>
+    <p>Only structured facts reach the model. Petition narrative text is casebook context. The fields are matter, property, harm, proof, intent, relationship, urgency, and ability. The expected answer and benchmark identifiers never enter the neural input.</p>
+    <pre>{`structured facts
+  -> deterministic encoding
+  -> selected input neurons
+  -> fixed MaleCNS leaky-tanh reservoir
+  -> separate output/sample neurons
+  -> artificial readout
+  -> eight recommendations or abstention`}</pre>
+    <p>The biological wiring is fixed. Training changes the artificial readout only. The model does not simulate dopamine learning, biological synaptic plasticity, consciousness, legal understanding, or spike timing.</p>
+    <h2>Actions</h2>
+    <p>The eight recommendations are: let the matter rest, seek small reparation, seek full reparation, request return of property, find a witness, request a sworn account within the fictional charter, propose settlement, and refer the matter to a higher authority. Abstention is a real outcome when the model is untrained, silent, ambiguous, or outside the supported fields.</p>
+    <h2>Benchmarks</h2>
+    <p>The first split has 32 teaching petitions and 16 held-out petitions from separate scenario families. The benchmark reports abstentions rather than hiding them. A facts-only learner and a shuffled-wiring control are specified as controls; a shuffled score is reported only when the shuffled MaleCNS asset has been generated.</p>
+    <h2>Privacy</h2>
+    <p>Inference, training, corrections, import, export, and benchmarking run in a browser worker. The app does not call an external AI service. Nothing is saved automatically. Model and casebook exports contain any user-entered material.</p>
+    <p><Link href="/">Return to the chamber</Link></p>
   </article>;
 }
