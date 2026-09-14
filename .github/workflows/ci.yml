@@ -89,6 +89,7 @@ jobs:
     env:
       NEXT_TELEMETRY_DISABLED: '1'
       QA_ARTIFACTS_DIR: /tmp/legalfly-full-qa
+      LEGALFLY_REQUIRE_FULL: '1'
       OPENBLAS_NUM_THREADS: '1'
     steps:
       - uses: actions/checkout@v4
@@ -107,7 +108,15 @@ jobs:
           path: data/raw/malecns/v1.0
           key: malecns-v1-1780494878811468-1780494887545976
       - name: Acquire and verify official full graph
-        run: python tools/prepare_malecns.py --download --convert --export-browser --shuffled
+        run: python tools/prepare_malecns.py --download
+      - uses: actions/cache@v4
+        id: graph-cache
+        with:
+          path: data/processed/malecns/v1.0
+          key: malecns-browser-v1-${{ hashFiles('tools/prepare_malecns.py') }}
+      - name: Convert official full graph
+        if: steps.graph-cache.outputs.cache-hit != 'true'
+        run: python tools/prepare_malecns.py --convert --export-browser --shuffled
       - run: cd apps/web && npm ci && npm run test:legalfly && npm run build
       - name: Run full MaleCNS in native browser
         run: |
