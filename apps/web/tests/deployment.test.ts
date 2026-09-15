@@ -114,6 +114,15 @@ describe("production deployment contract", () => {
     ]);
   });
 
+  it("keeps Vercel as a redirect shell that never builds the fail-closed application", () => {
+    expect(vercelConfig.framework).toBeNull();
+    expect(vercelConfig.buildCommand).toBe("node scripts/build-vercel-redirect-shell.mjs");
+    expect(vercelConfig.outputDirectory).toBe(".vercel-redirect");
+    expect(vercelConfig.buildCommand).not.toMatch(/next|npm run build/);
+    expect(existsSync(join(repositoryRoot, "apps/web/scripts/build-vercel-redirect-shell.mjs"))).toBe(true);
+    expect(readRepositoryFile(".gitignore")).toContain("apps/web/.vercel-redirect/");
+  });
+
   it("builds a standalone server image", () => {
     expect(nextConfig.output).toBe("standalone");
   });

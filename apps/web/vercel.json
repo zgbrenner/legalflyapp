@@ -1,9 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "nextjs",
-  "installCommand": "npm ci",
-  "buildCommand": "npm run build",
-  "outputDirectory": ".next",
+  "framework": null,
+  "installCommand": "echo 'Vercel is a redirect shell; nothing to install.'",
+  "buildCommand": "node scripts/build-vercel-redirect-shell.mjs",
+  "outputDirectory": ".vercel-redirect",
   "redirects": [
     {
       "source": "/",

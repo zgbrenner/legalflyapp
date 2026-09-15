@@ -82,3 +82,6 @@ huggingface/
 
 # Isolated feature worktrees
 .worktrees/
+
+# Vercel redirect shell output
+apps/web/.vercel-redirect/

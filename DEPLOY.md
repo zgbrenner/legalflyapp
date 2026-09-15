@@ -82,7 +82,7 @@ The free service is suitable only for a private preview: it has 512 MB RAM, spin
 
 ## Vercel
 
-`thelegalfly.vercel.app` does not serve the application. Its `vercel.json` redirects `/` and `/:path*` to the Render web origin `https://legalfly-web.onrender.com`. The MiniMind worker requests every artifact from the page's own origin, so the bundle must be served by the origin that serves the page.
+`thelegalfly.vercel.app` does not serve the application. Its `vercel.json` redirects `/` and `/:path*` to the Render web origin `https://legalfly-web.onrender.com`. The Vercel project therefore does not build the Next application at all (that build fails closed by design without the MaleCNS graph and the MiniMind bundle); `vercel.json` sets `framework` to `null` and runs `scripts/build-vercel-redirect-shell.mjs`, which emits a one-page static output so the redirect rules can deploy. The MiniMind worker requests every artifact from the page's own origin, so the bundle must be served by the origin that serves the page.
 
 ## Required Static Assets
 
