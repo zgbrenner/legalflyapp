@@ -92,6 +92,24 @@ describe("Legal Fly responsive layout contract", () => {
     }
   });
 
+  it("declares desktop placement once and lets no other media block move the chamber panels", () => {
+    const panels = [".lf-work", ".lf-docket", ".lf-petition-panel", ".lf-advice"];
+    const placement = ["grid-template-columns", "grid-column", "grid-row"];
+    expect(declarations(chamberCss, ".lf-docket")).toMatchObject({ "grid-column": "1", "grid-row": "1" });
+    expect(declarations(chamberCss, ".lf-petition-panel")).toMatchObject({ "grid-column": "2", "grid-row": "1" });
+    expect(declarations(chamberCss, ".lf-advice")).toMatchObject({ "grid-column": "3", "grid-row": "1" });
+
+    const explicit = new Set(["(max-width:1100px) and (min-width:721px)", "(max-width:720px)"]);
+    const strays = chamberCss.nodes
+      .filter((node): node is AtRule => node.type === "atrule" && node.name === "media" && !explicit.has(node.params))
+      .flatMap(container => (container.nodes ?? [])
+        .filter((node): node is Rule => node.type === "rule" && node.selectors.some(selector => panels.includes(selector)))
+        .flatMap(rule => rule.nodes
+          .filter((node): node is Declaration => node.type === "decl" && placement.includes(node.prop))
+          .map(node => `${container.params} ${rule.selector} ${node.prop}`)));
+    expect(strays).toEqual([]);
+  });
+
   it("uses fluid chamber spacing, wrapped process steps, and touch-sized actions", () => {
     const page = declarations(chamberCss, ".lf-page");
     for (const token of ["--space-page", "--space-panel", "--space-section"]) {

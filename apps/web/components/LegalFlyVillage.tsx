@@ -58,19 +58,23 @@ function MiniMindSetup({ state, manualFacts, onEnable, onCancel, onManual }: {
   const busy = ["downloading", "verifying", "cached", "loading"].includes(state.phase);
   const canRetry = state.phase === "failed" || state.phase === "unsupported";
   const progress = state.progress;
-  let status = "MiniMind has not been downloaded.";
+  const idle = "MiniMind has not been downloaded.";
+  let status = idle;
+  // The worker's own available-state messages ("download canceled", "saved files were incomplete") are fixed strings that never contain petition text.
+  if (state.phase === "available" && !state.message.includes("has not been enabled")) status = state.message;
   if (state.phase === "downloading") status = "Downloading MiniMind to this browser.";
   if (state.phase === "verifying") status = "Download complete. Checking the saved files.";
   if (state.phase === "cached") status = "Found saved MiniMind files. Checking them on this device.";
   if (state.phase === "loading") status = state.message.includes("graphics") ? "Starting MiniMind with this device's graphics engine." : "Starting MiniMind with the browser compatibility engine.";
-  if (canRetry) status = "MiniMind could not start here. You can retry, keep using manual facts, or try a current Chrome, Edge, or another Chromium browser.";
+  if (state.phase === "unsupported") status = "MiniMind could not start here. You can retry, keep using manual facts, or try a current Chrome, Edge, or another Chromium browser.";
+  if (state.phase === "failed") status = state.message;
 
   return <section className={`lf-minimind-setup ${manualFacts ? "is-manual" : ""}`} aria-labelledby="minimind-setup-title">
     <div className="lf-minimind-copy">
       <p className="lf-eyebrow">Optional language helper</p>
       <h3 id="minimind-setup-title">Let MiniMind suggest the eight fact choices</h3>
       {!manualFacts ? <p>Download it once and it runs only in this browser. Your petition stays on this device. You will review every suggestion before the fly sees it.</p> : <p><strong>Using manual facts.</strong> MiniMind remains optional, and you can enable it later.</p>}
-      {state.phase !== "available" || manualFacts ? <p className="lf-minimind-status" role="status">{status}</p> : null}
+      {state.phase !== "available" || manualFacts || status !== idle ? <p className="lf-minimind-status" role="status">{status}</p> : null}
       {progress && state.phase === "downloading" ? <div className="lf-minimind-progress">
         <progress aria-label="MiniMind download progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress.percent)} max={100} value={progress.percent}>{progress.percent}%</progress>
         <span>{Math.round(progress.percent)}% · {formatBytes(progress.loaded)} of {formatBytes(progress.total)}</span>

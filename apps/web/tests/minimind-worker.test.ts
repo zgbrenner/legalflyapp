@@ -8,6 +8,7 @@ import {
   type MiniMindWorkerDependencies,
 } from "@/workers/minimind.worker";
 import { MiniMindBrowserClient, type WorkerLike } from "@/lib/minimind-browser";
+import { authoredMiniMindNotes } from "@/lib/minimind-policy";
 
 const MODEL_ID = "jingyaogong/minimind-3";
 const MODEL_REVISION = "f92512d4cd6142fa9acc0d6022375049a8974bf6";
@@ -53,6 +54,19 @@ class MemoryCache {
 function responseFor(bytes: Uint8Array, contentType = "application/octet-stream") {
   return new Response(bytes.slice().buffer as ArrayBuffer, { status: 200, headers: { "content-type": contentType } });
 }
+
+/** Streams a response one byte per chunk so progress callbacks fire per chunk. */
+function chunkedResponse(bytes: Uint8Array, contentType: string) {
+  const stream = new ReadableStream<Uint8Array>({
+    start(controller) {
+      for (const byte of bytes) controller.enqueue(new Uint8Array([byte]));
+      controller.close();
+    },
+  });
+  return new Response(stream, { status: 200, headers: { "content-type": contentType } });
+}
+
+const FIXED_FACTS = { matter: "damage", property: "crops", harm: "low", proof: "unclear", intent: "careless", relationship: "neighbors", urgency: "ordinary", ability: "able" };
 
 async function bundle() {
   const readout = {
@@ -140,7 +154,15 @@ async function harness(options: {
   cached?: boolean;
   corrupt?: boolean;
   webgpu?: boolean;
+  /** Serve artifact bodies as one-byte stream chunks instead of a buffered body. */
+  chunked?: boolean;
   createEngine?: MiniMindWorkerDependencies["createInferenceEngine"];
+  cacheOpen?: (cache: MemoryCache) => Promise<Cache>;
+  crypto?: Crypto;
+  /** Serve corrupted bytes for the artifact whose URL contains this fragment. */
+  tamper?: string;
+  /** Answer 404 for every URL containing this fragment. */
+  omit?: string;
 } = {}) {
   const artifactBundle = await bundle();
   const cache = new MemoryCache();
@@ -156,26 +178,42 @@ async function harness(options: {
   const requests: Array<{ url: string; serialized: string }> = [];
   const responses = new Map<string, Response>([
     [new URL(MINI_MIND_MANIFEST_URL, origin).href, artifactBundle.manifestResponse],
-    ...artifactBundle.stored.map((item) => [item.url, item.response] as const),
+    ...artifactBundle.stored.map((item) => [
+      item.url,
+      options.tamper && item.url.includes(options.tamper) ? responseFor(new Uint8Array([9, 9, 9])) : item.response,
+    ] as const),
   ]);
+  if (options.omit) for (const url of [...responses.keys()]) if (url.includes(options.omit)) responses.delete(url);
   const fetcher = vi.fn(async (request: RequestInfo | URL, init?: RequestInit) => {
     const url = new URL(String(request), origin).href;
     requests.push({ url, serialized: `${url} ${String(init?.body ?? "")}` });
     const response = responses.get(url);
     if (!response) return new Response("missing", { status: 404 });
+    if (options.chunked && url !== new URL(MINI_MIND_MANIFEST_URL, origin).href) {
+      const copy = response.clone();
+      return chunkedResponse(new Uint8Array(await copy.arrayBuffer()), copy.headers.get("content-type") ?? "application/octet-stream");
+    }
     return response.clone();
   });
   const messages: unknown[] = [];
+  const createEngine = options.createEngine ?? vi.fn(async () => fakeEngine());
+  const open = vi.fn(async () => options.cacheOpen ? options.cacheOpen(cache) : cache as unknown as Cache);
   const runtime = createMiniMindWorkerRuntime({
     origin,
     fetch: fetcher as typeof fetch,
-    cacheStorage: { open: vi.fn(async () => cache as unknown as Cache) },
-    crypto: webcrypto as unknown as Crypto,
+    cacheStorage: { open },
+    crypto: options.crypto ?? webcrypto as unknown as Crypto,
     hasWebGpu: () => Boolean(options.webgpu),
-    createInferenceEngine: options.createEngine ?? vi.fn(async () => fakeEngine()),
+    createInferenceEngine: createEngine,
     postMessage: (message) => messages.push(message),
   });
-  return { runtime, requests, cache, messages, artifactBundle };
+  return { runtime, requests, cache, messages, artifactBundle, createEngine, open };
+}
+
+function statesOf(messages: unknown[]) {
+  return messages
+    .filter((message): message is { type: "state"; state: { phase: string; progress: { loaded: number; file: string | null } | null } } => (message as { type?: string }).type === "state")
+    .map((message) => message.state);
 }
 
 describe("MiniMind browser worker", () => {
@@ -184,6 +222,33 @@ describe("MiniMind browser worker", () => {
     await test.runtime.start();
     expect(test.requests).toEqual([]);
     expect(test.runtime.getState()).toMatchObject({ phase: "available" });
+  });
+
+  it("names a missing file list with fixed copy and never echoes a browser error", async () => {
+    const origin = "https://village.example";
+    const test = await harness({ omit: "manifest.json" });
+    await test.runtime.start();
+    test.requests.length = 0;
+    // Deployed page without the bundle: the manifest request answers 404.
+    await test.runtime.handle({ id: 1, type: "enable" });
+    expect(test.runtime.getState()).toMatchObject({
+      phase: "failed",
+      message: "The MiniMind file list is unavailable. Retry or continue with manual facts.",
+    });
+    expect(test.messages).toContainEqual({ id: 1, type: "error", message: "MiniMind could not finish this local operation." });
+    expect(test.requests.map((request) => request.url)).toEqual([new URL(MINI_MIND_MANIFEST_URL, origin).href]);
+    expect(test.cache.deleted.length).toBeGreaterThanOrEqual(0);
+  });
+
+  it("names the artifact that failed its hash check and evicts the partial download", async () => {
+    const test = await harness({ tamper: "model.q8" });
+    await test.runtime.start();
+    await test.runtime.handle({ id: 2, type: "enable" });
+    const state = test.runtime.getState();
+    expect(state.phase).toBe("failed");
+    expect(state.message).toMatch(/^MiniMind file verification failed: model\.q8\.[a-f0-9]{64}\.onnx\. Retry or continue with manual facts\.$/);
+    expect(test.cache.deleted.length).toBeGreaterThan(0);
+    expect(test.messages.filter((message) => (message as { type?: string }).type === "state").every((message) => !JSON.stringify(message).includes("TypeError"))).toBe(true);
   });
 
   it("restores a verified cached model and becomes ready", async () => {
@@ -320,6 +385,176 @@ describe("MiniMind browser worker", () => {
     );
   });
 
+  it("reports a failed enable when cache storage cannot open, then recovers on retry", async () => {
+    let openAttempts = 0;
+    const test = await harness({
+      cacheOpen: async (cache) => {
+        openAttempts += 1;
+        if (openAttempts === 1) throw new DOMException("Storage is blocked", "SecurityError");
+        return cache as unknown as Cache;
+      },
+    });
+    // start() opens the cache too; let it fail so enable performs the first "real" attempt.
+    await test.runtime.start();
+    openAttempts = 0;
+
+    await test.runtime.handle({ id: 1, type: "enable" });
+    expect(test.runtime.getState()).toMatchObject({ phase: "failed" });
+    expect(test.runtime.getState().message).toBe("MiniMind could not be enabled. Retry or continue with manual facts.");
+    expect(test.messages).toContainEqual(expect.objectContaining({ id: 1, type: "error" }));
+    expect(test.requests).toEqual([]);
+
+    await test.runtime.handle({ id: 2, type: "enable" });
+    expect(test.runtime.getState()).toMatchObject({ phase: "ready", source: "download" });
+    expect(test.messages).toContainEqual(expect.objectContaining({ id: 2, type: "result", result: null }));
+  });
+
+  it("serializes engine operations so session runs never overlap", async () => {
+    let inFlight = 0;
+    let overlapped = false;
+    const order: number[] = [];
+    const engine = fakeEngine({
+      embed: vi.fn(async (petitions: string[]) => {
+        if (inFlight !== 0) overlapped = true;
+        inFlight += 1;
+        await new Promise((resolve) => setTimeout(resolve, 5));
+        inFlight -= 1;
+        return petitions.map(() => [1, 0]);
+      }),
+    });
+    const test = await harness({ cached: true, createEngine: vi.fn(async () => engine) });
+    await test.runtime.start();
+
+    const first = test.runtime.handle({ id: 10, type: "encode", petition: "first petition" });
+    const second = test.runtime.handle({ id: 11, type: "encode", petition: "second petition" });
+    test.runtime.handle({ id: 12, type: "benchmark", cases: [{ id: "case-1", petition: "third petition" }] });
+    await Promise.all([first, second]);
+    await test.runtime.handle({ id: 13, type: "dispose" });
+
+    expect(overlapped).toBe(false);
+    for (const message of test.messages) {
+      const envelope = message as { id?: number; type: string };
+      if (envelope.type === "result") order.push(envelope.id!);
+    }
+    expect(order).toEqual([10, 11, 12, 13]);
+    expect(engine.dispose).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not fetch or build a second engine when enable arrives during the cached restore", async () => {
+    const test = await harness({ cached: true });
+    const starting = test.runtime.start();
+    await test.runtime.handle({ id: 1, type: "enable" });
+    await starting;
+
+    expect(test.requests).toEqual([]);
+    expect(test.createEngine).toHaveBeenCalledTimes(1);
+    expect(test.runtime.getState()).toMatchObject({ phase: "ready", source: "cache" });
+    expect(test.messages).toContainEqual(expect.objectContaining({ id: 1, type: "result", result: null }));
+  });
+
+  it("republishes the ready state instead of downloading when enable arrives while ready", async () => {
+    const test = await harness({ cached: true });
+    await test.runtime.start();
+    const readyBefore = statesOf(test.messages).filter((state) => state.phase === "ready").length;
+
+    await test.runtime.handle({ id: 1, type: "enable" });
+
+    expect(test.requests).toEqual([]);
+    expect(test.createEngine).toHaveBeenCalledTimes(1);
+    expect(statesOf(test.messages).filter((state) => state.phase === "ready").length).toBe(readyBefore + 1);
+    expect(test.runtime.getState()).toMatchObject({ phase: "ready", source: "cache" });
+  });
+
+  it("rejects inherited object members as actions and confidence bands", async () => {
+    const test = await harness({ cached: true });
+    await test.runtime.start();
+    for (const [id, action] of [[20, "constructor"], [21, "__proto__"], [22, "toString"]] as const) {
+      await test.runtime.handle({ id, type: "verbalize", action, confidenceBand: "medium", facts: FIXED_FACTS });
+      expect(test.messages).toContainEqual(expect.objectContaining({ id, type: "error" }));
+    }
+    await test.runtime.handle({ id: 23, type: "verbalize", action: "let-rest", confidenceBand: ["low"], facts: FIXED_FACTS } as never);
+    expect(test.messages).toContainEqual(expect.objectContaining({ id: 23, type: "error" }));
+    expect(authoredMiniMindNotes(FIXED_FACTS, "toString")).toEqual([]);
+    expect(authoredMiniMindNotes(FIXED_FACTS, "constructor")).toEqual([]);
+    expect(authoredMiniMindNotes(FIXED_FACTS, "__proto__")).toEqual([]);
+  });
+
+  it("evicts orphaned artifacts left behind without a manifest", async () => {
+    const test = await harness();
+    const orphan = test.artifactBundle.stored[0];
+    await test.cache.put(orphan.url, orphan.response.clone());
+
+    await test.runtime.start();
+
+    expect([...test.cache.entries.keys()]).toEqual([]);
+    expect(test.cache.deleted).toContain(orphan.url);
+    expect(test.requests).toEqual([]);
+    expect(test.runtime.getState()).toMatchObject({ phase: "available" });
+  });
+
+  it("retries initialization from the verified cache without downloading again", async () => {
+    let attempts = 0;
+    const test = await harness({
+      cached: true,
+      createEngine: vi.fn(async () => {
+        attempts += 1;
+        if (attempts === 1) throw new Error("backend failed");
+        return fakeEngine();
+      }),
+    });
+    await test.runtime.start();
+    expect(test.runtime.getState()).toMatchObject({ phase: "unsupported" });
+
+    await test.runtime.handle({ id: 1, type: "enable" });
+
+    expect(test.requests).toEqual([]);
+    expect(attempts).toBe(2);
+    expect(test.runtime.getState()).toMatchObject({ phase: "ready", source: "cache" });
+  });
+
+  it("does not fetch when subtle crypto is unavailable at enable time", async () => {
+    const test = await harness({ crypto: {} as Crypto });
+    await test.runtime.start();
+    await test.runtime.handle({ id: 1, type: "enable" });
+
+    expect(test.requests).toEqual([]);
+    expect(test.open).not.toHaveBeenCalled();
+    expect(test.runtime.getState()).toMatchObject({ phase: "unsupported" });
+  });
+
+  it("embeds the petition exactly as written, including surrounding whitespace", async () => {
+    const engine = fakeEngine();
+    const test = await harness({ cached: true, createEngine: vi.fn(async () => engine) });
+    await test.runtime.start();
+    await test.runtime.handle({ id: 1, type: "encode", petition: "  a padded petition \n" });
+    expect(engine.embed).toHaveBeenLastCalledWith(["  a padded petition \n"]);
+    await test.runtime.handle({ id: 2, type: "encode", petition: "   " });
+    expect(test.messages).toContainEqual(expect.objectContaining({ id: 2, type: "error" }));
+  });
+
+  it("throttles progress publication but always reports each file's final size", async () => {
+    const now = vi.spyOn(Date, "now").mockReturnValue(1_000_000);
+    try {
+      const test = await harness({ chunked: true });
+      await test.runtime.start();
+      await test.runtime.handle({ id: 1, type: "enable" });
+      expect(test.runtime.getState()).toMatchObject({ phase: "ready", source: "download" });
+
+      const progress = statesOf(test.messages).filter((state) => state.phase === "downloading" && state.progress !== null);
+      let expectedLoaded = 0;
+      for (const entry of test.artifactBundle.manifest.files) {
+        expectedLoaded += entry.bytes;
+        const forFile = progress.filter((state) => state.progress!.file === entry.file);
+        // Each byte arrives as its own chunk, but the clock is frozen and no
+        // file reaches 64 KiB, so only the final chunk publishes.
+        expect(forFile.length).toBe(1);
+        expect(forFile.at(-1)!.progress!.loaded).toBe(expectedLoaded);
+      }
+    } finally {
+      now.mockRestore();
+    }
+  });
+
   it("rejects unknown commands and undeclared fields", async () => {
     const test = await harness({ cached: true });
     await test.runtime.start();
@@ -444,6 +679,30 @@ describe("MiniMindBrowserClient", () => {
     worker.reply({ id: disposeCommand.id, type: "result", result: null });
     await disposing;
     expect(worker.terminated).toBe(true);
+  });
+
+  it("terminates a worker that never answers dispose after a bounded wait", async () => {
+    vi.useFakeTimers();
+    try {
+      class SilentWorker extends EventTarget implements WorkerLike {
+        terminated = false;
+        postMessage() {}
+        terminate() { this.terminated = true; }
+      }
+      const worker = new SilentWorker();
+      const client = new MiniMindBrowserClient(() => worker);
+      const pendingEncode = expect(client.encodePetition("A petition")).rejects.toThrow("MiniMind browser worker did not stop in time and was terminated.");
+      const disposing = client.dispose();
+      await vi.advanceTimersByTimeAsync(1999);
+      expect(worker.terminated).toBe(false);
+      await vi.advanceTimersByTimeAsync(1);
+      await disposing;
+      expect(worker.terminated).toBe(true);
+      await pendingEncode;
+      await expect(client.enable()).rejects.toThrow("MiniMind browser worker was disposed.");
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("rejects a worker result that changes the fixed fly action", async () => {

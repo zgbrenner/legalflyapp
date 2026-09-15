@@ -203,15 +203,29 @@ describe("optional MiniMind status", () => {
     expect(miniMind.client.cancelDownload).toHaveBeenCalledOnce();
   });
 
-  it("offers retry and a manual path after MiniMind fails", () => {
-    miniMind.setInitial({ phase: "failed", source: "download", backend: null, progress: null, message: "Model could not start" });
+  it("shows the worker's own reason and offers retry and a manual path after MiniMind fails", () => {
+    miniMind.setInitial({ phase: "failed", source: "download", backend: null, progress: null, message: "The MiniMind file list is unavailable. Retry or continue with manual facts." });
     render(<LegalFlyVillage />);
-    expect(screen.getByText(/current Chrome, Edge, or another Chromium browser/i)).toBeDefined();
+    expect(screen.getByText("The MiniMind file list is unavailable. Retry or continue with manual facts.")).toBeDefined();
+    expect(screen.queryByText(/current Chrome, Edge, or another Chromium browser/i)).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Retry MiniMind" }));
     expect(miniMind.client.enable).toHaveBeenCalledOnce();
     fireEvent.click(screen.getByRole("button", { name: "Continue with manual facts" }));
     expect(screen.getByText("Using manual facts.")).toBeDefined();
     expect(screen.getByRole("combobox", { name: "matter" })).toBeDefined();
+  });
+
+  it("explains an unsupported browser and surfaces eviction or cancel notices in the available state", () => {
+    miniMind.setInitial({ phase: "unsupported", source: null, backend: null, progress: null, message: "MiniMind could not start in this browser." });
+    const { unmount } = render(<LegalFlyVillage />);
+    expect(screen.getByText(/current Chrome, Edge, or another Chromium browser/i)).toBeDefined();
+    expect(screen.getByRole("button", { name: "Retry MiniMind" })).toBeDefined();
+    unmount();
+
+    miniMind.setInitial({ phase: "available", source: null, backend: null, progress: null, message: "Saved MiniMind files were incomplete. Enable MiniMind to download a clean copy." });
+    render(<LegalFlyVillage />);
+    expect(screen.getByText("Saved MiniMind files were incomplete. Enable MiniMind to download a clean copy.")).toBeDefined();
+    expect(screen.getByRole("button", { name: "Enable MiniMind" })).toBeDefined();
   });
 
   it("guides the four steps and requires confirmation before hearing a case", () => {

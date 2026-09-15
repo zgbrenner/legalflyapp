@@ -20,13 +20,13 @@ export default function MethodologyPage() {
   -> eight recommendations or abstention`}</pre>
     <p>The biological wiring is fixed. Training changes the artificial readout only. The model does not simulate dopamine learning, biological synaptic plasticity, consciousness, legal understanding, or spike timing.</p>
     <h2>Language Boundary</h2>
-    <p>MiniMind-3 runs in an optional user-hosted loopback process with all language-model parameters frozen. Teaching-only readouts propose the eight visible fields. A user must confirm those fields before the fly receives them. After inference, MiniMind sees only the selected action, confirmed fields, and a confidence band, then selects an authored action-locked note. It never receives alternative action scores.</p>
+    <p>MiniMind-3 runs only inside the visitor&apos;s browser, in a dedicated Web Worker, with all language-model parameters frozen; it is downloaded once after an explicit choice and nothing is installed. Teaching-only readouts propose the eight visible fields. A user must confirm those fields before the fly receives them. After inference, MiniMind sees only the selected action, confirmed fields, and a confidence band, then selects an authored action-locked note. It never receives alternative action scores.</p>
     <h2>Actions</h2>
     <p>The eight recommendations are: let the matter rest, seek small reparation, seek full reparation, request return of property, find a witness, request a sworn account within the fictional charter, propose settlement, and refer the matter to a higher authority. Abstention is a real outcome when the model is untrained, silent, ambiguous, or outside the supported fields.</p>
     <h2>Benchmarks</h2>
     <p>The first split has 32 teaching petitions and 16 held-out petitions from separate scenario families. The benchmark reports abstentions rather than hiding them. It independently compares biological MaleCNS, a full shuffled graph, a facts-only learner, a MiniMind-only action readout, and the fictional charter rules.</p>
     <h2>Privacy</h2>
-    <p>Connectome inference, training, corrections, import, export, and graph benchmarking run in a browser worker. Optional language operations send text only to a MiniMind process bound to the user&apos;s loopback interface. Nothing is saved automatically. Model and casebook exports contain any user-entered material.</p>
+    <p>Connectome inference, training, corrections, import, export, and graph benchmarking run in a browser worker. Optional language operations hand petition text only to the same-origin MiniMind worker; no server, proxy, or language-model API receives it. Nothing is saved automatically. Model and casebook exports contain any user-entered material.</p>
     <p><Link href="/">Return to the chamber</Link></p>
   </article>;
 }

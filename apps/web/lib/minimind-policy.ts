@@ -3,7 +3,7 @@ export function authoredMiniMindNotes(
   action: string,
 ): string[] {
   const subject = facts.property !== "none" ? facts.property : "the matter";
-  return {
+  const notes: Record<string, string[]> = {
     "let-rest": ["Let the matter rest unless the facts change.", "No further step is advised on the present account."],
     "seek-small-reparation": [`First speak with the other party. Record the harm to ${subject}. Seek modest reparation if it continues.`, `Document the harm to ${subject}, then ask for a small reparation.`],
     "seek-full-reparation": [`Preserve the account of harm to ${subject}. Seek full reparation under the fictional charter.`, `Record the loss involving ${subject} and request full reparation.`],
@@ -13,5 +13,8 @@ export function authoredMiniMindNotes(
     "propose-settlement": ["Put a practical settlement to both parties and record what each accepts.", "Propose terms both parties can keep, then write them into the ledger."],
     "refer-higher": ["Refer the petition to a higher authority. The fly offers no final judgment.", "Place the matter before a higher authority under the fictional charter."],
     abstain: ["The fly declines to advise on the present facts.", "The account is too uncertain for this fly to recommend a next step."],
-  }[action] ?? [];
+  };
+  // Own-property lookup only: inherited members such as "constructor" or
+  // "toString" must never be treated as an authored action.
+  return Object.hasOwn(notes, action) ? notes[action] : [];
 }

@@ -14,6 +14,19 @@ const CACHE_NAME = "legalfly-minimind-browser-v1";
 const MAX_MANIFEST_BYTES = 128 * 1024;
 const MAX_ARTIFACT_BYTES = 400 * 1024 * 1024;
 const MAX_BUNDLE_BYTES = 600 * 1024 * 1024;
+const PROGRESS_BYTES_INTERVAL = 64 * 1024;
+const PROGRESS_TIME_INTERVAL_MS = 100;
+const ENABLE_FAILED_MESSAGE = "MiniMind could not be enabled. Retry or continue with manual facts.";
+const RETRY_SUFFIX = " Retry or continue with manual facts.";
+
+/**
+ * A download failure whose text is one of this worker's own fixed strings
+ * (naming at most a manifest artifact file). Only these reasons are surfaced
+ * to the page; browser exceptions carry arbitrary text and are reported with
+ * the generic ENABLE_FAILED_MESSAGE instead.
+ */
+class DownloadFailure extends Error {}
+const UNSUPPORTED_CRYPTO_MESSAGE = "This browser cannot verify MiniMind files. Continue with manual facts.";
 const ACTIONS = {
   "let-rest": "Let the matter rest.",
   "seek-small-reparation": "Seek small reparation.",
@@ -120,7 +133,7 @@ function assertSafeText(value: unknown, label: string, maximum: number): string 
   if (typeof value !== "string" || !value.trim() || value.length > maximum) {
     throw new Error(`Invalid ${label}.`);
   }
-  return value.trim();
+  return value;
 }
 
 function parseCommand(value: unknown): WorkerCommand {
@@ -140,7 +153,12 @@ function parseCommand(value: unknown): WorkerCommand {
     case "verbalize": {
       if (!exactKeys(value, ["id", "type", "facts", "action", "confidenceBand"])) throw new Error("Invalid MiniMind worker command.");
       const facts = assertFacts(value.facts);
-      if (typeof value.action !== "string" || !(value.action in ACTIONS) || !["low", "medium", "high"].includes(String(value.confidenceBand))) {
+      if (
+        typeof value.action !== "string"
+        || !Object.hasOwn(ACTIONS, value.action)
+        || typeof value.confidenceBand !== "string"
+        || !["low", "medium", "high"].includes(value.confidenceBand)
+      ) {
         throw new Error("Invalid MiniMind counsel-note request.");
       }
       return {
@@ -380,6 +398,17 @@ export function createMiniMindWorkerRuntime(dependencies: MiniMindWorkerDependen
   let artifacts: MiniMindArtifactSet | null = null;
   let controller: AbortController | null = null;
   let enableInFlight: Promise<void> | null = null;
+  let startInFlight: Promise<void> | null = null;
+  let queue: Promise<void> = Promise.resolve();
+
+  // ONNX Runtime Web rejects overlapping session.run calls on one session, so
+  // every operation that may touch the engine runs through a single chain.
+  // The chain itself never rejects; each caller observes only its own result.
+  function serialize<T>(operation: () => Promise<T>): Promise<T> {
+    const run = queue.then(operation, operation);
+    queue = run.then(() => undefined, () => undefined);
+    return run;
+  }
 
   const publish = (next: MiniMindBrowserState) => {
     state = next;
@@ -425,7 +454,13 @@ export function createMiniMindWorkerRuntime(dependencies: MiniMindWorkerDependen
 
   async function loadFromCache(cache: CacheLike) {
     const cachedManifest = await cache.match(manifestUrl);
-    if (!cachedManifest) return null;
+    if (!cachedManifest) {
+      // An interrupted download can leave verified artifacts behind without a
+      // manifest; they can never be restored, so reclaim the space now.
+      const keys = await cache.keys();
+      if (keys.length > 0) await evict(cache);
+      return null;
+    }
     let manifest: BrowserManifest | undefined;
     try {
       publish(baseState("cached", "Checking the MiniMind files saved in this browser.", "cache"));
@@ -469,8 +504,10 @@ export function createMiniMindWorkerRuntime(dependencies: MiniMindWorkerDependen
         ) {
           throw new Error("MiniMind readiness check failed.");
         }
+        const previous = engine;
         engine = candidate;
         artifacts = verified;
+        if (previous && previous !== candidate) await previous.dispose().catch(() => undefined);
         publish({ phase: "ready", source, backend, progress: null, message: "MiniMind ready · runs on this device" });
         return;
       } catch (error) {
@@ -485,10 +522,30 @@ export function createMiniMindWorkerRuntime(dependencies: MiniMindWorkerDependen
   async function download() {
     if (enableInFlight) return enableInFlight;
     enableInFlight = (async () => {
-      controller = new AbortController();
-      const cache = await dependencies.cacheStorage.open(CACHE_NAME);
+      let cache: CacheLike | undefined;
       let manifest: BrowserManifest | undefined;
       try {
+        // Never race the initial cached restore; if it already produced an
+        // engine there is nothing to fetch.
+        if (startInFlight) await startInFlight.catch(() => undefined);
+        if (engine && artifacts && state.phase === "ready") {
+          publish(state);
+          return;
+        }
+        if (!dependencies.crypto?.subtle) {
+          publish(baseState("unsupported", UNSUPPORTED_CRYPTO_MESSAGE));
+          return;
+        }
+        controller = new AbortController();
+        cache = await dependencies.cacheStorage.open(CACHE_NAME);
+        // A verified cache whose engine failed to start (or a restore that
+        // never ran) can be initialized again without touching the network.
+        const restored = await loadFromCache(cache);
+        if (restored) {
+          await initialize(restored, "cache");
+          return;
+        }
+        controller.signal.throwIfAborted();
         publish(baseState("downloading", "Getting the MiniMind file list.", "download"));
         const manifestResponse = await dependencies.fetch(manifestUrl, {
           signal: controller.signal,
@@ -496,11 +553,13 @@ export function createMiniMindWorkerRuntime(dependencies: MiniMindWorkerDependen
           redirect: "error",
           cache: "no-store",
         });
-        if (!manifestResponse.ok) throw new Error("The MiniMind file list is unavailable.");
+        if (!manifestResponse.ok) throw new DownloadFailure("The MiniMind file list is unavailable.");
         const manifestBytes = await readBounded(manifestResponse, MAX_MANIFEST_BYTES);
         manifest = parseManifest(parseJson(manifestBytes, "MiniMind browser manifest"));
         const total = manifest.files.reduce((sum, entry) => sum + entry.bytes, 0);
         let completed = 0;
+        let lastPublishedLoaded = -1;
+        let lastPublishedAt = Date.now();
         for (const entry of manifest.files) {
           controller.signal.throwIfAborted();
           const url = artifactUrl(dependencies.origin, entry.file);
@@ -510,21 +569,29 @@ export function createMiniMindWorkerRuntime(dependencies: MiniMindWorkerDependen
             redirect: "error",
             cache: "no-store",
           });
-          if (!response.ok) throw new Error(`A required MiniMind file is unavailable: ${entry.file}`);
-          const bytes = await readBounded(response, entry.bytes, (received) => publish({
-            phase: "downloading",
-            source: "download",
-            backend: null,
-            progress: {
-              loaded: completed + received,
-              total,
-              percent: Math.min(100, ((completed + received) / total) * 100),
-              file: entry.file,
-            },
-            message: "Downloading MiniMind to this browser.",
-          }));
+          if (!response.ok) throw new DownloadFailure(`A required MiniMind file is unavailable: ${entry.file}.`);
+          const bytes = await readBounded(response, entry.bytes, (received) => {
+            const loaded = completed + received;
+            const now = Date.now();
+            const final = received >= entry.bytes;
+            if (!final && loaded - lastPublishedLoaded < PROGRESS_BYTES_INTERVAL && now - lastPublishedAt < PROGRESS_TIME_INTERVAL_MS) return;
+            lastPublishedLoaded = loaded;
+            lastPublishedAt = now;
+            publish({
+              phase: "downloading",
+              source: "download",
+              backend: null,
+              progress: {
+                loaded,
+                total,
+                percent: Math.min(100, (loaded / total) * 100),
+                file: entry.file,
+              },
+              message: "Downloading MiniMind to this browser.",
+            });
+          });
           if (bytes.byteLength !== entry.bytes || await sha256(dependencies.crypto, bytes) !== entry.sha256) {
-            throw new Error(`MiniMind file verification failed: ${entry.file}`);
+            throw new DownloadFailure(`MiniMind file verification failed: ${entry.file}.`);
           }
           await cache.put(url, new Response(bytes.slice().buffer as ArrayBuffer, { headers: response.headers }));
           completed += entry.bytes;
@@ -540,12 +607,13 @@ export function createMiniMindWorkerRuntime(dependencies: MiniMindWorkerDependen
         await cache.put(manifestUrl, new Response(manifestBytes, { headers: { "content-type": "application/json" } }));
         await initialize(verified, "download");
       } catch (error) {
-        await evict(cache, manifest);
+        if (cache) await evict(cache, manifest).catch(() => undefined);
         if (controller?.signal.aborted) {
           publish(baseState("available", "MiniMind download canceled. Manual facts are still available."));
           return;
         }
-        publish(baseState("failed", error instanceof Error ? `${error.message} Retry or continue with manual facts.` : "MiniMind could not be enabled. Retry or continue with manual facts."));
+        // Fixed copy only: browser and network errors are never echoed.
+        publish(baseState("failed", error instanceof DownloadFailure ? error.message + RETRY_SUFFIX : ENABLE_FAILED_MESSAGE));
         throw error;
       } finally {
         controller = null;
@@ -625,10 +693,10 @@ export function createMiniMindWorkerRuntime(dependencies: MiniMindWorkerDependen
     };
   }
 
-  async function start() {
+  async function restore() {
     try {
       if (!dependencies.crypto?.subtle) {
-        publish(baseState("unsupported", "This browser cannot verify MiniMind files. Continue with manual facts."));
+        publish(baseState("unsupported", UNSUPPORTED_CRYPTO_MESSAGE));
         return;
       }
       const cache = await dependencies.cacheStorage.open(CACHE_NAME);
@@ -640,23 +708,36 @@ export function createMiniMindWorkerRuntime(dependencies: MiniMindWorkerDependen
     }
   }
 
+  function start() {
+    if (!startInFlight) startInFlight = restore();
+    return startInFlight;
+  }
+
+  async function release() {
+    if (startInFlight) await startInFlight.catch(() => undefined);
+    const current = engine;
+    engine = null;
+    artifacts = null;
+    if (current) await current.dispose();
+  }
+
   async function handle(raw: unknown) {
     const possibleId = isObject(raw) && Number.isSafeInteger(raw.id) ? raw.id as number : 0;
     try {
       const command = parseCommand(raw);
       let result: unknown = null;
-      if (command.type === "enable") await download();
+      if (command.type === "enable") await serialize(download);
       else if (command.type === "cancel") {
+        // Cancel bypasses the queue so it can interrupt an in-flight download.
         controller?.abort(new DOMException("Download canceled", "AbortError"));
         if (enableInFlight) await enableInFlight.catch(() => undefined);
-      } else if (command.type === "encode") result = await encode(command.petition);
-      else if (command.type === "verbalize") result = await verbalize(command.facts, command.action as keyof typeof ACTIONS, command.confidenceBand);
-      else if (command.type === "benchmark") result = await benchmark(command.cases);
+      } else if (command.type === "encode") result = await serialize(() => encode(command.petition));
+      else if (command.type === "verbalize") result = await serialize(() => verbalize(command.facts, command.action as keyof typeof ACTIONS, command.confidenceBand));
+      else if (command.type === "benchmark") result = await serialize(() => benchmark(command.cases));
       else if (command.type === "dispose") {
         controller?.abort();
-        if (engine) await engine.dispose();
-        engine = null;
-        artifacts = null;
+        // Wait for whatever is running on the session before releasing it.
+        await serialize(release);
       }
       dependencies.postMessage({ id: command.id, type: "result", result });
     } catch {
@@ -667,7 +748,7 @@ export function createMiniMindWorkerRuntime(dependencies: MiniMindWorkerDependen
   return { start, handle, getState: () => state };
 }
 
-async function createTransformersEngine(artifacts: MiniMindArtifactSet, backend: MiniMindBackend): Promise<MiniMindInferenceEngine> {
+export async function createTransformersEngine(artifacts: MiniMindArtifactSet, backend: MiniMindBackend): Promise<MiniMindInferenceEngine> {
   const ort = backend === "webgpu"
     ? await import("onnxruntime-web/webgpu")
     : await import("onnxruntime-web/wasm");
@@ -676,6 +757,14 @@ async function createTransformersEngine(artifacts: MiniMindArtifactSet, backend:
   (globalThis as unknown as Record<symbol, unknown>)[Symbol.for("onnxruntime")] = ort;
   const transformers = await import("@huggingface/transformers");
   const { AutoTokenizer, env } = transformers;
+  // Transformers.js sets a jsdelivr CDN default for ORT's `wasmPaths` while it
+  // is imported. Clearing it on the injected runtime and on Transformers'
+  // own view restores ORT's default resolution: the glue embedded in the
+  // bundle plus the .wasm binaries Next emits under /_next/static, so no
+  // request ever leaves the page's origin.
+  ort.env.wasm.wasmPaths = undefined;
+  const transformersOnnx = (env as { backends?: { onnx?: { wasm?: { wasmPaths?: unknown } } } }).backends?.onnx?.wasm;
+  if (transformersOnnx) transformersOnnx.wasmPaths = undefined;
   const modelFile = [...artifacts.urls.keys()].find((name) => name.endsWith(".onnx"));
   if (!modelFile) throw new Error("MiniMind model is missing.");
   const aliases = new Map<string, string>([

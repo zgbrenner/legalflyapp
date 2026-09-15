@@ -56,6 +56,9 @@ const PHASES = new Set<MiniMindBrowserPhase>([
 ]);
 const BACKENDS = new Set<MiniMindBackend>(["webgpu", "wasm"]);
 const SOURCES = new Set<MiniMindSource>(["cache", "download"]);
+const DISPOSE_TIMEOUT_MS = 2000;
+const DISPOSED_MESSAGE = "MiniMind browser worker was disposed.";
+const DISPOSE_TIMEOUT_MESSAGE = "MiniMind browser worker did not stop in time and was terminated.";
 const BENCHMARK_ACTIONS = new Set([
   "let-rest",
   "seek-small-reparation",
@@ -279,23 +282,40 @@ export class MiniMindBrowserClient {
 
   async dispose(): Promise<void> {
     if (this.disposed) return;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let rejection = DISPOSED_MESSAGE;
     try {
-      await this.voidRequest({ type: "dispose" });
+      // A wedged worker may never answer; terminate it after a bounded wait so
+      // the page never hangs on unmount.
+      const request = this.voidRequest({ type: "dispose" });
+      // If the timer wins, rejectPending settles this request later; that
+      // rejection is expected and must not surface as unhandled.
+      request.catch(() => undefined);
+      await Promise.race([
+        request,
+        new Promise<never>((_, reject) => {
+          timer = setTimeout(() => {
+            rejection = DISPOSE_TIMEOUT_MESSAGE;
+            reject(new Error(DISPOSE_TIMEOUT_MESSAGE));
+          }, DISPOSE_TIMEOUT_MS);
+        }),
+      ]);
     } catch {
       // Terminating the dedicated worker still releases its isolated runtime.
     } finally {
+      if (timer !== undefined) clearTimeout(timer);
       this.disposed = true;
       this.worker.removeEventListener("message", this.onMessage);
       this.worker.removeEventListener("error", this.onWorkerError);
       this.worker.removeEventListener("messageerror", this.onWorkerError);
       this.worker.terminate();
-      this.rejectPending(new Error("MiniMind browser worker was disposed."));
+      this.rejectPending(new Error(rejection));
       this.listeners.clear();
     }
   }
 
   private request(command: Record<string, unknown>): Promise<unknown> {
-    if (this.disposed) return Promise.reject(new Error("MiniMind browser worker was disposed."));
+    if (this.disposed) return Promise.reject(new Error(DISPOSED_MESSAGE));
     const id = this.nextId++;
     return new Promise((resolve, reject) => {
       this.pending.set(id, { resolve, reject });
