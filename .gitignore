@@ -56,7 +56,10 @@ results/experiment_*/
 !deploy/**
 deploy/**/__pycache__/
 apps/web/public/legalfly/*.bin
+apps/web/public/minimind/*
+!apps/web/public/minimind/.gitkeep
 models/minimind-3/
+models/minimind-3-browser/
 
 
 # OS / IDE
