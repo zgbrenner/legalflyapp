@@ -11,6 +11,38 @@ RUN python -m pip install \
       pyarrow==17.0.0 \
     && python tools/prepare_malecns.py --download --convert --export-browser --shuffled
 
+# Export the pinned, parity-selected browser MiniMind bundle in a disposable
+# stage. The runtime image receives only the five verified public artifacts.
+FROM python:3.12-slim AS minimind
+WORKDIR /repo
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PYTHONUTF8=1
+RUN python -m pip install \
+      fastapi==0.141.1 \
+      pydantic==2.13.5 \
+      numpy==2.3.3 \
+      torch==2.14.0 \
+      transformers==4.57.6 \
+      safetensors==0.8.0 \
+      huggingface-hub==0.36.2 \
+      onnx==1.22.0 \
+      onnxscript==0.7.2 \
+      onnxruntime==1.30.0
+COPY tools/prepare_minimind.py tools/prepare_minimind_browser.py tools/export_minimind_readouts.py ./tools/
+COPY apps/__init__.py ./apps/__init__.py
+COPY apps/minimind_adapter/__init__.py apps/minimind_adapter/service.py ./apps/minimind_adapter/
+COPY apps/web/public/legalfly/cases.json ./apps/web/public/legalfly/cases.json
+RUN python tools/prepare_minimind_browser.py \
+      --download \
+      --convert \
+      --quantization q8 \
+      --source /repo/models/minimind-3 \
+      --output /repo/browser-minimind \
+    && python tools/prepare_minimind_browser.py \
+      --check \
+      --output /repo/browser-minimind
+
 FROM node:20-alpine AS dependencies
 WORKDIR /repo/apps/web
 COPY apps/web/package.json apps/web/package-lock.json ./
@@ -18,10 +50,12 @@ RUN npm ci
 
 FROM node:20-alpine AS builder
 WORKDIR /repo/apps/web
-ENV NEXT_TELEMETRY_DISABLED=1
+ENV LEGALFLY_REQUIRE_FULL=1 \
+    NEXT_TELEMETRY_DISABLED=1
 COPY --from=dependencies /repo/apps/web/node_modules ./node_modules
 COPY apps/web ./
 COPY --from=connectome /repo/data/processed/malecns/v1.0/browser /repo/data/processed/malecns/v1.0/browser
+COPY --from=minimind /repo/browser-minimind ./public/minimind
 RUN npm run build
 
 FROM node:20-alpine AS runner
