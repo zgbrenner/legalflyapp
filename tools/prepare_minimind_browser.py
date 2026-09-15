@@ -7,7 +7,7 @@ import json
 import os
 import shutil
 import tempfile
-from pathlib import Path, PurePosixPath
+from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Literal, TypedDict, cast
 
 if __package__:
@@ -103,6 +103,25 @@ def verify_source(source: Path) -> str:
     return weights_digest
 
 
+def _onnx_output_names(path: Path) -> list[str]:
+    try:
+        import onnx
+    except ImportError as exc:  # pragma: no cover - depends on optional conversion extras
+        raise RuntimeError(
+            "Browser conversion requires the 'browser' optional dependencies"
+        ) from exc
+    model = onnx.load(path, load_external_data=False)
+    return [entry.name for entry in model.graph.output]
+
+
+def validate_onnx_outputs(path: Path) -> None:
+    output_names = _onnx_output_names(path)
+    if output_names != OUTPUT_NAMES:
+        raise ValueError(
+            f"Unexpected ONNX outputs in {path}: expected {OUTPUT_NAMES}, got {output_names}"
+        )
+
+
 def export_qwen3_onnx(source: Path, destination: Path) -> None:
     """Export Qwen3 logits and the final hidden state as a single ONNX graph."""
     try:
@@ -158,15 +177,7 @@ def export_qwen3_onnx(source: Path, destination: Path) -> None:
         do_constant_folding=True,
     )
 
-    try:
-        import onnx
-    except ImportError as exc:  # pragma: no cover - torch export also requires onnx
-        raise RuntimeError(
-            "Browser conversion requires the 'browser' optional dependencies"
-        ) from exc
-    graph_outputs = [entry.name for entry in onnx.load(destination).graph.output]
-    if graph_outputs != OUTPUT_NAMES:
-        raise ValueError(f"Unexpected ONNX outputs: {graph_outputs}")
+    validate_onnx_outputs(destination)
 
 
 def quantize_onnx(source: Path, destination: Path, quantization: str) -> None:
@@ -290,6 +301,30 @@ def write_manifest(output: Path, manifest: BrowserManifest) -> Path:
     return destination
 
 
+def resolve_artifact_path(output: Path, relative_name: str) -> Path:
+    """Resolve one canonical manifest path without allowing platform-specific escapes."""
+    if not isinstance(relative_name, str) or "\\" in relative_name:
+        raise ValueError(f"Browser manifest contains unsafe path {relative_name}")
+    components = relative_name.split("/")
+    posix_path = PurePosixPath(relative_name)
+    windows_path = PureWindowsPath(relative_name)
+    if (
+        any(component in {"", ".", ".."} for component in components)
+        or posix_path.is_absolute()
+        or bool(windows_path.drive)
+        or bool(windows_path.root)
+    ):
+        raise ValueError(f"Browser manifest contains unsafe path {relative_name}")
+
+    output_root = Path(output).resolve()
+    artifact = output_root.joinpath(*components).resolve()
+    try:
+        artifact.relative_to(output_root)
+    except ValueError as exc:
+        raise ValueError(f"Browser manifest contains unsafe path {relative_name}") from exc
+    return artifact
+
+
 def verify_browser_export(output: Path) -> BrowserManifest:
     """Verify manifest identity and every content-addressed artifact offline."""
     output = Path(output)
@@ -318,6 +353,7 @@ def verify_browser_export(output: Path) -> BrowserManifest:
     files = manifest.get("files")
     if not isinstance(files, list) or not files:
         raise ValueError("Browser manifest has no files")
+    onnx_models: list[Path] = []
     for entry in files:
         if not isinstance(entry, dict):
             raise ValueError("Browser manifest contains an invalid file entry")
@@ -326,18 +362,26 @@ def verify_browser_export(output: Path) -> BrowserManifest:
         expected_size = entry.get("bytes")
         if not isinstance(relative_name, str) or not isinstance(digest, str):
             raise ValueError("Browser manifest contains an invalid file entry")
-        relative_path = PurePosixPath(relative_name)
-        if relative_path.is_absolute() or ".." in relative_path.parts:
-            raise ValueError(f"Browser manifest contains unsafe path {relative_name}")
-        if digest not in relative_path.name.split("."):
+        if (
+            not isinstance(expected_size, int)
+            or isinstance(expected_size, bool)
+            or expected_size < 0
+        ):
+            raise ValueError(f"Browser manifest has invalid byte count for {relative_name}")
+        artifact = resolve_artifact_path(output, relative_name)
+        if digest not in artifact.name.split("."):
             raise ValueError(f"Browser artifact is not content-addressed: {relative_name}")
-        artifact = output.joinpath(*relative_path.parts)
         if not artifact.is_file():
             raise ValueError(f"Missing browser artifact {relative_name}")
         if sha256(artifact) != digest:
             raise ValueError(f"Browser artifact SHA-256 mismatch: {relative_name}")
         if artifact.stat().st_size != expected_size:
             raise ValueError(f"Browser artifact byte count mismatch: {relative_name}")
+        if artifact.suffix == ".onnx":
+            onnx_models.append(artifact)
+    if len(onnx_models) != 1:
+        raise ValueError("Browser manifest must contain exactly one ONNX model")
+    validate_onnx_outputs(onnx_models[0])
     return manifest
 
 
@@ -371,6 +415,7 @@ def convert_model(source: Path, output: Path, quantization: str) -> BrowserManif
         quantized = staging / f"model.{selected}.onnx"
         export_qwen3_onnx(source, unquantized)
         quantize_onnx(unquantized, quantized, selected)
+        validate_onnx_outputs(quantized)
         unquantized.unlink(missing_ok=True)
         for name in REQUIRED_FILES[1:]:
             shutil.copy2(source / name, staging / name)
@@ -385,10 +430,9 @@ def convert_model(source: Path, output: Path, quantization: str) -> BrowserManif
 
         output.mkdir(parents=True, exist_ok=True)
         for entry in manifest["files"]:
-            relative_path = PurePosixPath(entry["file"])
             _copy_atomically(
-                staging.joinpath(*relative_path.parts),
-                output.joinpath(*relative_path.parts),
+                resolve_artifact_path(staging, entry["file"]),
+                resolve_artifact_path(output, entry["file"]),
             )
         _copy_atomically(staging / "manifest.json", output / "manifest.json")
 
@@ -400,7 +444,7 @@ def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--download", action="store_true", help="Download the pinned allowlist")
     parser.add_argument("--convert", action="store_true", help="Create a browser ONNX bundle")
-    parser.add_argument("--check", action="store_true", help="Verify source and browser artifacts offline")
+    parser.add_argument("--check", action="store_true", help="Verify browser artifacts offline")
     parser.add_argument(
         "--quantization", choices=QUANTIZATIONS, default="q8", help="Weight quantization"
     )
@@ -429,7 +473,6 @@ def main(argv: list[str] | None = None) -> int:
         manifest = convert_model(source, output, args.quantization)
         print(json.dumps(manifest, indent=2))
     if args.check:
-        verify_source(source)
         manifest = verify_browser_export(output)
         print(json.dumps(manifest, indent=2))
     return 0
