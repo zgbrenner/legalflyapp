@@ -238,6 +238,6 @@ Image `legalfly-web:browser-minimind`: 1,362,030,721 bytes, linux/amd64. Probes 
 
 The first acceptance run caught a real defect: with `navigator.gpu` present, the worker imported the WebGPU runtime first and Transformers.js set that runtime's `wasmPaths` to `https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1/dist/`, so the runtime glue was fetched from a CDN (and from a different ONNX Runtime version than the bundled binary). The worker now clears that default immediately after importing Transformers.js, and the run above confirms that no request leaves the origin.
 
-The same script then ran against the rebuilt Docker image (`legalfly-web:browser-minimind` on port 3100) with the same result: first download 11.2 s, cached reload 7.6 s, cancel-then-retry 11.5 s, 358 request events, no cross-origin request, no page or console errors.
+The same script then ran against the Docker image rebuilt from the final tree (`legalfly-web:browser-minimind` on port 3100, whose `/api/health` reports the same 252,092,335-byte bundle and whose ONNX file hash equals the host conversion) with the same result: first download 16.2 s, cached reload 9.2 s, cancel-then-retry 15.6 s, 358 request events, no cross-origin request, no page or console errors.
 
 Screenshots captured: `desktop-idle.png`, `minimind-downloading.png`, `minimind-ready.png`, `desktop-advice.png`, `desktop-canary-advice.png`, `minimind-retry-ready.png`, `manual-advice.png`, and `chamber-<width>.png` for each width.
