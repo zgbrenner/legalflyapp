@@ -210,6 +210,47 @@ def test_q8_quantization_only_compresses_the_parity_proven_module(tmp_path):
     assert [node.name for node in quantized.graph.node if node.op_type == "MatMul"] == ["other"]
 
 
+def test_quantized_graph_ships_no_exporter_metadata_or_host_paths(tmp_path):
+    onnx = pytest.importorskip("onnx")
+    pytest.importorskip("onnxruntime")
+    source = tmp_path / "annotated.onnx"
+    destination = tmp_path / "annotated.q8.onnx"
+    tensor = onnx.helper.make_tensor_value_info
+    host_path = str(tmp_path / "prepare_minimind_browser.py")
+    node = onnx.helper.make_node("MatMul", ["input", "weight"], ["output"], name="gate")
+    node.metadata_props.add(
+        key="namespace",
+        value="/causal_lm.model.layers.1.mlp.gate_proj: torch.nn.modules.linear.Linear",
+    )
+    node.metadata_props.add(
+        key="pkg.torch.onnx.stack_trace",
+        value=f'File "{host_path}", line 213, in forward',
+    )
+    node.doc_string = host_path
+    weights = np.linspace(-1.0, 1.0, 512, dtype=np.float32).reshape(128, 4)
+    graph = onnx.helper.make_graph(
+        [node],
+        "metadata-fixture",
+        [tensor("input", onnx.TensorProto.FLOAT, [1, 128])],
+        [tensor("output", onnx.TensorProto.FLOAT, [1, 4])],
+        [onnx.numpy_helper.from_array(weights, name="weight")],
+        doc_string=host_path,
+    )
+    onnx.save(
+        onnx.helper.make_model(graph, opset_imports=[onnx.helper.make_opsetid("", 18)]), source
+    )
+
+    prepare.quantize_onnx(source, destination, "q8")
+
+    quantized = onnx.load(destination)
+    assert [node.op_type for node in quantized.graph.node] == ["MatMulNBits"]
+    assert all(len(node.metadata_props) == 0 for node in quantized.graph.node)
+    assert all(node.doc_string == "" for node in quantized.graph.node)
+    assert quantized.graph.doc_string == ""
+    assert host_path.encode() not in destination.read_bytes()
+    assert b"stack_trace" not in destination.read_bytes()
+
+
 def test_qwen3_export_loads_the_python_adapters_float32_weights(tmp_path, monkeypatch):
     torch = pytest.importorskip("torch")
     transformers = pytest.importorskip("transformers")

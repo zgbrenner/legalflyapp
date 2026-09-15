@@ -1,4 +1,4 @@
-"""Download and fingerprint the pinned MiniMind checkpoint used by the local adapter."""
+"""Download and fingerprint the pinned MiniMind checkpoint used for the browser conversion."""
 
 from __future__ import annotations
 

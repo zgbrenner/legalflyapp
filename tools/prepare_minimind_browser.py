@@ -6,13 +6,19 @@ import argparse
 import json
 import os
 import shutil
+import sys
 import tempfile
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Literal, TypedDict, cast
 
 if __package__:
     from tools import prepare_minimind as source_contract
-else:  # Support ``python tools/prepare_minimind_browser.py``.
+else:  # Support ``python tools/prepare_minimind_browser.py`` from any directory.
+    # The readout exporter imports ``apps.minimind_adapter``; as a plain script
+    # only ``tools/`` is on sys.path, so add the repository root explicitly.
+    _REPOSITORY_ROOT = str(Path(__file__).resolve().parents[1])
+    if _REPOSITORY_ROOT not in sys.path:
+        sys.path.insert(0, _REPOSITORY_ROOT)
     import prepare_minimind as source_contract
 
 MODEL_ID = source_contract.MODEL_ID
@@ -279,7 +285,29 @@ def quantize_onnx(source: Path, destination: Path, quantization: str) -> None:
         algo_config=configuration,
     )
     quantizer.process()
+    strip_exporter_metadata(quantizer.model.model)
     quantizer.model.save_model_to_file(str(destination), False)
+
+
+def strip_exporter_metadata(model) -> None:
+    """Remove per-node exporter provenance so the shipped graph is host-independent.
+
+    The PyTorch dynamo exporter annotates every node with ``pkg.torch.onnx.stack_trace``,
+    ``namespace``, and similar metadata. Those strings embed absolute source paths,
+    interpreter-specific line numbers, and local module names, which would ship the
+    build host's file layout to every visitor and make byte-identical conversion
+    impossible across machines. The q8 allowlist is resolved from ``namespace``
+    before quantization, so nothing downstream needs this metadata.
+    """
+    for node in model.graph.node:
+        del node.metadata_props[:]
+        node.doc_string = ""
+    for function in model.functions:
+        for node in function.node:
+            del node.metadata_props[:]
+            node.doc_string = ""
+    model.graph.doc_string = ""
+    model.doc_string = ""
 
 
 def _content_addressed_name(path: Path, digest: str) -> str:
