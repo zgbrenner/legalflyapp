@@ -3,11 +3,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { LegalFlyVillage } from "@/components/LegalFlyVillage";
 
-vi.mock("@/lib/minimind", async importOriginal => {
-  const original = await importOriginal<typeof import("@/lib/minimind")>();
-  return { ...original, checkMiniMind: vi.fn().mockRejectedValue(new Error("offline")) };
-});
-
 class WorkerMock {
   static instance: WorkerMock;
   onmessage: ((event: MessageEvent) => void) | null = null;
@@ -40,6 +35,7 @@ describe("Legal Fly operation ownership", () => {
       mock.emit({ id: 1, type: "trained", modelSummary: { seed: 42 } });
       mock.emit({ id: 1, type: "status", state: "petition-ready" });
     });
+    fireEvent.click(screen.getByRole("button", { name: "Confirm these eight facts" }));
     fireEvent.click(screen.getByRole("button", { name: "Hear the case" }));
     fireEvent.click(screen.getByRole("button", { name: /Pieter The pan/ }));
     expect(mock.postMessage).toHaveBeenLastCalledWith({ id: 3, type: "cancel", silent: true });

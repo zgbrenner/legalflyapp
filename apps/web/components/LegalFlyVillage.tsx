@@ -2,13 +2,22 @@
 
 import { useEffect, useMemo, useRef, useState, type ChangeEvent, type CSSProperties } from "react";
 import Image from "next/image";
-import { FACT_OPTIONS, getMiniMindConfiguration, benchmarkMiniMind, checkMiniMind, encodePetition, verbalizeAdvice, type MiniMindDraft, type MiniMindHealth, type MiniMindNote, type StructuredFacts } from "@/lib/minimind";
+import { FACT_OPTIONS, type MiniMindDraft, type MiniMindNote, type StructuredFacts } from "@/lib/minimind";
+import { MiniMindBrowserClient, type MiniMindBrowserState } from "@/lib/minimind-browser";
 import { MaleCNSMap, type MaleCNSFrame } from "./MaleCNSMap";
 
 type LegalCase = { id: string; split: string; family: string; title: string; villager: string; prop: string; petition: string; facts: StructuredFacts; label?: string };
 type Advice = { case: LegalCase; advice: { action: string; confidence: number; margin: number; reason: string }; recommendation: string; energy: number; sampledNodeIds: string[] };
 type Action = [string, string];
-type LanguageState = MiniMindHealth["status"] | "checking" | "encoding" | "verbalizing" | "benchmarking";
+type LanguageTask = "idle" | "encoding" | "verbalizing" | "benchmarking";
+
+const INITIAL_MINIMIND_STATE: MiniMindBrowserState = {
+  phase: "available",
+  source: null,
+  backend: null,
+  progress: null,
+  message: "MiniMind is optional and has not been enabled.",
+};
 
 const factFields = Object.keys(FACT_OPTIONS);
 const phaseCopy: Record<string, string> = {
@@ -27,6 +36,70 @@ function download(name: string, content: string) {
   const anchor = document.createElement("a");
   anchor.href = url; anchor.download = name; anchor.click();
   setTimeout(() => URL.revokeObjectURL(url), 800);
+}
+
+function formatBytes(bytes: number) {
+  if (bytes >= 1024 * 1024) return `${Math.round(bytes / (1024 * 1024))} MB`;
+  if (bytes >= 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${bytes} bytes`;
+}
+
+function MiniMindSetup({ state, manualFacts, onEnable, onCancel, onManual }: {
+  state: MiniMindBrowserState;
+  manualFacts: boolean;
+  onEnable: () => void;
+  onCancel: () => void;
+  onManual: () => void;
+}) {
+  if (state.phase === "ready") {
+    return <p className="lf-minimind-ready" role="status">MiniMind ready · runs on this device</p>;
+  }
+
+  const busy = ["downloading", "verifying", "cached", "loading"].includes(state.phase);
+  const canRetry = state.phase === "failed" || state.phase === "unsupported";
+  const progress = state.progress;
+  let status = "MiniMind has not been downloaded.";
+  if (state.phase === "downloading") status = "Downloading MiniMind to this browser.";
+  if (state.phase === "verifying") status = "Download complete. Checking the saved files.";
+  if (state.phase === "cached") status = "Found saved MiniMind files. Checking them on this device.";
+  if (state.phase === "loading") status = state.message.includes("graphics") ? "Starting MiniMind with this device's graphics engine." : "Starting MiniMind with the browser compatibility engine.";
+  if (canRetry) status = "MiniMind could not start here. You can retry, keep using manual facts, or try a current Chrome, Edge, or another Chromium browser.";
+
+  return <section className={`lf-minimind-setup ${manualFacts ? "is-manual" : ""}`} aria-labelledby="minimind-setup-title">
+    <div className="lf-minimind-copy">
+      <p className="lf-eyebrow">Optional language helper</p>
+      <h3 id="minimind-setup-title">Let MiniMind suggest the eight fact choices</h3>
+      {!manualFacts ? <p>Download it once and it runs only in this browser. Your petition stays on this device. You will review every suggestion before the fly sees it.</p> : <p><strong>Using manual facts.</strong> MiniMind remains optional, and you can enable it later.</p>}
+      {state.phase !== "available" || manualFacts ? <p className="lf-minimind-status" role="status">{status}</p> : null}
+      {progress && state.phase === "downloading" ? <div className="lf-minimind-progress">
+        <progress aria-label="MiniMind download progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress.percent)} max={100} value={progress.percent}>{progress.percent}%</progress>
+        <span>{Math.round(progress.percent)}% · {formatBytes(progress.loaded)} of {formatBytes(progress.total)}</span>
+      </div> : null}
+    </div>
+    <div className="lf-controls slim lf-minimind-actions">
+      {state.phase === "available" || canRetry ? <button className="lf-button primary" type="button" onClick={onEnable}>{canRetry ? "Retry MiniMind" : "Enable MiniMind"}</button> : null}
+      {state.phase === "downloading" ? <button className="lf-button" type="button" onClick={onCancel}>Cancel download</button> : null}
+      <button className="lf-button" type="button" onClick={onManual}>{manualFacts ? "Keep using manual facts" : "Continue with manual facts"}</button>
+    </div>
+    {busy ? <small>You can fill in the facts manually while this finishes.</small> : null}
+  </section>;
+}
+
+function ChamberGuide({ currentStep, complete }: { currentStep: number; complete: Set<number> }) {
+  const steps = [
+    ["Choose how to fill the facts", "Enable the optional browser helper, or continue manually."],
+    ["Teach the fly", "Select “Teach the ledger” so the fly can learn from the fictional examples."],
+    ["Prepare the petition", "Choose or write a petition, review all eight facts, then confirm them."],
+    ["Ask the fly", "Select “Hear the case” to get the fly's recommendation."],
+  ];
+  return <ol className="lf-step-guide page-width" aria-label="Chamber steps">
+    {steps.map(([title, copy], index) => {
+      const step = index + 1;
+      return <li key={title} className={step === currentStep ? "is-current" : complete.has(step) ? "is-complete" : ""} aria-current={step === currentStep ? "step" : undefined}>
+        <span aria-hidden="true">{step}</span><div><strong>{title}</strong><small>{copy}</small></div>
+      </li>;
+    })}
+  </ol>;
 }
 
 function ChamberArt({ cases, selected, phase, advice, reduced, activity }: { cases: LegalCase[]; selected?: LegalCase; phase: string; advice: Advice | null; reduced: boolean; activity: MaleCNSFrame | null }) {
@@ -79,6 +152,7 @@ function BenchmarkPanel({ benchmark, miniMindReady }: { benchmark: any; miniMind
 
 export function LegalFlyVillage() {
   const worker = useRef<Worker | null>(null), seq = useRef(0), workerBusy = useRef(false), approachTimer = useRef<number | null>(null), languageOp = useRef(0), languageReady = useRef(false);
+  const miniMindClient = useRef<MiniMindBrowserClient | null>(null);
   const modelInput = useRef<HTMLInputElement>(null), casebookInput = useRef<HTMLInputElement>(null);
   const [operationPhase, setPhase] = useState("idle"), [error, setError] = useState("");
   const [loadState, setLoadState] = useState<"loading" | "ready" | "errored">("loading");
@@ -91,13 +165,21 @@ export function LegalFlyVillage() {
   const [custom, setCustom] = useState<LegalCase | null>(null), [modelSummary, setModelSummary] = useState<any>(null), [graph, setGraph] = useState<any>(null);
   const [advice, setAdvice] = useState<Advice | null>(null), [activity, setActivity] = useState<MaleCNSFrame | null>(null), [casebook, setCasebook] = useState<any[]>([]), [benchmark, setBenchmark] = useState<any>(null);
   const [progress, setProgress] = useState({ current: 0, total: 1, title: "" }), [reduced, setReduced] = useState(false), [showLab, setShowLab] = useState(true), [seed, setSeed] = useState(42);
-  const [languageState, setLanguageState] = useState<LanguageState>("checking"), [languageHealth, setLanguageHealth] = useState<MiniMindHealth | null>(null), [languageError, setLanguageError] = useState("");
+  const [miniMindState, setMiniMindState] = useState<MiniMindBrowserState>(INITIAL_MINIMIND_STATE), [languageTask, setLanguageTask] = useState<LanguageTask>("idle"), [languageError, setLanguageError] = useState("");
+  const [manualFacts, setManualFacts] = useState(false), [factsConfirmed, setFactsConfirmed] = useState(false);
   const [factDraft, setFactDraft] = useState<MiniMindDraft | null>(null), [miniNote, setMiniNote] = useState<MiniMindNote | null>(null);
 
   const selected = useMemo(() => custom && selectedId === "custom" ? custom : cases.find(item => item.id === selectedId) ?? cases[0], [cases, custom, selectedId]);
   const visibleCases = cases.slice(0, 5), teachingCount = cases.filter(item => item.split === "teach").length, heldoutCount = cases.filter(item => item.split === "holdout").length;
   const narrative = custom && selectedId === "custom" ? custom.petition : selected?.petition ?? "";
   const mapFrame = activity ?? anatomy;
+  const setupComplete = manualFacts || miniMindState.phase === "ready";
+  const currentStep = !setupComplete ? 1 : !modelSummary ? 2 : !factsConfirmed ? 3 : 4;
+  const completedSteps = new Set<number>();
+  if (setupComplete) completedSteps.add(1);
+  if (modelSummary) completedSteps.add(2);
+  if (factsConfirmed) completedSteps.add(3);
+  if (advice) completedSteps.add(4);
 
   const send = (type: string, payload: Record<string, unknown> = {}) => {
     if (type !== "load" && !graphReady.current) return;
@@ -110,36 +192,52 @@ export function LegalFlyVillage() {
     if (type === "cancel") workerBusy.current = false;
     setError(""); worker.current?.postMessage({ id: ++seq.current, type, ...payload });
   };
-  const inspectLanguageClerk = async () => {
-    const operation = ++languageOp.current; setLanguageState("checking"); setLanguageError("");
-    try { const value = await checkMiniMind(AbortSignal.timeout(6000)); if (operation !== languageOp.current) return; languageReady.current = value.ready; setLanguageHealth(value); setLanguageState(value.status); setLanguageError(value.ready ? "" : value.message); }
-    catch { if (operation === languageOp.current) { languageReady.current = false; setLanguageHealth(null); setLanguageState("unreachable"); setLanguageError("The browser cannot reach local MiniMind. Manual facts and authored counsel notes still work."); } }
+  const enableMiniMind = async () => {
+    setLanguageError(""); setManualFacts(false);
+    try { await miniMindClient.current?.enable(); }
+    catch (caught) { setLanguageError(caught instanceof Error ? caught.message : "MiniMind could not be enabled. Retry or continue with manual facts."); }
+  };
+  const cancelMiniMind = async () => {
+    setLanguageError("");
+    try { await miniMindClient.current?.cancelDownload(); }
+    catch (caught) { setLanguageError(caught instanceof Error ? caught.message : "The MiniMind download could not be canceled."); }
   };
   const renderWithMiniMind = async (result: Advice) => {
-    if (!languageReady.current) return;
-    const operation = ++languageOp.current; setLanguageState("verbalizing"); setLanguageError("");
-    try { const note = await verbalizeAdvice(result.case.facts, result.advice.action, result.advice.confidence, AbortSignal.timeout(12000)); if (operation === languageOp.current) { setMiniNote(note); setLanguageState("ready"); } }
-    catch (caught) { if (operation === languageOp.current) { setLanguageState("ready"); setLanguageError(caught instanceof Error ? caught.message : "MiniMind could not render the note."); } }
+    if (!languageReady.current || !miniMindClient.current) return;
+    const operation = ++languageOp.current; setLanguageTask("verbalizing"); setLanguageError("");
+    try { const note = await miniMindClient.current.verbalizeAdvice(result.case.facts, result.advice.action, result.advice.confidence); if (operation === languageOp.current) { setMiniNote(note); setLanguageTask("idle"); } }
+    catch (caught) { if (operation === languageOp.current) { setLanguageTask("idle"); setLanguageError(caught instanceof Error ? caught.message : "MiniMind could not render the note. The authored note is still shown."); } }
   };
   const addMiniMindControl = async (result: any) => {
-    if (!languageReady.current) return;
-    const operation = ++languageOp.current; setLanguageState("benchmarking");
+    if (!languageReady.current || !miniMindClient.current) return;
+    const operation = ++languageOp.current; setLanguageTask("benchmarking");
     try {
-      const control = await benchmarkMiniMind(result.rows.map((row: any) => ({ id: row.id, petition: row.petition })), AbortSignal.timeout(30000));
+      const control = await miniMindClient.current.benchmarkMiniMind(result.rows.map((row: any) => ({ id: row.id, petition: row.petition })));
       if (operation !== languageOp.current) return;
       const byId = new Map(control.rows.map(row => [row.id, row]));
       const rows = result.rows.map((row: any) => ({ ...row, minimind: byId.get(row.id)?.action ?? null }));
       const minimindCorrect = rows.filter((row: any) => row.minimind === row.expected).length;
-      setBenchmark({ ...result, rows, summary: { ...result.summary, minimindCorrect }, minimindRevision: control.model_revision }); setLanguageState("ready");
-    } catch (caught) { if (operation === languageOp.current) { setLanguageState("ready"); setLanguageError(caught instanceof Error ? caught.message : "MiniMind control failed."); } }
+      setBenchmark({ ...result, rows, summary: { ...result.summary, minimindCorrect }, minimindRevision: control.model_revision }); setLanguageTask("idle");
+    } catch (caught) { if (operation === languageOp.current) { setLanguageTask("idle"); setLanguageError(caught instanceof Error ? caught.message : "The MiniMind benchmark could not run."); } }
   };
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)"), updateMotion = () => setReduced(media.matches);
     updateMotion(); media.addEventListener("change", updateMotion);
-    const languageConfig = getMiniMindConfiguration();
-    if (languageConfig.status === "configured") void inspectLanguageClerk();
-    else { setLanguageState(languageConfig.status); setLanguageError(languageConfig.message); }
+    let browserMiniMind: MiniMindBrowserClient | null = null;
+    let unsubscribeMiniMind: () => void = () => {};
+    try {
+      browserMiniMind = new MiniMindBrowserClient();
+      miniMindClient.current = browserMiniMind;
+      unsubscribeMiniMind = browserMiniMind.subscribe(state => {
+        languageReady.current = state.phase === "ready";
+        setMiniMindState(state);
+        if (state.phase === "ready") setLanguageError("");
+      });
+    } catch {
+      languageReady.current = false;
+      setMiniMindState({ phase: "unsupported", source: null, backend: null, progress: null, message: "This browser could not start MiniMind." });
+    }
     let activeWorker: Worker | null = null;
     try { activeWorker = new Worker("/legalfly/worker.mjs", { type: "module" }); worker.current = activeWorker; }
     catch { setLoadState("errored"); setError("This browser could not start the local worker. No petition text was sent anywhere."); }
@@ -169,8 +267,8 @@ export function LegalFlyVillage() {
     }
     const visibility = () => { if (document.hidden && workerBusy.current) send("cancel"); };
     document.addEventListener("visibilitychange", visibility);
-    return () => { if (approachTimer.current) clearTimeout(approachTimer.current); document.removeEventListener("visibilitychange", visibility); media.removeEventListener("change", updateMotion); activeWorker?.terminate(); worker.current = null; };
-  // The worker and local adapter are intentionally initialized once.
+    return () => { if (approachTimer.current) clearTimeout(approachTimer.current); document.removeEventListener("visibilitychange", visibility); media.removeEventListener("change", updateMotion); unsubscribeMiniMind(); void browserMiniMind?.dispose(); miniMindClient.current = null; activeWorker?.terminate(); worker.current = null; };
+  // The graph worker and browser-only MiniMind worker are intentionally initialized once.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -178,9 +276,10 @@ export function LegalFlyVillage() {
     if (approachTimer.current) clearTimeout(approachTimer.current);
     if (workerBusy.current) send("cancel", { silent: true });
     if (item.id === "custom") setCustom(item);
-    // Case changes invalidate language work, but health checks do not depend on a case.
-    if (languageReady.current) { languageOp.current++; setLanguageState("ready"); }
+    // Case changes invalidate inference work, but not the browser model itself.
+    languageOp.current++; setLanguageTask("idle");
     setSelectedId(item.id); setAdvice(null); setMiniNote(null); setFactDraft(null); setActivity(null); setBenchmark(null);
+    setFactsConfirmed(false);
     if (!graphReady.current) return;
     setPhase("petitioner-approaching");
     approachTimer.current = window.setTimeout(() => setPhase("petition-ready"), reduced ? 10 : 850);
@@ -188,11 +287,12 @@ export function LegalFlyVillage() {
   const updateNarrative = (value: string) => selected && callPetitioner({ ...selected, id: "custom", split: "holdout", title: "Custom petition", petition: value, label: undefined });
   const updateFact = (field: string, value: string) => selected && callPetitioner({ ...selected, id: "custom", split: "holdout", title: "Custom petition", facts: { ...selected.facts, [field]: value }, label: undefined });
   const draftFacts = async () => {
-    const operation = ++languageOp.current; setLanguageState("encoding"); setLanguageError(""); setFactDraft(null);
-    try { const value = await encodePetition(narrative, AbortSignal.timeout(15000)); if (operation === languageOp.current) { setFactDraft(value); setLanguageState("ready"); } }
-    catch (caught) { if (operation === languageOp.current) { setLanguageState("ready"); setLanguageError(caught instanceof Error ? caught.message : "MiniMind could not draft facts."); } }
+    if (!miniMindClient.current) return;
+    const operation = ++languageOp.current; setLanguageTask("encoding"); setLanguageError(""); setFactDraft(null);
+    try { const value = await miniMindClient.current.encodePetition(narrative); if (operation === languageOp.current) { setFactDraft(value); setLanguageTask("idle"); } }
+    catch (caught) { if (operation === languageOp.current) { setLanguageTask("idle"); setLanguageError(caught instanceof Error ? caught.message : "MiniMind could not suggest facts. You can fill them in manually."); } }
   };
-  const acceptDraft = () => { if (selected && factDraft) { setCustom({ ...selected, id: "custom", split: "holdout", title: "Custom petition", petition: narrative, facts: factDraft.facts, label: undefined }); setSelectedId("custom"); setFactDraft(null); } };
+  const acceptDraft = () => { if (selected && factDraft) { setCustom({ ...selected, id: "custom", split: "holdout", title: "Custom petition", petition: narrative, facts: factDraft.facts, label: undefined }); setSelectedId("custom"); setFactDraft(null); setFactsConfirmed(true); } };
   const hear = () => { if (selected) { setShowLab(true); send("hear", { case: custom && selectedId === "custom" ? custom : selected }); } };
   const openFile = async (event: ChangeEvent<HTMLInputElement>, kind: "model" | "casebook") => {
     const file = event.target.files?.[0]; event.target.value = ""; if (!file) return;
@@ -206,22 +306,25 @@ export function LegalFlyVillage() {
       <div className="lf-hero-copy"><p className="lf-question">Can a fruit fly&apos;s brain learn to advise a village on its legal matters?</p><h1>The Legal Fly</h1><p className="lf-tagline">Can a fruit fly make a good lawyer?</p><p>Villagers bring ordinary trouble to a very small counsel. The counsel recommends a next step. It does not judge.</p><div className="lf-actions"><a className="lf-button primary" href="#docket">Bring a dispute</a><a className="lf-button inverse" href="#method" onClick={() => setShowLab(true)}>Inspect the brain</a></div></div>
     </section>
     <section className="lf-process page-width" aria-label="Experiment boundary"><span>Petition</span><i>MiniMind clerk</i><span>Confirmed facts</span><i>MaleCNS</i><span>Fly action</span><i>MiniMind clerk</i><span>Counsel&apos;s note</span></section>
+    <ChamberGuide currentStep={currentStep} complete={completedSteps} />
 
     <section className="lf-work page-width" id="docket">
       <aside className="lf-docket" aria-label="Petitioner docket"><div className="lf-panel-head"><span>Today&apos;s docket</span><strong>{phaseCopy[phase] ?? phase}</strong></div>{visibleCases.map(item => <button key={item.id} className={selected?.id === item.id ? "is-selected" : ""} type="button" onClick={() => callPetitioner(item)}><span>{item.villager}</span><b>{item.title}</b><small>{item.prop}</small></button>)}<button type="button" onClick={() => selected && callPetitioner({ ...selected, id: "custom", title: "Custom petition", villager: "A new petitioner", split: "holdout", label: undefined })}><span>New petitioner</span><b>Write a custom petition</b><small>blank paper</small></button></aside>
       <section className="lf-petition-panel" aria-live="polite">
         <div className="lf-panel-head"><span>Petition on the desk</span><strong>{graph ? `${graph.neurons?.toLocaleString()} neurons loaded` : "MaleCNS required"}</strong></div>{error ? <div className="lf-error" role="alert">{error}{loadState === "errored" ? <><p>Reloading restarts the worker and discards unsaved chamber changes.</p><button className="lf-button" type="button" onClick={() => window.location.reload()}>Reload chamber</button></> : null}</div> : null}<h2>{selected?.title ?? "No petitioner selected"}</h2>
         <textarea aria-label="Petition narrative" value={narrative} onChange={event => updateNarrative(event.target.value)} />
-        <div className="lf-clerk-line"><p><strong>Language clerk: {languageState.replaceAll("-", " ")}</strong><span>Optional local MiniMind; manual facts and authored notes remain available. Proposed fields require confirmation.</span></p>{languageHealth?.ready ? <button className="lf-text-button" disabled={languageState !== "ready" || !narrative.trim()} type="button" onClick={() => void draftFacts()}>{languageState === "encoding" ? "Reading petition" : "Draft facts with MiniMind"}</button> : <button className="lf-text-button" type="button" onClick={() => void inspectLanguageClerk()}>Check local MiniMind</button>}</div>
-        {languageError ? <p className="lf-language-error" role="status">{languageError}</p> : null}{factDraft ? <LanguageReceipt draft={factDraft} onAccept={acceptDraft} onDismiss={() => setFactDraft(null)} /> : null}<p className="lf-muted">Only the confirmed fields below reach the fly. The narrative does not.</p>
+        <MiniMindSetup state={miniMindState} manualFacts={manualFacts} onEnable={() => void enableMiniMind()} onCancel={() => void cancelMiniMind()} onManual={() => setManualFacts(true)} />
+        {miniMindState.phase === "ready" ? <div className="lf-clerk-line"><p><strong>Optional fact suggestions</strong><span>MiniMind reads the petition only inside this browser. You still confirm every field.</span></p><button className="lf-text-button" disabled={languageTask !== "idle" || !narrative.trim()} type="button" onClick={() => void draftFacts()}>{languageTask === "encoding" ? "Reading petition" : "Draft facts with MiniMind"}</button></div> : null}
+        {languageError ? <p className="lf-language-error" role="status">{languageError}</p> : null}{factDraft ? <LanguageReceipt draft={factDraft} onAccept={acceptDraft} onDismiss={() => setFactDraft(null)} /> : null}<p className="lf-muted">Only the eight confirmed choices below reach the fly. The petition text does not.</p>
         <div className="lf-facts">{factFields.map(field => <label key={field}>{field}<select value={(custom && selectedId === "custom" ? custom : selected)?.facts?.[field] ?? ""} onChange={event => updateFact(field, event.target.value)}>{FACT_OPTIONS[field].map(value => <option key={value}>{value}</option>)}</select></label>)}</div>
-        <div className="lf-controls lf-petition-controls">{!modelSummary ? <button className="lf-button primary" disabled={phase === "computing" || loadState !== "ready"} type="button" onClick={() => send("train", { seed })}>Teach the ledger</button> : <button className="lf-button primary" disabled={phase === "computing" || loadState !== "ready"} type="button" onClick={hear}>Hear the case</button>}{phase === "computing" ? <button className="lf-button" type="button" onClick={() => send("cancel")}>Cancel</button> : null}<label className="lf-seed">seed <input type="number" value={seed} onChange={event => setSeed(Number(event.target.value))} /></label><button className="lf-button" type="button" aria-expanded={showLab} aria-controls="method" onClick={() => setShowLab(value => !value)}>{showLab ? "Hide brain visualization" : "Show brain visualization"}</button></div>{loadState === "loading" ? <p className="lf-progress" role="status">{loadProgress.title}: {Math.round(100 * loadProgress.current / Math.max(1, loadProgress.total))}%</p> : null}{phase === "computing" ? <p className="lf-progress">{progress.current}/{progress.total} {progress.title}</p> : null}
+        {modelSummary ? <div className={`lf-fact-confirmation ${factsConfirmed ? "is-confirmed" : ""}`} role="status"><p>{factsConfirmed ? "All eight facts are confirmed. The fly can use these choices." : "Confirm all eight choices before the fly can use them."}</p><button className={`lf-button ${factsConfirmed ? "" : "primary"}`} type="button" onClick={() => setFactsConfirmed(true)}>{factsConfirmed ? "Facts confirmed" : "Confirm these eight facts"}</button></div> : null}
+        <div className="lf-controls lf-petition-controls">{!modelSummary ? <button className="lf-button primary" disabled={phase === "computing" || loadState !== "ready"} type="button" onClick={() => send("train", { seed })}>Teach the ledger</button> : <button className="lf-button primary" disabled={!factsConfirmed || phase === "computing" || loadState !== "ready"} aria-describedby={!factsConfirmed ? "hear-case-help" : undefined} type="button" onClick={hear}>Hear the case</button>}{phase === "computing" ? <button className="lf-button" type="button" onClick={() => send("cancel")}>Cancel</button> : null}<label className="lf-seed">seed <input type="number" value={seed} onChange={event => setSeed(Number(event.target.value))} /></label><button className="lf-button" type="button" aria-expanded={showLab} aria-controls="method" onClick={() => setShowLab(value => !value)}>{showLab ? "Hide brain visualization" : "Show brain visualization"}</button></div>{!modelSummary && loadState === "ready" ? <p className="lf-control-help">Select <strong>Teach the ledger</strong> to train the fly&apos;s readout from the fictional examples.</p> : null}{modelSummary && !factsConfirmed ? <p className="lf-control-help" id="hear-case-help">Review the eight choices and select <strong>Confirm these eight facts</strong> before hearing the case.</p> : null}{loadState === "loading" ? <p className="lf-progress" role="status">{loadProgress.title}: {Math.round(100 * loadProgress.current / Math.max(1, loadProgress.total))}%</p> : null}{phase === "computing" ? <p className="lf-progress">{progress.current}/{progress.total} {progress.title}</p> : null}
       </section>
       <aside className="lf-advice"><div className="lf-panel-head"><span>Counsel&apos;s note</span><strong>{advice ? `${Math.round(advice.advice.confidence * 100)}% readout confidence` : "abstains if unsure"}</strong></div>{advice ? <><div className={`lf-result-seal ${actionClass[advice.advice.action] ?? "seal-abstain"}`} /><h2>{actions.find(([id]) => id === advice.advice.action)?.[1] ?? "Abstain."}</h2><p>{miniNote?.text ?? advice.recommendation}</p><div className="lf-boundary-note"><span>{miniNote ? "MiniMind rendering" : "Authored fallback"}</span><p>{miniNote ? "The decoder received the selected action and confirmed facts. Alternative actions were withheld." : "The action came from the fly readout. No language model changed it."}</p></div><div className="lf-controls slim"><button className="lf-button" type="button" onClick={() => send("file-case")}>File in casebook</button><select aria-label="Correct recommendation" onChange={event => event.target.value && send("correct", { label: event.target.value })} defaultValue=""><option value="">Correct the fly</option>{actions.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select></div></> : <p className="lf-muted">The fly waits beside the papers. Teach the ledger, call a petitioner, and ask for advice.</p>}</aside>
     </section>
 
     <section className={`lf-lab page-width ${showLab ? "is-open" : ""}`} id="method" aria-label="Brain visualization and controls" hidden={!showLab}><div><div className="lf-panel-head"><span>Counsel&apos;s nervous system</span><strong>{activity ? (phase === "computing" ? "live worker frame" : "last computation stopped") : anatomy ? "released anatomy only: no computation" : "waiting for verified anatomy"}</strong></div>{showLab && mapFrame ? <MaleCNSMap frame={mapFrame} active={Boolean(activity) && phase === "computing"} /> : <div className="lf-map-empty"><Image src="/art/legalfly/fly-counsel.webp" width={1000} height={667} alt="The fruit-fly counsel on the office papers" /><p>The released soma map will appear after the full graph and anatomy are verified. No synthetic neurons or decorative activity are substituted.</p></div>}</div><div><div className="lf-panel-head"><span>Method and controls</span><strong>{teachingCount} teach / {heldoutCount} held out</strong></div><p>MiniMind proposes visible fields and renders a fixed fly action. The biological graph stays fixed. Only the artificial readout learns. Labels, benchmark IDs, and MiniMind hidden states never enter the connectome.</p><div className="lf-contract"><b>Encoder sees</b><span>petition text, field name, allowed field values</span><b>Fly sees</b><span>eight confirmed enums</span><b>Decoder sees</b><span>selected action, confirmed enums, confidence band</span></div><div className="lf-controls wrap"><button className="lf-button" disabled={!modelSummary || phase === "computing"} type="button" onClick={() => send("benchmark")}>Run five-way benchmark</button><button className="lf-button" disabled={!modelSummary} type="button" onClick={() => send("export-model")}>Export model</button><button className="lf-button" type="button" onClick={() => modelInput.current?.click()}>Import model</button><button className="lf-button" type="button" onClick={() => send("reset-model")}>Reset model</button><button className="lf-button" type="button" onClick={() => send("export-casebook")}>Export casebook</button><button className="lf-button" type="button" onClick={() => casebookInput.current?.click()}>Import casebook</button></div><input ref={modelInput} hidden type="file" accept="application/json,.json" onChange={event => void openFile(event, "model")} /><input ref={casebookInput} hidden type="file" accept="application/json,.json" onChange={event => void openFile(event, "casebook")} />
-        {benchmark ? <BenchmarkPanel benchmark={benchmark} miniMindReady={Boolean(languageHealth?.ready)} /> : null}
+        {benchmark ? <BenchmarkPanel benchmark={benchmark} miniMindReady={miniMindState.phase === "ready"} /> : null}
       </div></section>
     <section className="lf-casebook page-width"><div className="lf-panel-head"><span>Casebook</span><strong>{casebook.length} filed</strong></div>{casebook.length ? casebook.map((entry, index) => <article key={String(entry.case.id) + "-" + String(index)}><b>{entry.case.title}</b><span>{entry.recommendation}</span></article>) : <p className="lf-muted">Filed cases appear here only when you choose to file them. Exports contain any text you entered.</p>}</section>
   </div>;

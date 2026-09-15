@@ -3,10 +3,53 @@ import { readFileSync } from "node:fs";
 import { act, cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { LegalFlyVillage } from "@/components/LegalFlyVillage";
-import { checkMiniMind, encodePetition, getMiniMindConfiguration } from "@/lib/minimind";
 import type { MaleCNSFrame } from "@/components/MaleCNSMap";
 
-vi.mock("@/lib/minimind", async original => ({ ...await original<typeof import("@/lib/minimind")>(), checkMiniMind: vi.fn(), encodePetition: vi.fn(), getMiniMindConfiguration: vi.fn() }));
+const miniMind = vi.hoisted(() => {
+  type State = {
+    phase: "available" | "downloading" | "verifying" | "cached" | "loading" | "ready" | "unsupported" | "failed";
+    source: "cache" | "download" | null;
+    backend: "webgpu" | "wasm" | null;
+    progress: { loaded: number; total: number; percent: number; file: string | null } | null;
+    message: string;
+  };
+  let state: State;
+  const listeners = new Set<(value: State) => void>();
+  const client = {
+    enable: vi.fn(async () => undefined),
+    cancelDownload: vi.fn(async () => undefined),
+    encodePetition: vi.fn(async () => ({})),
+    verbalizeAdvice: vi.fn(async () => ({})),
+    benchmarkMiniMind: vi.fn(async () => ({ rows: [], model_revision: "test" })),
+    dispose: vi.fn(async () => undefined),
+    subscribe: vi.fn((listener: (value: State) => void) => {
+      listeners.add(listener);
+      listener(state);
+      return () => listeners.delete(listener);
+    }),
+  };
+  const available = (): State => ({ phase: "available", source: null, backend: null, progress: null, message: "MiniMind is optional and has not been enabled." });
+  return {
+    client,
+    reset() {
+      state = available();
+      listeners.clear();
+      client.enable.mockResolvedValue(undefined);
+      client.cancelDownload.mockResolvedValue(undefined);
+      client.dispose.mockResolvedValue(undefined);
+      client.encodePetition.mockResolvedValue({});
+      client.verbalizeAdvice.mockResolvedValue({});
+      client.benchmarkMiniMind.mockResolvedValue({ rows: [], model_revision: "test" });
+    },
+    setInitial(next: State) { state = next; },
+    emit(next: State) {
+      state = next;
+      act(() => listeners.forEach(listener => listener(next)));
+    },
+  };
+});
+
+vi.mock("@/lib/minimind-browser", () => ({ MiniMindBrowserClient: vi.fn(() => miniMind.client) }));
 
 // Only the asynchronous worker/optional service boundaries are replaced. The map is real.
 class VillageWorker {
@@ -28,11 +71,9 @@ function load() {
   return worker;
 }
 beforeEach(() => {
+  miniMind.reset();
   Object.defineProperty(document, "hidden", { configurable: true, value: false });
   vi.stubGlobal("Worker", VillageWorker);
-  vi.stubEnv("NEXT_PUBLIC_MINIMIND_URL", "");
-  vi.mocked(checkMiniMind).mockRejectedValue(new Error("connection refused"));
-  vi.mocked(getMiniMindConfiguration).mockReturnValue({ status: "not-configured", url: null, message: "Optional MiniMind is not configured." });
   Object.defineProperty(window, "matchMedia", { configurable: true, value: () => ({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() }) });
 });
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.unstubAllEnvs(); vi.clearAllMocks(); });
@@ -105,6 +146,7 @@ describe("village workbench regressions", () => {
     expect((screen.getByRole("textbox", { name: "Petition narrative" }) as HTMLTextAreaElement).value).toBe("My changed petition");
     fireEvent.change(screen.getByRole("combobox", { name: "harm" }), { target: { value: "high" } });
     expect((screen.getByRole("combobox", { name: "harm" }) as HTMLSelectElement).value).toBe("high");
+    fireEvent.click(screen.getByRole("button", { name: "Confirm these eight facts" }));
     fireEvent.click(screen.getByRole("button", { name: "Hear the case" }));
     expect(worker.postMessage).toHaveBeenLastCalledWith(expect.objectContaining({ type: "hear", case: expect.objectContaining({ id: "custom", petition: "My changed petition", facts: { ...facts, harm: "high" } }) }));
   });
@@ -127,6 +169,8 @@ describe("village workbench regressions", () => {
   it("marks a stopped computation separately from idle anatomy", () => {
     render(<LegalFlyVillage />); const worker = load();
     worker.emit({ id: 1, type: "trained", modelSummary: { seed: 42 } });
+    worker.emit({ id: 1, type: "status", state: "idle" });
+    fireEvent.click(screen.getByRole("button", { name: "Confirm these eight facts" }));
     fireEvent.click(screen.getByRole("button", { name: "Hear the case" }));
     worker.emit({ id: 2, type: "activity", activity: { ...anatomy, kind: "activity", step: 1, total_steps: 4 } });
     worker.emit({ id: 2, type: "status", state: "petition-ready" });
@@ -135,36 +179,68 @@ describe("village workbench regressions", () => {
 });
 
 describe("optional MiniMind status", () => {
+  it("explains and enables the local language helper", () => {
+    render(<LegalFlyVillage />);
+    expect(screen.getByText(/runs only in this browser/i)).toBeDefined();
+    expect(screen.getByText(/petition stays on this device/i)).toBeDefined();
+    fireEvent.click(screen.getByRole("button", { name: "Enable MiniMind" }));
+    expect(miniMind.client.enable).toHaveBeenCalledOnce();
+  });
+
+  it("removes setup notice after cached MiniMind becomes ready", () => {
+    miniMind.setInitial({ phase: "ready", source: "cache", backend: "wasm", progress: null, message: "Ready" });
+    render(<LegalFlyVillage />);
+    expect(screen.queryByRole("button", { name: "Enable MiniMind" })).toBeNull();
+    expect(screen.getByText("MiniMind ready · runs on this device")).toBeDefined();
+  });
+
+  it("shows honest download progress and lets the visitor cancel", () => {
+    miniMind.setInitial({ phase: "downloading", source: "download", backend: null, progress: { loaded: 125_829_120, total: 251_658_240, percent: 50, file: "model.q8.onnx" }, message: "Downloading" });
+    render(<LegalFlyVillage />);
+    expect(screen.getByRole("progressbar").getAttribute("aria-valuenow")).toBe("50");
+    expect(screen.getByText(/120 MB of 240 MB/i)).toBeDefined();
+    fireEvent.click(screen.getByRole("button", { name: "Cancel download" }));
+    expect(miniMind.client.cancelDownload).toHaveBeenCalledOnce();
+  });
+
+  it("offers retry and a manual path after MiniMind fails", () => {
+    miniMind.setInitial({ phase: "failed", source: "download", backend: null, progress: null, message: "Model could not start" });
+    render(<LegalFlyVillage />);
+    expect(screen.getByText(/current Chrome, Edge, or another Chromium browser/i)).toBeDefined();
+    fireEvent.click(screen.getByRole("button", { name: "Retry MiniMind" }));
+    expect(miniMind.client.enable).toHaveBeenCalledOnce();
+    fireEvent.click(screen.getByRole("button", { name: "Continue with manual facts" }));
+    expect(screen.getByText("Using manual facts.")).toBeDefined();
+    expect(screen.getByRole("combobox", { name: "matter" })).toBeDefined();
+  });
+
+  it("guides the four steps and requires confirmation before hearing a case", () => {
+    render(<LegalFlyVillage />); const worker = load();
+    fireEvent.click(screen.getByRole("button", { name: "Continue with manual facts" }));
+    const guide = screen.getByRole("list", { name: "Chamber steps" });
+    expect(within(guide).getAllByRole("listitem")).toHaveLength(4);
+    expect(within(guide).getByText(/Teach the fly/i).closest("li")?.getAttribute("aria-current")).toBe("step");
+    fireEvent.click(screen.getByRole("button", { name: "Teach the ledger" }));
+    worker.emit({ id: 2, type: "trained", modelSummary: { seed: 42 } });
+    worker.emit({ id: 2, type: "status", state: "idle" });
+    expect(screen.getByRole("button", { name: "Hear the case" }).hasAttribute("disabled")).toBe(true);
+    expect(screen.getByText(/Confirm all eight choices before the fly can use them/i)).toBeDefined();
+    fireEvent.click(screen.getByRole("button", { name: "Confirm these eight facts" }));
+    expect(screen.getByRole("button", { name: "Hear the case" }).hasAttribute("disabled")).toBe(false);
+    fireEvent.change(screen.getByRole("combobox", { name: "harm" }), { target: { value: "high" } });
+    expect(screen.getByRole("button", { name: "Hear the case" }).hasAttribute("disabled")).toBe(true);
+  });
+
   it("releases the drafting button after an edit and discards the old draft", async () => {
-    vi.mocked(getMiniMindConfiguration).mockReturnValue({ status: "configured", url: "http://127.0.0.1:8123", message: "Local service" });
-    vi.mocked(checkMiniMind).mockResolvedValue({ ready: true, status: "ready", message: "Ready", model: "jingyaogong/minimind-3", model_revision: "f92512d4cd6142fa9acc0d6022375049a8974bf6", mode: "frozen-embedding-readouts", load_seconds: 1 });
-    let finish!: (value: Awaited<ReturnType<typeof encodePetition>>) => void;
-    vi.mocked(encodePetition).mockReturnValue(new Promise(resolve => { finish = resolve; }));
+    miniMind.setInitial({ phase: "ready", source: "cache", backend: "wasm", progress: null, message: "Ready" });
+    let finish!: (value: Record<string, unknown>) => void;
+    miniMind.client.encodePetition.mockReturnValue(new Promise(resolve => { finish = resolve; }));
     render(<LegalFlyVillage />); load();
-    fireEvent.click(await screen.findByRole("button", { name: "Draft facts with MiniMind" }));
+    fireEvent.click(screen.getByRole("button", { name: "Draft facts with MiniMind" }));
     expect(screen.getByRole("button", { name: "Reading petition" }).hasAttribute("disabled")).toBe(true);
     fireEvent.change(screen.getByLabelText("Petition narrative"), { target: { value: "New evidence" } });
     expect(screen.getByRole("button", { name: "Draft facts with MiniMind" }).hasAttribute("disabled")).toBe(false);
     await act(async () => finish({ facts, field_confidence: {}, receipt: { answer_labels_available: false, requires_confirmation: true, input: [], output: [] } }));
     expect(screen.queryByRole("button", { name: "Use these facts" })).toBeNull();
-  });
-  it("does not call an unconfigured optional service an outage or automatically probe it", () => {
-    render(<LegalFlyVillage />);
-    expect(screen.getByText(/Language clerk: not configured/i)).toBeDefined();
-    expect(checkMiniMind).not.toHaveBeenCalled();
-    expect(screen.queryByText(/not running|offline/i)).toBeNull();
-  });
-  it("reports a failed explicitly requested local check as unreachable", async () => {
-    render(<LegalFlyVillage />);
-    fireEvent.click(screen.getByRole("button", { name: "Check local MiniMind" }));
-    expect(await screen.findByText(/Language clerk: unreachable/i)).toBeDefined();
-    expect(screen.getByText(/Manual facts and authored counsel notes still work/)).toBeDefined();
-  });
-  it("distinguishes a responding but unready configured service from an outage", async () => {
-    vi.stubEnv("NEXT_PUBLIC_MINIMIND_URL", "http://127.0.0.1:8123");
-    vi.mocked(getMiniMindConfiguration).mockReturnValue({ status: "configured", url: "http://127.0.0.1:8123", message: "Local service" });
-    vi.mocked(checkMiniMind).mockResolvedValue({ ready: false, model: "jingyaogong/minimind-3", model_revision: "f92512d4cd6142fa9acc0d6022375049a8974bf6", mode: "frozen-embedding-readouts", load_seconds: null, status: "not-ready", message: "The adapter is reachable but its model is not ready." });
-    render(<LegalFlyVillage />);
-    expect(await screen.findByText(/Language clerk: not ready/i)).toBeDefined();
   });
 });
