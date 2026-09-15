@@ -8,6 +8,10 @@ The Legal Fly is an experiment that tests whether the real neural connectome of 
 [![GitHub](https://img.shields.io/badge/GitHub-thelegalfly-181717?logo=github)](https://github.com/zgbrenner/thelegalfly)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+<p align="left">
+  <img src="assets/thelegalfly-hero.png" alt="The Legal Fly" width="850">
+</p>
+
 ---
 
 ## What is this?
