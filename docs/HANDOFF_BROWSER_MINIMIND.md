@@ -2,6 +2,8 @@
 
 Date halted: 2026-09-15
 
+> Status update, 2026-09-15 (Linux build host): the two Task 6 review fixes, Task 7, an independent whole-branch review with fixes, a real Docker build, and the browser acceptance runs were completed on `feature/browser-minimind`. The measured results are in `docs/VERIFICATION.md` under "Reproducibility and release gates, 2026-09-15"; the sections below record the state at the original halt and are kept for provenance.
+
 ## Repository and branch
 
 - Canonical repository: `https://github.com/zgbrenner/thelegalfly.git`
