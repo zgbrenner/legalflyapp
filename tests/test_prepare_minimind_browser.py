@@ -228,17 +228,25 @@ def test_quantized_graph_ships_no_exporter_metadata_or_host_paths(tmp_path):
     )
     node.doc_string = host_path
     weights = np.linspace(-1.0, 1.0, 512, dtype=np.float32).reshape(128, 4)
+    weight = onnx.numpy_helper.from_array(weights, name="weight")
+    weight.metadata_props.add(key="pkg.torch.export.graph_signature.InputSpec.kind", value="PARAMETER")
+    weight.doc_string = host_path
+    graph_input = tensor("input", onnx.TensorProto.FLOAT, [1, 128])
+    graph_input.metadata_props.add(key="pkg.torch.onnx.original_node_name", value="p_causal_lm")
     graph = onnx.helper.make_graph(
         [node],
         "metadata-fixture",
-        [tensor("input", onnx.TensorProto.FLOAT, [1, 128])],
+        [graph_input],
         [tensor("output", onnx.TensorProto.FLOAT, [1, 4])],
-        [onnx.numpy_helper.from_array(weights, name="weight")],
+        [weight],
         doc_string=host_path,
     )
-    onnx.save(
-        onnx.helper.make_model(graph, opset_imports=[onnx.helper.make_opsetid("", 18)]), source
-    )
+    graph.metadata_props.add(key="pkg.torch.export.ExportedProgram.graph_signature", value="inputs")
+    model = onnx.helper.make_model(graph, opset_imports=[onnx.helper.make_opsetid("", 18)])
+    model.metadata_props.add(key="pkg.torch.export.version", value="2.14.0")
+    onnx.save(model, source)
+    with pytest.raises(ValueError, match="exporter provenance"):
+        prepare.assert_no_exporter_provenance(source)
 
     prepare.quantize_onnx(source, destination, "q8")
 
@@ -246,9 +254,16 @@ def test_quantized_graph_ships_no_exporter_metadata_or_host_paths(tmp_path):
     assert [node.op_type for node in quantized.graph.node] == ["MatMulNBits"]
     assert all(len(node.metadata_props) == 0 for node in quantized.graph.node)
     assert all(node.doc_string == "" for node in quantized.graph.node)
+    assert all(len(entry.metadata_props) == 0 for entry in quantized.graph.initializer)
+    assert all(len(entry.metadata_props) == 0 for entry in quantized.graph.input)
+    assert len(quantized.metadata_props) == 0
+    assert len(quantized.graph.metadata_props) == 0
     assert quantized.graph.doc_string == ""
-    assert host_path.encode() not in destination.read_bytes()
-    assert b"stack_trace" not in destination.read_bytes()
+    serialized = destination.read_bytes()
+    assert host_path.encode() not in serialized
+    assert b"stack_trace" not in serialized
+    assert b"pkg.torch" not in serialized
+    prepare.assert_no_exporter_provenance(destination)
 
 
 def test_qwen3_export_loads_the_python_adapters_float32_weights(tmp_path, monkeypatch):

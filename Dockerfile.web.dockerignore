@@ -7,6 +7,7 @@
 .env
 .env.*
 !.env.example
+# README artwork only; nothing under apps/web references it.
 assets
 data
 deploy

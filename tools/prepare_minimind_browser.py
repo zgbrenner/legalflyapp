@@ -299,15 +299,51 @@ def strip_exporter_metadata(model) -> None:
     impossible across machines. The q8 allowlist is resolved from ``namespace``
     before quantization, so nothing downstream needs this metadata.
     """
+    def scrub(entry) -> None:
+        del entry.metadata_props[:]
+        entry.doc_string = ""
+
     for node in model.graph.node:
-        del node.metadata_props[:]
-        node.doc_string = ""
+        scrub(node)
     for function in model.functions:
         for node in function.node:
-            del node.metadata_props[:]
-            node.doc_string = ""
-    model.graph.doc_string = ""
+            scrub(node)
+    # torch.export also tags every parameter and input tensor with its
+    # graph-signature role and original module path.
+    for tensor in model.graph.initializer:
+        scrub(tensor)
+    for value in (*model.graph.input, *model.graph.output, *model.graph.value_info):
+        scrub(value)
+    # torch.export records the whole graph signature and range constraints on
+    # the graph itself.
+    scrub(model.graph)
+    for function in model.functions:
+        del function.metadata_props[:]
+        function.doc_string = ""
+    del model.metadata_props[:]
     model.doc_string = ""
+
+
+EXPORTER_PROVENANCE_MARKERS = (
+    b"pkg.torch",
+    b"pkg.onnxscript",
+    b"stack_trace",
+    b"site-packages",
+    b"/home/",
+    b"/repo/",
+    b"/Users/",
+    b"C:\\",
+)
+
+
+def assert_no_exporter_provenance(path: Path) -> None:
+    """Fail if the serialized graph still carries exporter metadata or host paths."""
+    data = Path(path).read_bytes()
+    found = [marker.decode("utf-8", "replace") for marker in EXPORTER_PROVENANCE_MARKERS if marker in data]
+    if found:
+        raise ValueError(
+            f"Browser ONNX graph {path.name} carries exporter provenance: {', '.join(found)}"
+        )
 
 
 def _content_addressed_name(path: Path, digest: str) -> str:
@@ -476,6 +512,7 @@ def verify_browser_export(output: Path) -> BrowserManifest:
     if len(onnx_models) != 1:
         raise ValueError("Browser manifest must contain exactly one ONNX model")
     validate_onnx_outputs(onnx_models[0])
+    assert_no_exporter_provenance(onnx_models[0])
     return manifest
 
 

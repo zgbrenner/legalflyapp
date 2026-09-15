@@ -808,6 +808,11 @@ export async function createTransformersEngine(artifacts: MiniMindArtifactSet, b
     const modelRoot = "/minimind/runtime";
     const tokenizer = await AutoTokenizer.from_pretrained(modelRoot, { local_files_only: true });
     const { bytes: modelBytes } = await readVerified(modelFile);
+    const wasmPaths = ort.env.wasm.wasmPaths;
+    const remote = (value: unknown) => typeof value === "string" && /^[a-z]+:\/\//i.test(value) && !value.startsWith(`${new URL(artifacts.urls.get("config.json")!).origin}/`);
+    if (remote(wasmPaths) || (typeof wasmPaths === "object" && wasmPaths !== null && Object.values(wasmPaths).some((value) => remote(String(value))))) {
+      throw new Error("MiniMind runtime files must be same-origin.");
+    }
     session = await ort.InferenceSession.create(modelBytes, {
       executionProviders: [backend],
       graphOptimizationLevel: "all",
