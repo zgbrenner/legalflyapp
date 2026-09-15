@@ -1,119 +1,401 @@
 # The Legal Fly
 
-**Can a fruit fly make a good lawyer?**
+> **Can a fruit fly be a good lawyer?**
 
-The Legal Fly is a local-first experiment: an animated early-modern village lawyer's office where villagers bring fictional disputes to a tiny fruit-fly counsel. The fly recommends next steps under a toy village charter. It does not issue judgments or understand law.
+The Legal Fly is an experiment that tests whether the real neural connectome of a fruit fly can make simple legal recommendations.
 
-## Run the App
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Try_the_Fly-brightgreen)](https://legalfly-web.onrender.com/)
+[![GitHub](https://img.shields.io/badge/GitHub-thelegalfly-181717?logo=github)](https://github.com/zgbrenner/thelegalfly)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Connectome](https://img.shields.io/badge/Brain-MaleCNS_v1.0-green)](#the-fly-brain-is-not-decorative)
+[![Local First](https://img.shields.io/badge/Architecture-Local--First-blue)](#privacy)
+[![MiniMind](https://img.shields.io/badge/Language-MiniMind-purple)](#give-the-fly-language)
 
-```sh
-cd apps/web
+---
+
+## What is this?
+
+A villager walks into a tiny early-modern law office:
+
+> "My neighbor's goat keeps eating my cabbages."
+
+Instead of sending that dispute directly to a conventional AI model, The Legal Fly converts it into structured facts, stimulates sensory neurons inside a reconstruction of the **male fruit fly brain and central nervous system**, propagates activity through the biological connectome, and reads the resulting neural state to decide what the village lawyer should recommend.
+
+The lawyer is a fly.
+
+The nervous system is real.
+
+The legal system is fictional.
+
+---
+
+## The Experiment
+
+```text
+GOAT EATS CABBAGES
+        ↓
+structured facts
+        ↓
+sensory neuron stimulation
+        ↓
+REAL FRUIT FLY CONNECTOME
+        ↓
+neural activity propagates
+        ↓
+motor / descending neurons
+        ↓
+"Seek restitution."
+```
+
+The core question is deliberately strange:
+
+> **Can the structure of a biological nervous system be repurposed as a computational substrate for a task it never evolved to perform?**
+
+Fruit flies did not evolve to interpret contracts, weigh evidence, or resolve property disputes.
+
+So naturally, we made one a lawyer.
+
+---
+
+## The Fly Brain Is Not Decorative
+
+The simulation uses the **Janelia FlyEM MaleCNS v1.0 connectome**.
+
+| Metric                                 |           Count |
+| -------------------------------------- | --------------: |
+| Traced neuronal bodies                 |     **165,122** |
+| Directed neuron-pair connections       |  **25,563,197** |
+| Synaptic contacts                      | **124,025,046** |
+| Neurons with released soma coordinates |     **140,024** |
+
+The interface visualizes real released neuron positions inside the fly.
+
+When neurons light up, those values correspond to actual nodes used by the simulation.
+
+This is not a random glowing-brain animation pasted on top of a classifier.
+
+---
+
+## How It Works
+
+```text
+Petition
+   ↓
+MiniMind / Manual Input
+   ↓
+8 confirmed fact dimensions
+   ↓
+15,897 sensory neurons
+   ↓
+MaleCNS connectome
+   ↓
+neural propagation
+   ↓
+256 motor / descending features
+   ↓
+trained readout
+   ↓
+8 recommendations
+or
+ABSTAIN
+```
+
+The eight fact dimensions are:
+
+* matter
+* property
+* harm
+* proof
+* intent
+* relationship
+* urgency
+* ability
+
+Only confirmed facts reach the fly.
+
+The language model does not get to secretly choose the answer.
+
+---
+
+## Give the Fly Language
+
+The fruit fly connectome does not understand English.
+
+For that, The Legal Fly uses **MiniMind**, a small local language model that can translate a villager's petition into structured facts.
+
+MiniMind can:
+
+* extract candidate facts
+* translate natural language into the eight input dimensions
+* help render the fly's chosen recommendation into readable language
+
+MiniMind cannot:
+
+* override the fly's selected action
+* receive the correct legal answer during active inference
+* replace the connectome
+
+### Local MiniMind
+
+MiniMind can run as a local loopback service:
+
+```bash
+python -m pip install -e '.[linguistic]'
+
+python tools/prepare_minimind.py
+python tools/prepare_minimind.py --check
+
+CUDA_VISIBLE_DEVICES='' \
+python -m uvicorn \
+apps.minimind_adapter.service:app \
+--host 127.0.0.1 \
+--port 8123
+```
+
+Its **63.9M parameters remain frozen**.
+
+### MiniMind in the Browser
+
+A browser-native MiniMind option is also planned.
+
+The goal is to let users run the linguistic layer **directly in the browser**, without installing Python or starting a local server.
+
+```text
+Petition
+   ↓
+MiniMind in your browser
+   ↓
+confirmed structured facts
+   ↓
+fruit fly nervous system
+```
+
+That keeps the experiment close to its local-first philosophy and makes the complete pipeline accessible from a normal web page.
+
+---
+
+## So... Is the Fly Actually Good at Law?
+
+Current held-out results:
+
+| System                  |       Exact |
+| ----------------------- | ----------: |
+| Biological MaleCNS      | **13 / 16** |
+| Shuffled connectome     |     11 / 16 |
+| Facts-only centroid     | **14 / 16** |
+| Frozen MiniMind readout |      7 / 16 |
+| Fictional charter rules |      9 / 16 |
+
+So no, this repository does **not** prove that fruit flies secretly understand law.
+
+The simple facts-only baseline currently performs better.
+
+That matters.
+
+The point is not to manufacture a flashy benchmark. The point is to ask whether the organization of a biological nervous system contributes anything measurable when the inputs, task, training examples, and evaluation are controlled.
+
+---
+
+## The Village Lawyer
+
+The experiment lives inside a fictional early-modern village law office inspired by old European legal paintings.
+
+Villagers bring disputes.
+
+The fly listens.
+
+Its nervous system activates.
+
+Then it gives counsel under a tiny fictional village charter.
+
+**The aesthetic is ridiculous. The computation is not.**
+
+---
+
+## Try It
+
+### Live demo
+
+[Open The Legal Fly](https://legalfly-web.onrender.com/)
+
+[![Open The Legal Fly](https://img.shields.io/badge/Open_The_Legal_Fly-Live_Demo-brightgreen?style=for-the-badge)](https://legalfly-web.onrender.com/)
+
+### Run locally
+
+```bash
+git clone https://github.com/zgbrenner/thelegalfly.git
+cd thelegalfly/apps/web
+
 npm ci
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+Then open:
 
-The app requires the official MaleCNS browser graph for neural inference. If the graph has not been prepared, the worker refuses to substitute the older hemibrain subset or a synthetic graph.
+```text
+http://localhost:3000
+```
 
-## Prepare MaleCNS
+---
 
-```sh
+## Prepare the Brain
+
+```bash
 python -m pip install pyarrow pandas numpy
-python tools/prepare_malecns.py --download --convert --export-browser
-cd apps/web
-npm run dev
+
+python tools/prepare_malecns.py \
+  --download \
+  --convert \
+  --export-browser
 ```
 
-Large generated files stay under ignored `data/` paths and ignored `apps/web/public/legalfly/*.bin`.
+Then restart the web app.
 
-## Add MiniMind
+The application intentionally refuses to silently replace the MaleCNS dataset with an older subset or synthetic graph.
 
-MiniMind is an optional local linguistic adapter. Its 63.9M parameters stay fixed. Small teaching-only readouts map its text representation to the eight visible fact fields and to the independent MiniMind-only benchmark control. It never receives the fly's teaching label during active inference.
+---
 
-```sh
-python -m pip install -e '.[linguistic]'
-python tools/prepare_minimind.py
-python tools/prepare_minimind.py --check
-CUDA_VISIBLE_DEVICES='' python -m uvicorn apps.minimind_adapter.service:app --host 127.0.0.1 --port 8123
+## Architecture
+
+```text
+┌─────────────────────┐
+│  Villager Petition  │
+└──────────┬──────────┘
+           ↓
+┌─────────────────────┐
+│      MiniMind       │
+│   local / browser   │
+└──────────┬──────────┘
+           ↓
+┌─────────────────────┐
+│ Confirmed Fact Vec. │
+└──────────┬──────────┘
+           ↓
+┌─────────────────────┐
+│ Sensory Stimulation │
+└──────────┬──────────┘
+           ↓
+┌─────────────────────┐
+│ MaleCNS Connectome  │
+│   165k+ neurons     │
+└──────────┬──────────┘
+           ↓
+┌─────────────────────┐
+│   Neural Readout    │
+└──────────┬──────────┘
+           ↓
+┌─────────────────────┐
+│ Legal Recommendation│
+└─────────────────────┘
 ```
 
-Then run the web app in a second terminal. The browser talks only to that loopback service. MiniMind drafts structured facts for confirmation and selects among action-locked counsel-note templates. Manual fields and authored notes remain available when the adapter is offline.
-
-Hosted pages do not start MiniMind or probe the visitor's machine by default. Only localhost pages get an automatic loopback default. See `docs/MINIMIND_SETUP.md` for explicit private-preview configuration, health states, and checkpoint verification. Non-loopback endpoints and redirects are blocked; there is no server proxy or external language fallback.
-
-Pinned sources:
-
-| Source | Revision |
-|---|---|
-| `jingyaogong/minimind` | `21ec325dbaa0942ac667323a509aac60a58044a4` |
-| `jingyaogong/minimind-3` | `f92512d4cd6142fa9acc0d6022375049a8974bf6` |
-
-## What It Does
-
-1. The user selects or edits a fictional petition.
-2. MiniMind may propose eight structured fields, but the user must confirm them.
-3. Only the confirmed fields reach the fly: matter, property, harm, proof, intent, relationship, urgency, and ability.
-4. A deterministic projection stimulates 15,897 release-annotated sensory neurons.
-5. Activity propagates through the fixed MaleCNS graph using leaky-tanh dynamics.
-6. A trained artificial readout maps 256 disjoint motor/descending neural features to one of eight recommendations or abstention.
-7. MiniMind may select an action-locked authored rendering. It cannot change the action.
-8. Each of the four full-graph updates emits a bounded inspection frame from the worker.
-9. The UI maps the strongest real values to released soma coordinates inside the painted fly and on an accessible parchment inspector. The simulation still uses every retained edge.
-
-Narrative petition text is casebook context. It is not magically understood.
-
-## Dataset
-
-Source: Janelia FlyEM MaleCNS v1.0, CC BY 4.0.
-
-Pinned publisher metadata:
-
-| Object | GCS generation | Publisher MD5 |
-|---|---:|---|
-| `body-annotations-male-cns-v1.0-minconf-0.5.feather` | `1780494878811468` | `UKdxh3DFciDxYLpPQxq4ng==` |
-| `connectome-weights-male-cns-v1.0-minconf-0.5.feather` | `1780494887545976` | `8w6dzKJc/QIb8eez2XVZng==` |
-
-Derived counts from the current acquisition:
-
-| Count | Value |
-|---|---:|
-| Retained `status == Traced` neuronal bodies | 165,122 |
-| Directed neuron-pair connections | 25,563,197 |
-| Summed synaptic contacts | 124,025,046 |
-| Annotation rows excluded by policy | 46,455 |
-| Connection rows excluded by policy | 126,293,487 |
-| Retained bodies with released `somaLocation` | 140,024 |
-
-The remaining retained bodies have no released soma coordinate and are not given an invented display position. The anatomy binary SHA-256 is `42d27435b12e880166ee9946adf16e42ce47b2ab2c644503b5235da82b913540`.
-
-## Current Held-Out Result
-
-The same 32 teaching cases and 16 held-out scenario families are used for each trained control. Seed 42 results from the generated full assets:
-
-| System | Exact | Abstentions | Forced choice |
-|---|---:|---:|---:|
-| Biological MaleCNS + fixed MiniMind rendering | 13/16 | 1 | 14/16 |
-| Shuffled full graph + fixed MiniMind rendering | 11/16 | 5 | 15/16 |
-| Facts-only centroid learner | 14/16 | 0 | 14/16 |
-| Frozen MiniMind + action readout | 7/16 | 0 | 7/16 |
-| Fictional charter rules | 9/16 | 0 | 9/16 |
-
-MiniMind's field readouts reached 64.1% per-field accuracy and 1/16 exact eight-field parses on the held-out cases. The interface therefore never applies a MiniMind parse without confirmation.
-
-See `docs/METHOD.md` and `docs/VERIFICATION.md`.
-
-## Tests
-
-```sh
-cd apps/web
-npm run test:legalfly
-npm test
-npm run build
-```
-
-The Legal Fly unit tests include fixture-based checks for edge direction, deterministic encoding, answer-label isolation, strict model validation, abstention, correction safety, anatomy provenance, and cancellation between neural updates. Fixture tests do not certify full MaleCNS browser performance.
+---
 
 ## Privacy
 
-Connectome training, inference, corrections, model import/export, casebook import/export, and graph benchmarks run in a browser worker. Optional language operations send petition text only to the user-run loopback MiniMind process. The app does not automatically persist petition text. Exported models and casebooks can contain user-entered material.
+The project is designed around **local-first computation**.
+
+Connectome inference, training, model inspection, benchmarks, and visualization run locally.
+
+Optional language processing uses MiniMind rather than a hosted general-purpose LLM.
+
+The planned browser-native MiniMind path is intended to make even that linguistic preprocessing possible entirely on-device.
+
+No API key should be required to ask a fly about your fictional goat dispute.
+
+---
+
+## Reproducibility
+
+The project pins its source data and model revisions so the experiment can be reproduced rather than hand-waved.
+
+See:
+
+* `docs/METHOD.md`
+* `docs/VERIFICATION.md`
+* `docs/MINIMIND_SETUP.md`
+
+The repository includes checks for:
+
+* edge direction
+* deterministic encoding
+* label leakage
+* abstention behavior
+* anatomy provenance
+* shuffled-graph controls
+* correction safety
+* model validation
+
+---
+
+## Data
+
+Connectome:
+
+**Janelia FlyEM MaleCNS v1.0**
+
+Dataset license:
+
+**CC BY 4.0**
+
+The Legal Fly source code itself is released under the **MIT License**.
+
+---
+
+## Contributing
+
+Experiments, controls, visualization improvements, browser inference work, and scientifically defensible weird ideas are welcome.
+
+```bash
+git clone https://github.com/zgbrenner/thelegalfly.git
+```
+
+Open an issue or submit a pull request.
+
+If you manage to make the fly a materially better lawyer, evidence is preferred.
+
+---
+
+## License
+
+The Legal Fly is open source under the **MIT License**.
+
+See [`LICENSE`](LICENSE).
+
+Connectome data retains its original **CC BY 4.0** licensing and attribution requirements.
+
+---
+
+## Disclaimer
+
+The Legal Fly is an experimental computational neuroscience and software project.
+
+It is not:
+
+* legal advice
+* a legal reasoning system
+* evidence that fruit flies understand law
+* proof that biological connectomes outperform machine learning
+* a replacement for an attorney
+* a tiny member of the bar trapped inside your browser
+
+At least not yet.
+
+---
+
+## The Question
+
+Most AI projects ask:
+
+> **How much intelligence can we build?**
+
+The Legal Fly asks something stranger:
+
+> **How much computation is already hiding inside a brain built for something else?**
+
+And, critically:
+
+> **Can it handle the goat case?**
+
+[![Try The Legal Fly](https://img.shields.io/badge/Try_The_Legal_Fly-Live-brightgreen?style=for-the-badge)](https://legalfly-web.onrender.com/)
+[![View on GitHub](https://img.shields.io/badge/View_on_GitHub-Repository-181717?style=for-the-badge\&logo=github)](https://github.com/zgbrenner/thelegalfly)
