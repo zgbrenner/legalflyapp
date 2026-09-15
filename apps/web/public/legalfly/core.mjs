@@ -94,7 +94,7 @@ export function sampleActivity(anatomy, values, options = {}) {
     roles: anatomy.roles(point.index),
     active: point.magnitude > 1e-7 && selectedIds.has(point.index),
   }));
-  return { step: options.step ?? 0, total_steps: options.totalSteps ?? WAKE_STEPS, sampled: true, total_neurons: anatomy.n, coordinate_count: anatomy.coordinateCount, bounds: anatomy.info.bounds, points };
+  return { kind: 'activity', step: options.step ?? 0, total_steps: options.totalSteps ?? WAKE_STEPS, sampled: true, total_neurons: anatomy.n, coordinate_count: anatomy.coordinateCount, bounds: anatomy.info.bounds, points };
 }
 
 export function validateCase(c) {
@@ -179,7 +179,12 @@ export async function train(graph, cases, options = {}, progress = () => {}, can
   for (let i = 0; i < teach.length; i++) {
     if (cancelled()) throw Error('Training cancelled');
     const u = encodeFacts(teach[i].facts); reservoir.reset();
-    for (let t = 0; t < WAKE_STEPS; t++) reservoir.step(u);
+    for (let t = 0; t < WAKE_STEPS; t++) {
+      if (cancelled()) throw Error('Training cancelled');
+      reservoir.step(u);
+      if (options.anatomy && options.frame) options.frame(sampleActivity(options.anatomy, reservoir.x, { step: t + 1, totalSteps: WAKE_STEPS }));
+      await yieldThread();
+    }
     for (let k = 0; k < reservoir.x.length; k++) if (Math.abs(reservoir.x[k]) > 1e-6) reach.touched[k] = 1;
     for (const k of graph.info.vncIndices ?? []) reach.maxVncActivity = Math.max(reach.maxVncActivity, Math.abs(reservoir.x[k]));
     samples.push({ label: teach[i].label, features: reservoir.features() });
@@ -190,12 +195,12 @@ export async function train(graph, cases, options = {}, progress = () => {}, can
   const reachability = { activeAfterWake: reach.activeAfterWake, activeVnc: reach.activeVnc, maxVncActivity: reach.maxVncActivity, totalVnc: graph.info.vncIndices?.length ?? 0 };
   return { schema: ENGINE_VERSION, graphFingerprint: graph.info.fingerprint, graphSha256: graph.info.sha256, seed, actions: ACTIONS, settings: { ...DEFAULTS, inputDimensions: DIM, outputFeatures: FEATURES, wakeSteps: WAKE_STEPS }, cases: all, centroids: trainCentroids(samples), reachability };
 }
-export async function correctModel(graph, currentCases, currentModel, legalCase, label, progress = () => {}, cancelled = () => false) {
+export async function correctModel(graph, currentCases, currentModel, legalCase, label, progress = () => {}, cancelled = () => false, options = {}) {
   const checked = validateModel(currentModel, graph.info), source = validateCase(legalCase);
   if (!ACTIONS.some(([id]) => id === label)) throw Error('Unknown corrective recommendation');
   const corrected = { ...source, label, split: 'teach', id: `${source.id}-correction-${Date.now()}` };
   const proposedCases = [...currentCases, corrected];
-  const proposedModel = await train(graph, proposedCases, { seed: checked.seed }, progress, cancelled);
+  const proposedModel = await train(graph, proposedCases, { ...options, seed: checked.seed }, progress, cancelled);
   if (cancelled()) throw Error('Correction cancelled');
   return { cases: proposedCases, model: proposedModel, corrected };
 }

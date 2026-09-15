@@ -16,7 +16,7 @@ describe("classifier UX helpers", () => {
 
 describe("benchmark rendering", () => {
   it("shows not-yet-measured when status missing metrics", () => {
-    const row = { status: "Not yet measured" as const };
+    const row: { status: string; macro_f1_mean?: number } = { status: "Not yet measured" };
     const label = row.macro_f1_mean == null ? "Not yet measured" : String(row.macro_f1_mean);
     expect(label).toBe("Not yet measured");
   });

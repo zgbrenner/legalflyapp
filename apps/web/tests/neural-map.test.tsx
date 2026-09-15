@@ -1,9 +1,9 @@
 import React from "react";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
-import { MaleCNSMap } from "@/components/MaleCNSMap";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { MaleCNSMap, type MaleCNSFrame } from "@/components/MaleCNSMap";
 
-const frame = {
+const frame: MaleCNSFrame = {
   step: 2,
   total_steps: 4,
   sampled: true,
@@ -33,5 +33,24 @@ describe("MaleCNS anatomical activity map", () => {
     expect(screen.getByText("Body 10009", { selector: "strong" })).toBeDefined();
     expect(screen.getByText(/VNC/)).toBeDefined();
     expect(screen.getByText(/-0.18000/)).toBeDefined();
+  });
+
+  it("redraws on container resize without repeatedly resetting the canvas backing size", () => {
+    let resize = () => {};
+    const disconnect = vi.fn();
+    vi.stubGlobal("ResizeObserver", class { constructor(callback: () => void) { resize = callback; } observe() {} disconnect = disconnect; });
+    vi.stubGlobal("CanvasRenderingContext2D", class {});
+    const context = { setTransform() {}, clearRect: vi.fn(), fillRect() {}, beginPath() {}, arc() {}, fill() {}, stroke() {} };
+    const getContext = vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(context as any);
+    const width = vi.spyOn(HTMLCanvasElement.prototype, "width", "set");
+    const { unmount } = render(<MaleCNSMap frame={frame} active={false} />);
+    width.mockClear();
+    context.clearRect.mockClear();
+    resize(); resize();
+    expect(context.clearRect).toHaveBeenCalledTimes(4);
+    expect(width).not.toHaveBeenCalled();
+    unmount();
+    expect(disconnect).toHaveBeenCalled();
+    getContext.mockRestore(); width.mockRestore(); vi.unstubAllGlobals();
   });
 });

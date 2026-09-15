@@ -1,4 +1,21 @@
-export const MINIMIND_URL = process.env.NEXT_PUBLIC_MINIMIND_URL || "http://127.0.0.1:8123";
+const MODEL_ID = "jingyaogong/minimind-3";
+const MODEL_REVISION = "f92512d4cd6142fa9acc0d6022375049a8974bf6";
+const isLoopback = (hostname: string) => ["localhost", "127.0.0.1", "[::1]"].includes(hostname);
+
+export type MiniMindStatus = "not-configured" | "invalid-configuration" | "unreachable" | "invalid-response" | "not-ready" | "ready";
+
+export function getMiniMindConfiguration(): { url: string | null; status: "configured" | "not-configured" | "invalid-configuration"; message: string } {
+  const configured = process.env.NEXT_PUBLIC_MINIMIND_URL?.trim();
+  const localPage = typeof location !== "undefined" && isLoopback(location.hostname);
+  if (!configured && !localPage) return { url: null, status: "not-configured", message: "Local MiniMind is not configured for this hosted page. The web host does not run the model. Manual facts remain available." };
+  try {
+    const url = new URL(configured || "http://127.0.0.1:8123");
+    if (!["http:", "https:"].includes(url.protocol) || !isLoopback(url.hostname) || url.username || url.password || url.search || url.hash || url.pathname !== "/") throw new Error("unsafe endpoint");
+    return { url: url.origin, status: "configured", message: "Requests go directly to the visitor's loopback MiniMind adapter, never through the web host." };
+  } catch {
+    return { url: null, status: "invalid-configuration", message: "MiniMind requires an absolute HTTP(S) loopback origin without credentials, path, query or fragment. External petition transmission is disabled." };
+  }
+}
 
 export const FACT_OPTIONS: Record<string, readonly string[]> = {
   matter: ["damage", "debt", "property", "delivery", "boundary", "insult", "account", "charter", "official", "threat"],
@@ -12,7 +29,7 @@ export const FACT_OPTIONS: Record<string, readonly string[]> = {
 };
 
 export type StructuredFacts = Record<keyof typeof FACT_OPTIONS, string>;
-export type MiniMindHealth = { ready: boolean; model: string; model_revision: string; mode: string; load_seconds: number | null };
+export type MiniMindHealth = { ready: boolean; model: string; model_revision: string; mode: string; load_seconds: number | null; status: MiniMindStatus; message: string };
 export type MiniMindDraft = {
   facts: StructuredFacts;
   field_confidence: Record<string, number>;
@@ -33,7 +50,9 @@ function assertFacts(value: unknown): StructuredFacts {
 }
 
 async function request<T>(path: string, init?: RequestInit, signal?: AbortSignal): Promise<T> {
-  const response = await fetch(`${MINIMIND_URL}${path}`, { ...init, signal, headers: { "content-type": "application/json", ...init?.headers } });
+  const config = getMiniMindConfiguration();
+  if (!config.url) throw new Error(config.message);
+  const response = await fetch(`${config.url}${path}`, { ...init, signal, redirect: "error", credentials: "omit", cache: "no-store", headers: { "content-type": "application/json", ...init?.headers } });
   if (!response.ok) {
     const body = await response.json().catch(() => null);
     throw new Error(body?.detail || `MiniMind adapter returned ${response.status}.`);
@@ -42,7 +61,21 @@ async function request<T>(path: string, init?: RequestInit, signal?: AbortSignal
 }
 
 export async function checkMiniMind(signal?: AbortSignal): Promise<MiniMindHealth> {
-  return request<MiniMindHealth>("/health", undefined, signal);
+  const unavailable = (status: MiniMindStatus, message: string): MiniMindHealth => ({ ready: false, status, message, model: "", model_revision: "", mode: "unavailable", load_seconds: null });
+  const config = getMiniMindConfiguration();
+  if (config.status !== "configured") return unavailable(config.status, config.message);
+  let response: Response;
+  try {
+    response = await fetch(`${config.url}/health`, { signal: signal ?? AbortSignal.timeout(6000), redirect: "error", credentials: "omit", cache: "no-store" });
+  } catch {
+    return unavailable("unreachable", "The browser cannot reach local MiniMind. Check the process, exact CORS origin and browser local-network permissions; this does not establish whether a checkpoint is installed.");
+  }
+  if (!response.ok) return unavailable("not-ready", `MiniMind health returned HTTP ${response.status}. Check adapter startup logs and checkpoint setup.`);
+  const value = await response.json().catch(() => null);
+  if (!value || typeof value.ready !== "boolean" || value.model !== MODEL_ID || value.model_revision !== MODEL_REVISION || !["candidate-likelihood", "frozen-embedding-readouts"].includes(value.mode) || !(value.load_seconds === null || (typeof value.load_seconds === "number" && Number.isFinite(value.load_seconds) && value.load_seconds >= 0))) {
+    return unavailable("invalid-response", "The endpoint did not return the pinned MiniMind adapter health contract.");
+  }
+  return { ...value, status: value.ready ? "ready" : "not-ready", message: value.ready ? "Local MiniMind reports ready." : "The adapter is reachable but its model is not ready. Check adapter logs and checkpoint setup." };
 }
 
 export async function encodePetition(petition: string, signal?: AbortSignal): Promise<MiniMindDraft> {

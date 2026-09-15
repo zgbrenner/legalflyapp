@@ -83,7 +83,7 @@ python tools/prepare_minimind.py
 CUDA_VISIBLE_DEVICES='' python -m uvicorn apps.minimind_adapter.service:app --host 127.0.0.1 --port 8123
 ```
 
-For local web development, the default adapter URL is `http://127.0.0.1:8123`. Override it at web build time with `NEXT_PUBLIC_MINIMIND_URL` only for an explicitly authorized private environment. The adapter CORS allowlist defaults to loopback port 3000 and can be set with `LEGALFLY_MINIMIND_ORIGINS`.
+For localhost web development, the default adapter URL is `http://127.0.0.1:8123`. Hosted pages are unconfigured by default. For an explicitly authorized private preview, set `NEXT_PUBLIC_MINIMIND_URL` at web build time to a loopback origin only. Remote hosts, relative proxy URLs, credentials, paths, queries, fragments and redirects are rejected. The adapter CORS allowlist defaults to loopback port 3000 and can be set with `LEGALFLY_MINIMIND_ORIGINS` to the exact page origin. This does not bypass browser local-network restrictions or install a model on the visitor's computer. See `docs/MINIMIND_SETUP.md`.
 
 ## Verification Before Promotion
 
