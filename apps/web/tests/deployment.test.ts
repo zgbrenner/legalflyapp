@@ -13,6 +13,11 @@ describe("production deployment contract", () => {
   it("routes the Vercel alias to the full-data Render deployment", () => {
     expect(vercelConfig.redirects).toEqual([
       {
+        source: "/",
+        destination: "https://legalfly-web.onrender.com/",
+        permanent: false,
+      },
+      {
         source: "/:path*",
         destination: "https://legalfly-web.onrender.com/:path*",
         permanent: false,
