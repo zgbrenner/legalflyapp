@@ -242,4 +242,6 @@ The first acceptance run caught a real defect: with `navigator.gpu` present, the
 
 The same script then ran against the Docker image rebuilt from the final tree (`legalfly-web:browser-minimind` on port 3100, whose `/api/health` reports the same 252,092,335-byte bundle and whose ONNX file hash equals the host conversion) with the same result: first download 16.2 s, cached reload 9.2 s, cancel-then-retry 15.6 s, 358 request events, no cross-origin request, no page or console errors.
 
+GitHub Actions run 35036930973 (`ubuntu-latest`, head `dbfe96d`) then repeated the whole pipeline on a second machine: hash-locked install, MaleCNS and MiniMind conversion from the pinned sources, the Python parity comparison, the JavaScript-stack parity suite, the production build, and this acceptance script in native Chromium, all passing; the `python`, `web`, `browser`, and `conversion-tools` jobs passed on the same head.
+
 Screenshots captured: `desktop-idle.png`, `minimind-downloading.png`, `minimind-ready.png`, `desktop-advice.png`, `desktop-canary-advice.png`, `minimind-retry-ready.png`, `manual-advice.png`, and `chamber-<width>.png` for each width.
