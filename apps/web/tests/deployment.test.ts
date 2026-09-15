@@ -4,11 +4,22 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createRequire } from "node:module";
 import type { NextConfig } from "next";
+import vercelConfig from "../vercel.json";
 
 const nextConfig: NextConfig = createRequire(import.meta.url)("../next.config.js");
 import { createHealthResponse } from "../app/api/health/readiness";
 
 describe("production deployment contract", () => {
+  it("routes the Vercel alias to the full-data Render deployment", () => {
+    expect(vercelConfig.redirects).toEqual([
+      {
+        source: "/:path*",
+        destination: "https://legalfly-web.onrender.com/:path*",
+        permanent: false,
+      },
+    ]);
+  });
+
   it("builds a standalone server image", () => {
     expect(nextConfig.output).toBe("standalone");
   });
