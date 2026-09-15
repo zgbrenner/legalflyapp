@@ -189,6 +189,8 @@ Parity of this bundle against the Python adapter on all 48 locked cases, measure
 
 `compare_backends` now reports `min_field_margin`, `min_action_margin`, and the same 38 `knife_edge_decisions`.
 
+The same suite ran in GitHub Actions (job `full-connectome-browser`, run 35036129384) against a bundle converted on the runner itself. That runner's readout centroids hash differently (`ae9c0551...` rather than `752ef179...`, the float32 host difference described above), and every behavioral check still passed with the identical outcome: 384/384 fields with the same 31 sub-floor decisions, 48/48 actions with the same 7, 128/128 note selections, and the same two runner-up landings in `holdout-net-return`. The fixture is therefore tied to the locked cases and the teaching-case hash, and reports rather than requires the readouts hash.
+
 ### Docker image
 
 `docker build --file Dockerfile.web` succeeded from the committed recipe (the sandbox build injected only the session's egress proxy CA after each `FROM`; no other line changed).
