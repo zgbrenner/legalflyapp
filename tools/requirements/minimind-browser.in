@@ -1,0 +1,13 @@
+# Direct inputs for the disposable MiniMind browser-conversion stage in
+# Dockerfile.web. Regenerate the hash-locked minimind-browser.txt with
+# tools/requirements/lock.sh after changing this file.
+fastapi==0.141.1
+huggingface-hub==0.36.2
+numpy==2.3.3
+onnx==1.22.0
+onnxruntime==1.30.0
+onnxscript==0.7.2
+pydantic==2.13.5
+safetensors==0.8.0
+torch==2.14.0+cpu
+transformers==4.57.6

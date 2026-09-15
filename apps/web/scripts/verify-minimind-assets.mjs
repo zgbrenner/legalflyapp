@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { closeSync, lstatSync, openSync, readFileSync, readSync } from "node:fs";
+import { closeSync, lstatSync, openSync, readdirSync, readFileSync, readSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -60,7 +60,7 @@ const artifactCategory = (file) => {
   return null;
 };
 
-export function verifyMiniMindAssets(root) {
+export function verifyMiniMindAssets(root, { exact = false } = {}) {
   const absoluteRoot = path.resolve(root);
   const manifestPath = path.join(absoluteRoot, "manifest.json");
   let manifest;
@@ -140,7 +140,20 @@ export function verifyMiniMindAssets(root) {
   }
   if (categories.size !== 5) throw new Error("MiniMind browser bundle is incomplete");
 
-  return { revision: REVISION, quantization: "q8", files: manifest.files.length, bytes };
+  // Exact mode is the production-image contract: the served directory holds
+  // manifest.json and the five verified artifacts and nothing else, so a
+  // placeholder such as .gitkeep, a stale bundle, or a temporary file can
+  // never ship in the runtime image.
+  if (exact) {
+    const stray = readdirSync(absoluteRoot)
+      .filter((entry) => entry !== "manifest.json" && !names.has(entry))
+      .sort();
+    if (stray.length > 0) {
+      throw new Error(`MiniMind browser directory contains unexpected entries: ${stray.join(", ")}`);
+    }
+  }
+
+  return { revision: REVISION, quantization: "q8", files: manifest.files.length, bytes, exact };
 }
 
 export function requiresFullAssets(environment = process.env) {
@@ -153,11 +166,12 @@ function main() {
   const root = process.env.LEGALFLY_MINIMIND_DIR
     ? path.resolve(process.env.LEGALFLY_MINIMIND_DIR)
     : defaultRoot;
+  const exact = process.argv.includes("--exact") || process.env.LEGALFLY_MINIMIND_EXACT === "1";
   try {
-    const metadata = verifyMiniMindAssets(root);
-    console.log(`MiniMind browser artifacts verified: ${metadata.files} files, ${metadata.bytes} bytes, ${metadata.quantization}.`);
+    const metadata = verifyMiniMindAssets(root, { exact });
+    console.log(`MiniMind browser artifacts verified: ${metadata.files} files, ${metadata.bytes} bytes, ${metadata.quantization}${exact ? ", exact directory" : ""}.`);
   } catch (error) {
-    if (requiresFullAssets()) throw error;
+    if (exact || requiresFullAssets()) throw error;
     console.log("MiniMind browser artifacts unavailable in this fixture checkout; production builds require the verified bundle.");
   }
 }

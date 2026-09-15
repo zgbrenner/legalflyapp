@@ -7,6 +7,7 @@
 .env
 .env.*
 !.env.example
+assets
 data
 deploy
 docs
@@ -14,3 +15,11 @@ models
 research
 results
 apps/api
+# The runtime MiniMind directory is populated only from the verified
+# conversion stage; the tracked .gitkeep placeholder and any local bundle copy
+# must never enter the build context.
+apps/web/public/minimind
+# Tracked placeholders are never runtime assets.
+**/.gitkeep
+tools/requirements/*.in
+tools/requirements/lock.sh
