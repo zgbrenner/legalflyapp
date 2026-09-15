@@ -7,9 +7,6 @@ The Legal Fly is an experiment that tests whether the real neural connectome of 
 [![Live Demo](https://img.shields.io/badge/Live_Demo-Try_the_Fly-brightgreen)](https://legalfly-web.onrender.com/)
 [![GitHub](https://img.shields.io/badge/GitHub-thelegalfly-181717?logo=github)](https://github.com/zgbrenner/thelegalfly)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Connectome](https://img.shields.io/badge/Brain-MaleCNS_v1.0-green)](#the-fly-brain-is-not-decorative)
-[![Local First](https://img.shields.io/badge/Architecture-Local--First-blue)](#privacy)
-[![MiniMind](https://img.shields.io/badge/Language-MiniMind-purple)](#give-the-fly-language)
 
 ---
 
