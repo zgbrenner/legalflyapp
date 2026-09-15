@@ -3,6 +3,7 @@ import type {
   MiniMindBrowserState,
   MiniMindSource,
 } from "@/lib/minimind-browser";
+import { authoredMiniMindNotes } from "@/lib/minimind-policy";
 
 const MODEL_ID = "jingyaogong/minimind-3";
 const MODEL_REVISION = "f92512d4cd6142fa9acc0d6022375049a8974bf6";
@@ -39,7 +40,7 @@ const FACT_FIELDS = Object.keys(FACT_OPTIONS) as Array<keyof typeof FACT_OPTIONS
 
 export const MINI_MIND_MANIFEST_URL = "/minimind/manifest.json";
 
-type CacheLike = Pick<Cache, "match" | "put" | "delete">;
+type CacheLike = Pick<Cache, "match" | "put" | "delete" | "keys">;
 type CacheStorageLike = { open(name: string): Promise<CacheLike> };
 
 type ManifestFile = { file: string; bytes: number; sha256: string };
@@ -367,21 +368,6 @@ function readout(vector: number[], group: ReadoutGroup, multiplier: number) {
   return { label: group.labels[index], confidence: weights[index] / total };
 }
 
-function authoredNotes(facts: Record<keyof typeof FACT_OPTIONS, string>, action: keyof typeof ACTIONS) {
-  const subject = facts.property !== "none" ? facts.property : "the matter";
-  return {
-    "let-rest": ["Let the matter rest unless the facts change.", "No further step is advised on the present account."],
-    "seek-small-reparation": [`First speak with the other party. Record the harm to ${subject}. Seek modest reparation if it continues.`, `Document the harm to ${subject}, then ask for a small reparation.`],
-    "seek-full-reparation": [`Preserve the account of harm to ${subject}. Seek full reparation under the fictional charter.`, `Record the loss involving ${subject} and request full reparation.`],
-    "request-return": [`Ask for the return of ${subject}. Record the request and any reply.`, `Request that ${subject} be returned before taking a further step.`],
-    "find-witness": ["Find a witness before pressing the petition further.", "Write down the disputed account and seek someone who observed it."],
-    "sworn-account": ["Request a sworn account under the fictional village charter.", "Ask each party for a sworn account within the fictional charter."],
-    "propose-settlement": ["Put a practical settlement to both parties and record what each accepts.", "Propose terms both parties can keep, then write them into the ledger."],
-    "refer-higher": ["Refer the petition to a higher authority. The fly offers no final judgment.", "Place the matter before a higher authority under the fictional charter."],
-    abstain: ["The fly declines to advise on the present facts.", "The account is too uncertain for this fly to recommend a next step."],
-  }[action];
-}
-
 export function createMiniMindWorkerRuntime(dependencies: MiniMindWorkerDependencies) {
   let state: MiniMindBrowserState = {
     phase: "available",
@@ -409,10 +395,13 @@ export function createMiniMindWorkerRuntime(dependencies: MiniMindWorkerDependen
   const manifestUrl = new URL(MINI_MIND_MANIFEST_URL, dependencies.origin).href;
 
   async function evict(cache: CacheLike, manifest?: BrowserManifest) {
-    await cache.delete(manifestUrl).catch(() => false);
-    if (manifest) {
-      await Promise.all(manifest.files.map((entry) => cache.delete(artifactUrl(dependencies.origin, entry.file)).catch(() => false)));
+    if (!manifest) {
+      const keys = await cache.keys();
+      await Promise.all(keys.map((request) => cache.delete(request).catch(() => false)));
+      return;
     }
+    await cache.delete(manifestUrl).catch(() => false);
+    await Promise.all(manifest.files.map((entry) => cache.delete(artifactUrl(dependencies.origin, entry.file)).catch(() => false)));
   }
 
   async function verifyArtifacts(cache: CacheLike, manifest: BrowserManifest): Promise<MiniMindArtifactSet> {
@@ -598,7 +587,7 @@ export function createMiniMindWorkerRuntime(dependencies: MiniMindWorkerDependen
 
   async function verbalize(facts: Record<keyof typeof FACT_OPTIONS, string>, action: keyof typeof ACTIONS, confidenceBand: string) {
     const ready = requireReady();
-    const candidates = authoredNotes(facts, action);
+    const candidates = authoredMiniMindNotes(facts, action);
     const pythonFactMap = `{${FACT_FIELDS.map((field) => `'${field}': '${facts[field]}'`).join(", ")}}`;
     const prompt = "<|im_start|>system\nSelect one supplied counsel note. The action is fixed and cannot be changed.<|im_end|>\n<|im_start|>user\n"
       + `Selected action: ${ACTIONS[action]}\nConfirmed facts: ${pythonFactMap}\n`

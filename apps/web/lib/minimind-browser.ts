@@ -1,4 +1,5 @@
 import { FACT_OPTIONS, type MiniMindDraft, type MiniMindNote, type StructuredFacts } from "@/lib/minimind";
+import { authoredMiniMindNotes } from "@/lib/minimind-policy";
 
 export type MiniMindBrowserPhase =
   | "available"
@@ -71,7 +72,11 @@ function isObject(value: unknown): value is Record<string, unknown> {
 }
 
 function parseState(value: unknown): MiniMindBrowserState {
-  if (!isObject(value) || !PHASES.has(value.phase as MiniMindBrowserPhase)) {
+  if (
+    !isObject(value)
+    || !exactKeys(value, ["phase", "source", "backend", "progress", "message"])
+    || !PHASES.has(value.phase as MiniMindBrowserPhase)
+  ) {
     throw new Error("MiniMind worker returned an invalid state.");
   }
   const source = value.source;
@@ -87,6 +92,7 @@ function parseState(value: unknown): MiniMindBrowserState {
   if (progress !== null) {
     if (
       !isObject(progress)
+      || !exactKeys(progress, ["loaded", "total", "percent", "file"])
       || !Number.isSafeInteger(progress.loaded)
       || !Number.isSafeInteger(progress.total)
       || typeof progress.percent !== "number"
@@ -157,7 +163,7 @@ function parseDraft(value: unknown): MiniMindDraft {
   };
 }
 
-function parseNote(value: unknown, expectedAction: string): MiniMindNote {
+function parseNote(value: unknown, expectedAction: string, facts: StructuredFacts): MiniMindNote {
   if (
     !isObject(value)
     || !exactKeys(value, ["text", "action", "selection_confidence", "receipt"])
@@ -176,6 +182,9 @@ function parseNote(value: unknown, expectedAction: string): MiniMindNote {
     || value.receipt.output_mode !== "allow-listed sentence selection"
   ) {
     throw new Error("MiniMind returned an invalid or altered fly action.");
+  }
+  if (!authoredMiniMindNotes(facts, expectedAction).includes(value.text)) {
+    throw new Error("MiniMind returned text outside the authored counsel notes.");
   }
   return value as MiniMindNote;
 }
@@ -243,11 +252,11 @@ export class MiniMindBrowserClient {
   }
 
   enable(): Promise<void> {
-    return this.request({ type: "enable" }).then(() => undefined);
+    return this.voidRequest({ type: "enable" });
   }
 
   cancelDownload(): Promise<void> {
-    return this.request({ type: "cancel" }).then(() => undefined);
+    return this.voidRequest({ type: "cancel" });
   }
 
   encodePetition(petition: string): Promise<MiniMindDraft> {
@@ -259,8 +268,9 @@ export class MiniMindBrowserClient {
     action: string,
     confidence: number,
   ): Promise<MiniMindNote> {
+    const confirmedFacts = parseFacts(facts);
     const confidenceBand = confidence < 0.4 ? "low" : confidence < 0.7 ? "medium" : "high";
-    return this.request({ type: "verbalize", facts, action, confidenceBand }).then((value) => parseNote(value, action));
+    return this.request({ type: "verbalize", facts: confirmedFacts, action, confidenceBand }).then((value) => parseNote(value, action, confirmedFacts));
   }
 
   benchmarkMiniMind(cases: Array<{ id: string; petition: string }>): Promise<MiniMindBenchmark> {
@@ -270,7 +280,7 @@ export class MiniMindBrowserClient {
   async dispose(): Promise<void> {
     if (this.disposed) return;
     try {
-      await this.request({ type: "dispose" });
+      await this.voidRequest({ type: "dispose" });
     } catch {
       // Terminating the dedicated worker still releases its isolated runtime.
     } finally {
@@ -293,6 +303,12 @@ export class MiniMindBrowserClient {
     });
   }
 
+  private voidRequest(command: Record<string, unknown>): Promise<void> {
+    return this.request(command).then((result) => {
+      if (result !== null) throw new Error("MiniMind worker returned an invalid void result.");
+    });
+  }
+
   private readonly onMessage = (event: Event) => {
     const data = (event as MessageEvent<unknown>).data;
     if (!isObject(data) || typeof data.type !== "string") {
@@ -300,6 +316,10 @@ export class MiniMindBrowserClient {
       return;
     }
     if (data.type === "state") {
+      if (!exactKeys(data, ["type", "state"])) {
+        this.failProtocol();
+        return;
+      }
       try {
         this.state = parseState(data.state);
       } catch {
@@ -316,9 +336,9 @@ export class MiniMindBrowserClient {
     const pending = this.pending.get(data.id as number);
     if (!pending) return;
     this.pending.delete(data.id as number);
-    if (data.type === "result") {
+    if (data.type === "result" && exactKeys(data, ["id", "type", "result"])) {
       pending.resolve(data.result);
-    } else if (data.type === "error" && typeof data.message === "string") {
+    } else if (data.type === "error" && exactKeys(data, ["id", "type", "message"]) && typeof data.message === "string") {
       pending.reject(new Error(data.message));
     } else {
       pending.reject(new Error("MiniMind worker returned an invalid response."));

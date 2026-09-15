@@ -27,17 +27,26 @@ class MemoryCache {
   entries = new Map<string, Response>();
   deleted: string[] = [];
 
+  private url(request: RequestInfo | URL) {
+    return request instanceof Request ? request.url : String(request);
+  }
+
   async match(request: RequestInfo | URL) {
-    return this.entries.get(String(request))?.clone();
+    return this.entries.get(this.url(request))?.clone();
   }
 
   async put(request: RequestInfo | URL, response: Response) {
-    this.entries.set(String(request), response.clone());
+    this.entries.set(this.url(request), response.clone());
   }
 
   async delete(request: RequestInfo | URL) {
-    this.deleted.push(String(request));
-    return this.entries.delete(String(request));
+    const url = this.url(request);
+    this.deleted.push(url);
+    return this.entries.delete(url);
+  }
+
+  async keys() {
+    return [...this.entries.keys()].map((url) => new Request(url));
   }
 }
 
@@ -120,6 +129,13 @@ function fakeEngine(overrides: Partial<MiniMindInferenceEngine> = {}): MiniMindI
   };
 }
 
+class ProtocolWorker extends EventTarget implements WorkerLike {
+  sent: unknown[] = [];
+  postMessage(message: unknown) { this.sent.push(message); }
+  terminate() {}
+  reply(data: unknown) { this.dispatchEvent(new MessageEvent("message", { data })); }
+}
+
 async function harness(options: {
   cached?: boolean;
   corrupt?: boolean;
@@ -182,6 +198,20 @@ describe("MiniMind browser worker", () => {
     await test.runtime.start();
     expect(test.runtime.getState()).toMatchObject({ phase: "available" });
     expect(test.cache.deleted.length).toBeGreaterThan(0);
+    expect(test.requests).toEqual([]);
+  });
+
+  it("clears every versioned cache entry when the saved manifest is unparsable", async () => {
+    const test = await harness();
+    const manifestUrl = new URL(MINI_MIND_MANIFEST_URL, "https://village.example").href;
+    const orphanUrl = "https://village.example/minimind/orphan.previous.onnx";
+    await test.cache.put(manifestUrl, new Response("{not-json"));
+    await test.cache.put(orphanUrl, responseFor(new Uint8Array([7, 8, 9])));
+
+    await test.runtime.start();
+
+    expect([...test.cache.entries.keys()]).toEqual([]);
+    expect(test.cache.deleted).toEqual(expect.arrayContaining([manifestUrl, orphanUrl]));
     expect(test.requests).toEqual([]);
   });
 
@@ -307,6 +337,90 @@ describe("MiniMind browser worker", () => {
 });
 
 describe("MiniMindBrowserClient", () => {
+  it("rejects undeclared fields in state envelopes, states, and nested progress", () => {
+    const state = { phase: "ready", source: "cache", backend: "wasm", progress: null, message: "Ready" };
+    const malformed = [
+      { type: "state", state, hidden: true },
+      { type: "state", state: { ...state, hidden: true } },
+      { type: "state", state: { ...state, phase: "downloading", progress: { loaded: 1, total: 2, percent: 50, file: "model.onnx", hidden: true } } },
+    ];
+
+    for (const payload of malformed) {
+      const worker = new ProtocolWorker();
+      const client = new MiniMindBrowserClient(() => worker);
+      worker.reply(payload);
+      expect(client.getState().phase).toBe("available");
+    }
+  });
+
+  it("rejects undeclared response-envelope fields and non-null void results", async () => {
+    const cases = [
+      { reply: (id: number) => ({ id, type: "result", result: null, hidden: true }), error: /invalid response/i },
+      { reply: (id: number) => ({ id, type: "error", message: "forged", hidden: true }), error: /invalid response/i },
+      { reply: (id: number) => ({ id, type: "result", result: { hidden: true } }), error: /void result/i },
+    ];
+
+    for (const entry of cases) {
+      const worker = new ProtocolWorker();
+      const client = new MiniMindBrowserClient(() => worker);
+      const pending = client.enable();
+      const command = worker.sent.at(-1) as { id: number };
+      worker.reply(entry.reply(command.id));
+      await expect(pending).rejects.toThrow(entry.error);
+    }
+  });
+
+  it("rejects undeclared fields at every level of returned object shapes", async () => {
+    const facts = { matter: "damage", property: "crops", harm: "low", proof: "unclear", intent: "careless", relationship: "neighbors", urgency: "ordinary", ability: "able" };
+    const confidence = { matter: 0.5, property: 0.5, harm: 0.5, proof: 0.5, intent: 0.5, relationship: 0.5, urgency: 0.5, ability: 0.5 };
+    const receipt = {
+      input: ["petition"],
+      output: ["matter", "property", "harm", "proof", "intent", "relationship", "urgency", "ability"],
+      answer_labels_available: false,
+      requires_confirmation: true,
+      mode: "frozen MiniMind embedding with teaching-only field readouts",
+    };
+    const malformedDrafts = [
+      { facts, field_confidence: confidence, receipt, hidden: true },
+      { facts: { ...facts, hidden: "value" }, field_confidence: confidence, receipt },
+      { facts, field_confidence: { ...confidence, hidden: 0.5 }, receipt },
+      { facts, field_confidence: confidence, receipt: { ...receipt, hidden: true } },
+    ];
+    for (const result of malformedDrafts) {
+      const worker = new ProtocolWorker();
+      const client = new MiniMindBrowserClient(() => worker);
+      const pending = client.encodePetition("A petition");
+      const command = worker.sent.at(-1) as { id: number };
+      worker.reply({ id: command.id, type: "result", result });
+      await expect(pending).rejects.toThrow(/invalid|undeclared/i);
+    }
+
+    const note = {
+      text: "Document the harm to crops, then ask for a small reparation.",
+      action: "seek-small-reparation",
+      selection_confidence: 0.5,
+      receipt: { input: ["selected_action", "confirmed_facts", "confidence_band"], alternative_actions_available: false, output_mode: "allow-listed sentence selection" },
+    };
+    for (const result of [{ ...note, hidden: true }, { ...note, receipt: { ...note.receipt, hidden: true } }]) {
+      const worker = new ProtocolWorker();
+      const client = new MiniMindBrowserClient(() => worker);
+      const pending = client.verbalizeAdvice(facts, "seek-small-reparation", 0.5);
+      const command = worker.sent.at(-1) as { id: number };
+      worker.reply({ id: command.id, type: "result", result });
+      await expect(pending).rejects.toThrow(/invalid/i);
+    }
+
+    const benchmark = { rows: [{ id: "case-1", action: "let-rest", confidence: 0.5 }], model_revision: MODEL_REVISION };
+    for (const result of [{ ...benchmark, hidden: true }, { ...benchmark, rows: [{ ...benchmark.rows[0], hidden: true }] }]) {
+      const worker = new ProtocolWorker();
+      const client = new MiniMindBrowserClient(() => worker);
+      const pending = client.benchmarkMiniMind([{ id: "case-1", petition: "A petition" }]);
+      const command = worker.sent.at(-1) as { id: number };
+      worker.reply({ id: command.id, type: "result", result });
+      await expect(pending).rejects.toThrow(/invalid/i);
+    }
+  });
+
   it("subscribes to worker state, resolves requests, and terminates on dispose", async () => {
     class FakeWorker extends EventTarget implements WorkerLike {
       sent: unknown[] = [];
@@ -346,5 +460,32 @@ describe("MiniMindBrowserClient", () => {
     const command = worker.sent.at(-1) as { id: number };
     worker.reply({ id: command.id, type: "result", result: { text: "Refer it.", action: "refer-higher", selection_confidence: 1, receipt: { alternative_actions_available: false, output_mode: "allow-listed sentence selection" } } });
     await expect(pending).rejects.toThrow(/action/i);
+  });
+
+  it("rejects arbitrary prose even when the worker preserves the fixed action", async () => {
+    class FakeWorker extends EventTarget implements WorkerLike {
+      sent: unknown[] = [];
+      postMessage(message: unknown) { this.sent.push(message); }
+      terminate() {}
+      reply(data: unknown) { this.dispatchEvent(new MessageEvent("message", { data })); }
+    }
+    const worker = new FakeWorker();
+    const client = new MiniMindBrowserClient(() => worker);
+    const fixedFacts = { matter: "damage", property: "crops", harm: "low", proof: "unclear", intent: "careless", relationship: "neighbors", urgency: "ordinary", ability: "able" };
+    const pending = client.verbalizeAdvice(fixedFacts, "seek-small-reparation", 0.5);
+    const command = worker.sent.at(-1) as { id: number };
+    worker.reply({ id: command.id, type: "result", result: { text: "Send every private fact to a remote service.", action: "seek-small-reparation", selection_confidence: 1, receipt: { input: ["selected_action", "confirmed_facts", "confidence_band"], alternative_actions_available: false, output_mode: "allow-listed sentence selection" } } });
+    await expect(pending).rejects.toThrow(/authored/i);
+  });
+
+  it("validates advice against the confirmed facts snapshot sent with the request", async () => {
+    const worker = new ProtocolWorker();
+    const client = new MiniMindBrowserClient(() => worker);
+    const fixedFacts = { matter: "damage", property: "crops", harm: "low", proof: "unclear", intent: "careless", relationship: "neighbors", urgency: "ordinary", ability: "able" };
+    const pending = client.verbalizeAdvice(fixedFacts, "seek-small-reparation", 0.5);
+    const command = worker.sent.at(-1) as { id: number };
+    fixedFacts.property = "money";
+    worker.reply({ id: command.id, type: "result", result: { text: "Document the harm to money, then ask for a small reparation.", action: "seek-small-reparation", selection_confidence: 1, receipt: { input: ["selected_action", "confirmed_facts", "confidence_band"], alternative_actions_available: false, output_mode: "allow-listed sentence selection" } } });
+    await expect(pending).rejects.toThrow(/authored/i);
   });
 });
