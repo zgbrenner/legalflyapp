@@ -15,7 +15,10 @@ async def main():
     base = os.environ.get("QA_BASE_URL", "http://127.0.0.1:3000")
     measurements, errors = {}, []
     async with async_playwright() as playwright:
-        browser = await playwright.chromium.launch()
+        launch_options = {"headless": True, "args": ["--no-sandbox"]}
+        if os.environ.get("BROWSER_EXECUTABLE"):
+            launch_options["executable_path"] = os.environ["BROWSER_EXECUTABLE"]
+        browser = await playwright.chromium.launch(**launch_options)
         context = await browser.new_context(viewport={"width": 1440, "height": 1000}, record_video_dir=str(out / "video"))
         page = await context.new_page()
         page.on("pageerror", lambda error: errors.append(str(error)))
@@ -42,16 +45,19 @@ async def main():
             await page.wait_for_timeout(400)
             current = await hero.bounding_box()
             assert abs(current["height"] - initial["height"]) < 3, (initial, current)
-        await page.screenshot(path=str(out / "desktop-idle.png"), full_page=True)
+        await page.screenshot(path=str(out / "desktop-idle.png"), full_page=True, caret="initial")
         # Small browser-produced previews in logs allow review through text-only
         # CI connectors. Full-resolution evidence remains in the private artifact.
-        print("CHAMBER_DESKTOP_JPEG=" + base64.b64encode(await page.screenshot(type="jpeg", quality=25)).decode(), flush=True)
+        print("CHAMBER_DESKTOP_JPEG=" + base64.b64encode(await page.screenshot(type="jpeg", quality=25, caret="initial")).decode(), flush=True)
         started = time.monotonic()
         await teach.click()
         hear = page.get_by_role("button", name="Hear the case", exact=True).first
-        await page.wait_for_function("Array.from(document.querySelectorAll('button')).some(b => b.textContent === 'Hear the case' && !b.disabled)", timeout=300_000)
+        confirm = page.get_by_role("button", name="Confirm these eight facts", exact=True)
+        await confirm.wait_for(timeout=300_000)
         measurements["teaching_seconds"] = time.monotonic() - started
         await page.get_by_role("complementary", name="Petitioner docket").get_by_role("button").nth(1).click()
+        await confirm.click()
+        await page.wait_for_function("Array.from(document.querySelectorAll('button')).some(b => b.textContent === 'Hear the case' && !b.disabled)")
         started = time.monotonic()
         await hear.click()
         await page.get_by_role("button", name="File in casebook", exact=True).wait_for(timeout=120_000)
@@ -74,9 +80,9 @@ async def main():
         measurements["neuron_record"] = await page.locator(".lf-neuron-record").inner_text()
         measurements["recommendation"] = await page.locator(".lf-advice").inner_text()
         measurements["memory"] = await page.evaluate("performance.memory ? {usedJSHeapSize: performance.memory.usedJSHeapSize, note: 'main realm only, worker memory excluded'} : null")
-        await page.screenshot(path=str(out / "desktop-advice.png"), full_page=True)
+        await page.screenshot(path=str(out / "desktop-advice.png"), full_page=True, caret="initial")
         await canvas.scroll_into_view_if_needed()
-        print("CHAMBER_NEURONS_JPEG=" + base64.b64encode(await page.screenshot(type="jpeg", quality=25)).decode(), flush=True)
+        print("CHAMBER_NEURONS_JPEG=" + base64.b64encode(await page.screenshot(type="jpeg", quality=25, caret="initial")).decode(), flush=True)
         await page.get_by_role("button", name="File in casebook", exact=True).click()
         await page.get_by_text("1 filed", exact=True).wait_for()
         async with page.expect_download() as export:
@@ -87,19 +93,43 @@ async def main():
         await page.wait_for_function("Array.from(document.querySelectorAll('button')).some(b => b.textContent === 'Teach the ledger' && !b.disabled)")
         await page.locator('input[type="file"]').nth(0).set_input_files(model_file)
         await page.wait_for_function("Array.from(document.querySelectorAll('button')).some(b => b.textContent === 'Hear the case' && !b.disabled)")
-        for width, height in [(768, 1024), (390, 844)]:
+        responsive = {}
+        viewports = [(1440, 1000), (1101, 900), (1100, 900), (1024, 900), (721, 900), (720, 900), (390, 844), (320, 740)]
+        for width, height in viewports:
             await page.set_viewport_size({"width": width, "height": height})
             await page.emulate_media(reduced_motion="reduce")
             await page.wait_for_timeout(200)
-            assert await page.evaluate("document.documentElement.scrollWidth <= innerWidth")
+            document_size = await page.evaluate("({scrollWidth: document.documentElement.scrollWidth, clientWidth: document.documentElement.clientWidth})")
+            assert document_size["scrollWidth"] <= document_size["clientWidth"], (width, document_size)
+            petition_bounds = await page.locator(".lf-petition-panel").bounding_box()
+            docket_bounds = await page.locator(".lf-docket").bounding_box()
+            assert petition_bounds and docket_bounds
+            if 721 <= width <= 1100:
+                assert petition_bounds["width"] > width * 0.45, (width, petition_bounds)
+                assert petition_bounds["x"] > docket_bounds["x"], (width, docket_bounds, petition_bounds)
+            if width <= 720:
+                assert petition_bounds["y"] >= docket_bounds["y"] + docket_bounds["height"] - 1, (width, docket_bounds, petition_bounds)
+            primary_controls = await page.locator(".lf-button.primary").evaluate_all("""items => items
+                .filter(item => { const style = getComputedStyle(item); return style.display !== 'none' && style.visibility !== 'hidden'; })
+                .map(item => { const rect = item.getBoundingClientRect(); return {text: item.textContent.trim(), height: rect.height, left: rect.left, right: rect.right}; })""")
+            assert primary_controls, (width, "No visible primary controls")
+            assert all(control["height"] >= 44 for control in primary_controls), (width, primary_controls)
+            assert all(control["left"] >= 0 and control["right"] <= width + 1 for control in primary_controls), (width, primary_controls)
             bounds = await canvas.bounding_box()
             assert bounds and bounds["height"] > 50 and bounds["width"] > 50
-            await page.screenshot(path=str(out / f"chamber-{width}.png"), full_page=True)
+            responsive[str(width)] = {
+                "document": document_size,
+                "petition": petition_bounds,
+                "docket": docket_bounds,
+                "primary_controls": primary_controls,
+            }
+            await page.screenshot(path=str(out / f"chamber-{width}.png"), full_page=True, caret="initial")
             if width == 390:
                 await hear.scroll_into_view_if_needed()
                 button_bounds = await hear.bounding_box()
                 assert button_bounds and 0 <= button_bounds["y"] < height
-                print("CHAMBER_PHONE_JPEG=" + base64.b64encode(await page.screenshot(type="jpeg", quality=25)).decode(), flush=True)
+                print("CHAMBER_PHONE_JPEG=" + base64.b64encode(await page.screenshot(type="jpeg", quality=25, caret="initial")).decode(), flush=True)
+        measurements["responsive"] = responsive
         measurements["browser"] = browser.version
         measurements["page_errors"] = errors
         measurements["mode"] = "native Chromium; official full MaleCNS; no injected graph or activity"
