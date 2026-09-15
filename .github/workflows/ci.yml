@@ -24,6 +24,24 @@ jobs:
       - run: pip install fastapi uvicorn pydantic-settings numpy scipy scikit-learn httpx rich joblib typer pytest pytest-asyncio
       - run: pip install --no-deps -e .
       - run: pytest -q
+  conversion-tools:
+    # The conversion and quantization tests skip without torch/onnx/onnxruntime;
+    # this job installs the hash-locked conversion environment so the q8
+    # allowlist, exporter-metadata stripping, and manifest contracts are
+    # actually executed in CI (without the real checkpoint, parity tests skip).
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CUDA_VISIBLE_DEVICES: ''
+      OMP_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: 'pip install --require-hashes --only-binary=:all: -r tools/requirements/minimind-browser.txt'
+      - run: pip install pytest pytest-asyncio && pip install --no-deps -e .
+      - run: pytest tests/test_prepare_minimind.py tests/test_prepare_minimind_browser.py tests/test_minimind_browser_parity.py -q -rs
   web:
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -85,7 +103,7 @@ jobs:
           retention-days: 14
   full-connectome-browser:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 60
     env:
       NEXT_TELEMETRY_DISABLED: '1'
       QA_ARTIFACTS_DIR: /tmp/legalfly-full-qa
@@ -117,8 +135,42 @@ jobs:
       - name: Convert official full graph
         if: steps.graph-cache.outputs.cache-hit != 'true'
         run: python tools/prepare_malecns.py --convert --export-browser --shuffled
+      - name: Cache pinned MiniMind source checkpoint
+        uses: actions/cache@v4
+        id: minimind-source-cache
+        with:
+          path: models/minimind-3
+          key: minimind-3-f92512d4cd6142fa9acc0d6022375049a8974bf6
+      - name: Cache converted MiniMind browser bundle
+        uses: actions/cache@v4
+        id: minimind-browser-cache
+        with:
+          path: models/minimind-3-browser
+          key: minimind-browser-q8-${{ hashFiles('tools/prepare_minimind_browser.py', 'tools/export_minimind_readouts.py', 'tools/prepare_minimind.py', 'apps/minimind_adapter/service.py', 'apps/web/public/legalfly/cases.json', 'tools/requirements/minimind-browser.txt') }}
+      - name: Install pinned MiniMind conversion dependencies
+        # A separate environment: the MiniMind lock pins NumPy 2.3.3 while the
+        # MaleCNS tools above run on NumPy 2.1.3.
+        run: |
+          python -m venv .minimind-venv
+          '.minimind-venv/bin/pip' install --require-hashes --only-binary=:all: -r tools/requirements/minimind-browser.txt
+      - name: Convert pinned MiniMind for the browser
+        if: steps.minimind-browser-cache.outputs.cache-hit != 'true'
+        run: .minimind-venv/bin/python tools/prepare_minimind_browser.py --download --convert --quantization q8
+      - name: Gate the fresh bundle on discrete parity with the Python reference
+        if: steps.minimind-browser-cache.outputs.cache-hit != 'true'
+        env:
+          CUDA_VISIBLE_DEVICES: ''
+        run: .minimind-venv/bin/python tools/export_minimind_readouts.py --model-path models/minimind-3 --output models/minimind-3-browser --compare
+      - name: Verify and stage the MiniMind browser bundle
+        run: |
+          .minimind-venv/bin/python tools/prepare_minimind_browser.py --check
+          mkdir -p apps/web/public/minimind
+          cp -R models/minimind-3-browser/. apps/web/public/minimind/
+          ls -la apps/web/public/minimind
       - run: cd apps/web && npm ci && npm run test:legalfly && npm run build
-      - name: Run full MaleCNS in native browser
+      - name: Gate the staged bundle on JavaScript runtime parity with the Python reference
+        run: cd apps/web && LEGALFLY_TEST_MINIMIND_BUNDLE=public/minimind npm run test:minimind-runtime
+      - name: Run full MaleCNS and browser MiniMind in native Chromium
         run: |
           mkdir -p /tmp/legalfly-full-qa
           (cd apps/web && npm start -- --hostname 127.0.0.1 > /tmp/legalfly-full-qa/web.log 2>&1) &
