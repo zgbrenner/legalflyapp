@@ -1,0 +1,2725 @@
+{
+  "bundle_quantization": "q8",
+  "case_count": 48,
+  "cases": [
+    {
+      "action": "seek-small-reparation",
+      "facts": {
+        "ability": "able",
+        "harm": "moderate",
+        "intent": "careless",
+        "matter": "damage",
+        "proof": "witness",
+        "property": "crops",
+        "relationship": "neighbors",
+        "urgency": "ordinary"
+      },
+      "id": "teach-pig-cabbages",
+      "label": "seek-small-reparation",
+      "margins": {
+        "ability": 0.00966585,
+        "action": 0.00624043,
+        "harm": 0.00212759,
+        "intent": 0.00301534,
+        "matter": 0.00515497,
+        "proof": 0.00377876,
+        "property": 0.0136707,
+        "relationship": 0.00380135,
+        "urgency": 0.000652611
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "seek-full-reparation",
+        "harm": "high",
+        "intent": "deliberate",
+        "matter": "property",
+        "proof": "unclear",
+        "property": "land",
+        "relationship": "official",
+        "urgency": "high"
+      },
+      "split": "teach"
+    },
+    {
+      "action": "seek-full-reparation",
+      "facts": {
+        "ability": "able",
+        "harm": "low",
+        "intent": "unclear",
+        "matter": "debt",
+        "proof": "admitted",
+        "property": "payment",
+        "relationship": "trade",
+        "urgency": "ordinary"
+      },
+      "id": "teach-wheel-hens",
+      "label": "seek-full-reparation",
+      "margins": {
+        "ability": 0.0116535,
+        "action": 0.00572944,
+        "harm": 0.0026437,
+        "intent": 0.00338209,
+        "matter": 0.00419426,
+        "proof": 0.00210989,
+        "property": 0.00807548,
+        "relationship": 0.00450289,
+        "urgency": 0.00468296
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "seek-small-reparation",
+        "harm": "moderate",
+        "intent": "careless",
+        "matter": "property",
+        "proof": "document",
+        "property": "goods",
+        "relationship": "neighbors",
+        "urgency": "low"
+      },
+      "split": "teach"
+    },
+    {
+      "action": "request-return",
+      "facts": {
+        "ability": "able",
+        "harm": "low",
+        "intent": "unclear",
+        "matter": "property",
+        "proof": "document",
+        "property": "tool",
+        "relationship": "neighbors",
+        "urgency": "ordinary"
+      },
+      "id": "teach-copper-pan",
+      "label": "request-return",
+      "margins": {
+        "ability": 0.00862461,
+        "action": 0.0111346,
+        "harm": 0.00349784,
+        "intent": 0.00132138,
+        "matter": 0.00601637,
+        "proof": 0.00206423,
+        "property": 0.0110217,
+        "relationship": 0.00411493,
+        "urgency": 0.0047276
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "seek-small-reparation",
+        "harm": "moderate",
+        "intent": "careless",
+        "matter": "debt",
+        "proof": "admitted",
+        "property": "clothing",
+        "relationship": "trade",
+        "urgency": "low"
+      },
+      "split": "teach"
+    },
+    {
+      "action": "find-witness",
+      "facts": {
+        "ability": "able",
+        "harm": "moderate",
+        "intent": "unclear",
+        "matter": "property",
+        "proof": "unclear",
+        "property": "animal",
+        "relationship": "neighbors",
+        "urgency": "ordinary"
+      },
+      "id": "teach-same-goose",
+      "label": "find-witness",
+      "margins": {
+        "ability": 0.0111255,
+        "action": 0.00745636,
+        "harm": 0.000356793,
+        "intent": 0.00468969,
+        "matter": 0.00250709,
+        "proof": 0.00336027,
+        "property": 0.0140684,
+        "relationship": 0.0036785,
+        "urgency": 0.00163329
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "let-rest",
+        "harm": "none",
+        "intent": "deliberate",
+        "matter": "insult",
+        "proof": "witness",
+        "property": "none",
+        "relationship": "trade",
+        "urgency": "low"
+      },
+      "split": "teach"
+    },
+    {
+      "action": "seek-full-reparation",
+      "facts": {
+        "ability": "able",
+        "harm": "high",
+        "intent": "careless",
+        "matter": "damage",
+        "proof": "witness",
+        "property": "goods",
+        "relationship": "trade",
+        "urgency": "ordinary"
+      },
+      "id": "teach-damaged-flour",
+      "label": "seek-full-reparation",
+      "margins": {
+        "ability": 0.00913119,
+        "action": 0.00497878,
+        "harm": 0.00330275,
+        "intent": 0.00241804,
+        "matter": 0.00480878,
+        "proof": 0.0021829,
+        "property": 0.0073086,
+        "relationship": 0.0029189,
+        "urgency": 0.00368506
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "find-witness",
+        "harm": "moderate",
+        "intent": "unclear",
+        "matter": "property",
+        "proof": "document",
+        "property": "payment",
+        "relationship": "neighbors",
+        "urgency": "high"
+      },
+      "split": "teach"
+    },
+    {
+      "action": "propose-settlement",
+      "facts": {
+        "ability": "able",
+        "harm": "low",
+        "intent": "deliberate",
+        "matter": "insult",
+        "proof": "witness",
+        "property": "none",
+        "relationship": "neighbors",
+        "urgency": "ordinary"
+      },
+      "id": "teach-market-insult",
+      "label": "propose-settlement",
+      "margins": {
+        "ability": 0.0047304,
+        "action": 0.00843018,
+        "harm": 0.00232118,
+        "intent": 0.00534743,
+        "matter": 0.0064081,
+        "proof": 0.00225693,
+        "property": 0.00688285,
+        "relationship": 0.00451088,
+        "urgency": 0.00277221
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "seek-full-reparation",
+        "harm": "high",
+        "intent": "unclear",
+        "matter": "property",
+        "proof": "document",
+        "property": "land",
+        "relationship": "trade",
+        "urgency": "high"
+      },
+      "split": "teach"
+    },
+    {
+      "action": "sworn-account",
+      "facts": {
+        "ability": "able",
+        "harm": "high",
+        "intent": "unclear",
+        "matter": "boundary",
+        "proof": "unclear",
+        "property": "land",
+        "relationship": "neighbors",
+        "urgency": "ordinary"
+      },
+      "id": "teach-boundary-stone",
+      "label": "sworn-account",
+      "margins": {
+        "ability": 0.00753039,
+        "action": 0.00866205,
+        "harm": 0.0021593,
+        "intent": 0.00342023,
+        "matter": 0.0102056,
+        "proof": 0.00366038,
+        "property": 0.00810051,
+        "relationship": 0.00175816,
+        "urgency": 0.00357944
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "seek-small-reparation",
+        "harm": "moderate",
+        "intent": "careless",
+        "matter": "damage",
+        "proof": "document",
+        "property": "goods",
+        "relationship": "trade",
+        "urgency": "low"
+      },
+      "split": "teach"
+    },
+    {
+      "action": "propose-settlement",
+      "facts": {
+        "ability": "unable",
+        "harm": "moderate",
+        "intent": "unable",
+        "matter": "debt",
+        "proof": "admitted",
+        "property": "money",
+        "relationship": "neighbors",
+        "urgency": "ordinary"
+      },
+      "id": "teach-debt-delay",
+      "label": "propose-settlement",
+      "margins": {
+        "ability": 0.0168023,
+        "action": 0.00932455,
+        "harm": 0.00167465,
+        "intent": 0.0149848,
+        "matter": 0.00954032,
+        "proof": 0.00447136,
+        "property": 0.0162231,
+        "relationship": 0.00459957,
+        "urgency": 0.00330728
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "able",
+        "action": "refer-higher",
+        "harm": "high",
+        "intent": "deliberate",
+        "matter": "charter",
+        "proof": "document",
+        "property": "none",
+        "relationship": "trade",
+        "urgency": "high"
+      },
+      "split": "teach"
+    },
+    {
+      "action": "let-rest",
+      "facts": {
+        "ability": "able",
+        "harm": "none",
+        "intent": "unclear",
+        "matter": "insult",
+        "proof": "unclear",
+        "property": "none",
+        "relationship": "neighbors",
+        "urgency": "low"
+      },
+      "id": "teach-empty-gossip",
+      "label": "let-rest",
+      "margins": {
+        "ability": 0.00844121,
+        "action": 0.00666225,
+        "harm": 0.00670451,
+        "intent": 0.0014565,
+        "matter": 0.00740397,
+        "proof": 0.00254673,
+        "property": 0.00693774,
+        "relationship": 0.00324011,
+        "urgency": 0.00330007
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "seek-small-reparation",
+        "harm": "moderate",
+        "intent": "deliberate",
+        "matter": "damage",
+        "proof": "witness",
+        "property": "goods",
+        "relationship": "trade",
+        "urgency": "ordinary"
+      },
+      "split": "teach"
+    },
+    {
+      "action": "request-return",
+      "facts": {
+        "ability": "able",
+        "harm": "low",
+        "intent": "careless",
+        "matter": "property",
+        "proof": "admitted",
+        "property": "tool",
+        "relationship": "neighbors",
+        "urgency": "ordinary"
+      },
+      "id": "teach-knife-return",
+      "label": "request-return",
+      "margins": {
+        "ability": 0.00688744,
+        "action": 0.00940371,
+        "harm": 0.00273401,
+        "intent": 0.00243133,
+        "matter": 0.00306135,
+        "proof": 0.0029164,
+        "property": 0.0102319,
+        "relationship": 0.00209701,
+        "urgency": 0.00324279
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "seek-full-reparation",
+        "harm": "moderate",
+        "intent": "unclear",
+        "matter": "debt",
+        "proof": "document",
+        "property": "goods",
+        "relationship": "trade",
+        "urgency": "low"
+      },
+      "split": "teach"
+    },
+    {
+      "action": "seek-small-reparation",
+      "facts": {
+        "ability": "able",
+        "harm": "moderate",
+        "intent": "careless",
+        "matter": "damage",
+        "proof": "witness",
+        "property": "fence",
+        "relationship": "neighbors",
+        "urgency": "ordinary"
+      },
+      "id": "teach-fence-broken",
+      "label": "seek-small-reparation",
+      "margins": {
+        "ability": 0.0140411,
+        "action": 0.00411069,
+        "harm": 0.00326604,
+        "intent": 0.00393647,
+        "matter": 0.0048821,
+        "proof": 0.00282502,
+        "property": 0.0154562,
+        "relationship": 0.00179625,
+        "urgency": 0.0022251
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "seek-full-reparation",
+        "harm": "low",
+        "intent": "unclear",
+        "matter": "property",
+        "proof": "unclear",
+        "property": "goods",
+        "relationship": "trade",
+        "urgency": "high"
+      },
+      "split": "teach"
+    },
+    {
+      "action": "find-witness",
+      "facts": {
+        "ability": "able",
+        "harm": "moderate",
+        "intent": "unclear",
+        "matter": "delivery",
+        "proof": "unclear",
+        "property": "goods",
+        "relationship": "trade",
+        "urgency": "ordinary"
+      },
+      "id": "teach-missing-ale",
+      "label": "find-witness",
+      "margins": {
+        "ability": 0.00993633,
+        "action": 0.0034135,
+        "harm": 0.00236189,
+        "intent": 0.00209773,
+        "matter": 0.00553185,
+        "proof": 0.00286031,
+        "property": 0.00546795,
+        "relationship": 0.00268137,
+        "urgency": 0.00430989
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "seek-small-reparation",
+        "harm": "high",
+        "intent": "careless",
+        "matter": "damage",
+        "proof": "witness",
+        "property": "payment",
+        "relationship": "neighbors",
+        "urgency": "high"
+      },
+      "split": "teach"
+    },
+    {
+      "action": "refer-higher",
+      "facts": {
+        "ability": "unable",
+        "harm": "high",
+        "intent": "deliberate",
+        "matter": "charter",
+        "proof": "document",
+        "property": "land",
+        "relationship": "official",
+        "urgency": "high"
+      },
+      "id": "teach-orphan-rent",
+      "label": "refer-higher",
+      "margins": {
+        "ability": 0.00412714,
+        "action": 0.00695366,
+        "harm": 0.0021866,
+        "intent": 0.000194192,
+        "matter": 0.00694603,
+        "proof": 0.00230795,
+        "property": 0.00604302,
+        "relationship": 0.00355232,
+        "urgency": 0.0037353
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "able",
+        "action": "propose-settlement",
+        "harm": "moderate",
+        "intent": "unclear",
+        "matter": "debt",
+        "proof": "admitted",
+        "property": "none",
+        "relationship": "neighbors",
+        "urgency": "ordinary"
+      },
+      "split": "teach"
+    },
+    {
+      "action": "seek-full-reparation",
+      "facts": {
+        "ability": "able",
+        "harm": "moderate",
+        "intent": "deliberate",
+        "matter": "debt",
+        "proof": "admitted",
+        "property": "goods",
+        "relationship": "trade",
+        "urgency": "ordinary"
+      },
+      "id": "teach-wrong-measure",
+      "label": "seek-full-reparation",
+      "margins": {
+        "ability": 0.00543141,
+        "action": 0.00534743,
+        "harm": 0.00363249,
+        "intent": 0.00513327,
+        "matter": 0.00638497,
+        "proof": 0.00301117,
+        "property": 0.00599241,
+        "relationship": 0.00304699,
+        "urgency": 0.0016371
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "refer-higher",
+        "harm": "low",
+        "intent": "unclear",
+        "matter": "damage",
+        "proof": "document",
+        "property": "land",
+        "relationship": "neighbors",
+        "urgency": "high"
+      },
+      "split": "teach"
+    },
+    {
+      "action": "let-rest",
+      "facts": {
+        "ability": "able",
+        "harm": "low",
+        "intent": "unclear",
+        "matter": "property",
+        "proof": "unclear",
+        "property": "small item",
+        "relationship": "neighbors",
+        "urgency": "low"
+      },
+      "id": "teach-lost-ribbon",
+      "label": "let-rest",
+      "margins": {
+        "ability": 0.010786,
+        "action": 0.00274783,
+        "harm": 0.00375021,
+        "intent": 0.00112915,
+        "matter": 0.00400031,
+        "proof": 0.00197124,
+        "property": 0.00919461,
+        "relationship": 0.00224364,
+        "urgency": 0.00263959
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "seek-small-reparation",
+        "harm": "moderate",
+        "intent": "careless",
+        "matter": "damage",
+        "proof": "admitted",
+        "property": "goods",
+        "relationship": "trade",
+        "urgency": "ordinary"
+      },
+      "split": "teach"
+    },
+    {
+      "action": "sworn-account",
+      "facts": {
+        "ability": "able",
+        "harm": "moderate",
+        "intent": "unclear",
+        "matter": "account",
+        "proof": "document",
+        "property": "payment",
+        "relationship": "trade",
+        "urgency": "ordinary"
+      },
+      "id": "teach-signed-tally",
+      "label": "sworn-account",
+      "margins": {
+        "ability": 0.00927705,
+        "action": 0.00586772,
+        "harm": 0.00286114,
+        "intent": 0.00267702,
+        "matter": 0.0139968,
+        "proof": 0.00234228,
+        "property": 0.00321752,
+        "relationship": 0.00451821,
+        "urgency": 0.00544566
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "find-witness",
+        "harm": "low",
+        "intent": "deliberate",
+        "matter": "delivery",
+        "proof": "unclear",
+        "property": "goods",
+        "relationship": "neighbors",
+        "urgency": "high"
+      },
+      "split": "teach"
+    },
+    {
+      "action": "propose-settlement",
+      "facts": {
+        "ability": "able",
+        "harm": "moderate",
+        "intent": "deliberate",
+        "matter": "boundary",
+        "proof": "witness",
+        "property": "land",
+        "relationship": "neighbors",
+        "urgency": "high"
+      },
+      "id": "teach-cart-path",
+      "label": "propose-settlement",
+      "margins": {
+        "ability": 0.0112769,
+        "action": 0.00116014,
+        "harm": 0.0029698,
+        "intent": 0.00292701,
+        "matter": 0.00798887,
+        "proof": 0.00434923,
+        "property": 0.00722134,
+        "relationship": 0.00360781,
+        "urgency": 0.00383371
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "seek-full-reparation",
+        "harm": "high",
+        "intent": "careless",
+        "matter": "damage",
+        "proof": "document",
+        "property": "goods",
+        "relationship": "trade",
+        "urgency": "ordinary"
+      },
+      "split": "teach"
+    },
+    {
+      "action": "refer-higher",
+      "facts": {
+        "ability": "able",
+        "harm": "high",
+        "intent": "deliberate",
+        "matter": "threat",
+        "proof": "witness",
+        "property": "none",
+        "relationship": "neighbors",
+        "urgency": "high"
+      },
+      "id": "teach-urgent-violence",
+      "label": "refer-higher",
+      "margins": {
+        "ability": 0.0008322,
+        "action": 0.00864327,
+        "harm": 0.00184214,
+        "intent": 0.00501651,
+        "matter": 0.0177737,
+        "proof": 0.00338304,
+        "property": 0.00557303,
+        "relationship": 0.0041365,
+        "urgency": 0.00415874
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "propose-settlement",
+        "harm": "moderate",
+        "intent": "unclear",
+        "matter": "debt",
+        "proof": "admitted",
+        "property": "money",
+        "relationship": "official",
+        "urgency": "ordinary"
+      },
+      "split": "teach"
+    },
+    {
+      "action": "seek-small-reparation",
+      "facts": {
+        "ability": "able",
+        "harm": "low",
+        "intent": "deliberate",
+        "matter": "delivery",
+        "proof": "admitted",
+        "property": "goods",
+        "relationship": "trade",
+        "urgency": "ordinary"
+      },
+      "id": "teach-milk-watered",
+      "label": "seek-small-reparation",
+      "margins": {
+        "ability": 0.0096063,
+        "action": 0.00382996,
+        "harm": 0.00292552,
+        "intent": 5.47171e-05,
+        "matter": 0.00961739,
+        "proof": 0.00150228,
+        "property": 0.00459099,
+        "relationship": 0.00288182,
+        "urgency": 0.00377023
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "seek-full-reparation",
+        "harm": "moderate",
+        "intent": "unclear",
+        "matter": "property",
+        "proof": "document",
+        "property": "payment",
+        "relationship": "neighbors",
+        "urgency": "low"
+      },
+      "split": "teach"
+    },
+    {
+      "action": "seek-small-reparation",
+      "facts": {
+        "ability": "able",
+        "harm": "low",
+        "intent": "careless",
+        "matter": "damage",
+        "proof": "admitted",
+        "property": "clothing",
+        "relationship": "neighbors",
+        "urgency": "ordinary"
+      },
+      "id": "teach-loan-cloak",
+      "label": "seek-small-reparation",
+      "margins": {
+        "ability": 0.0111168,
+        "action": 0.00276226,
+        "harm": 0.000325322,
+        "intent": 0.00275302,
+        "matter": 0.00105101,
+        "proof": 0.00130415,
+        "property": 0.0132349,
+        "relationship": 0.00433636,
+        "urgency": 0.00302845
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "request-return",
+        "harm": "moderate",
+        "intent": "unclear",
+        "matter": "property",
+        "proof": "document",
+        "property": "tool",
+        "relationship": "trade",
+        "urgency": "low"
+      },
+      "split": "teach"
+    },
+    {
+      "action": "seek-small-reparation",
+      "facts": {
+        "ability": "able",
+        "harm": "low",
+        "intent": "careless",
+        "matter": "damage",
+        "proof": "witness",
+        "property": "public place",
+        "relationship": "official",
+        "urgency": "ordinary"
+      },
+      "id": "teach-goat-in-churchyard",
+      "label": "seek-small-reparation",
+      "margins": {
+        "ability": 0.0122926,
+        "action": 0.00570369,
+        "harm": 0.00164676,
+        "intent": 0.00231379,
+        "matter": 0.00471783,
+        "proof": 0.00125986,
+        "property": 0.00844896,
+        "relationship": 0.0062421,
+        "urgency": 0.00210726
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "seek-full-reparation",
+        "harm": "moderate",
+        "intent": "unclear",
+        "matter": "property",
+        "proof": "unclear",
+        "property": "payment",
+        "relationship": "trade",
+        "urgency": "low"
+      },
+      "split": "teach"
+    },
+    {
+      "action": "let-rest",
+      "facts": {
+        "ability": "able",
+        "harm": "low",
+        "intent": "deliberate",
+        "matter": "insult",
+        "proof": "admitted",
+        "property": "none",
+        "relationship": "neighbors",
+        "urgency": "low"
+      },
+      "id": "teach-apology-kept",
+      "label": "let-rest",
+      "margins": {
+        "ability": 0.00625491,
+        "action": 0.00745392,
+        "harm": 0.00239104,
+        "intent": 0.00367659,
+        "matter": 0.00739902,
+        "proof": 0.00260854,
+        "property": 0.00691462,
+        "relationship": 0.00545919,
+        "urgency": 0.00445819
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "propose-settlement",
+        "harm": "moderate",
+        "intent": "unclear",
+        "matter": "damage",
+        "proof": "witness",
+        "property": "land",
+        "relationship": "trade",
+        "urgency": "ordinary"
+      },
+      "split": "teach"
+    },
+    {
+      "action": "sworn-account",
+      "facts": {
+        "ability": "able",
+        "harm": "high",
+        "intent": "unclear",
+        "matter": "charter",
+        "proof": "document",
+        "property": "document",
+        "relationship": "trade",
+        "urgency": "ordinary"
+      },
+      "id": "teach-lease-seal",
+      "label": "sworn-account",
+      "margins": {
+        "ability": 0.00993901,
+        "action": 0.00701427,
+        "harm": 0.00318545,
+        "intent": 0.00349975,
+        "matter": 0.00780201,
+        "proof": 0.00191575,
+        "property": 0.0149887,
+        "relationship": 0.00377709,
+        "urgency": 0.00455588
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "find-witness",
+        "harm": "moderate",
+        "intent": "careless",
+        "matter": "damage",
+        "proof": "unclear",
+        "property": "goods",
+        "relationship": "neighbors",
+        "urgency": "high"
+      },
+      "split": "teach"
+    },
+    {
+      "action": "refer-higher",
+      "facts": {
+        "ability": "able",
+        "harm": "moderate",
+        "intent": "deliberate",
+        "matter": "official",
+        "proof": "unclear",
+        "property": "money",
+        "relationship": "official",
+        "urgency": "high"
+      },
+      "id": "teach-bridge-toll",
+      "label": "refer-higher",
+      "margins": {
+        "ability": 0.00872761,
+        "action": 0.00561529,
+        "harm": 0.0032903,
+        "intent": 0.000612676,
+        "matter": 0.0147233,
+        "proof": 0.00322497,
+        "property": 0.00344074,
+        "relationship": 0.00734144,
+        "urgency": 0.00222147
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "seek-full-reparation",
+        "harm": "high",
+        "intent": "unclear",
+        "matter": "damage",
+        "proof": "witness",
+        "property": "goods",
+        "relationship": "trade",
+        "urgency": "ordinary"
+      },
+      "split": "teach"
+    },
+    {
+      "action": "propose-settlement",
+      "facts": {
+        "ability": "able",
+        "harm": "low",
+        "intent": "unable",
+        "matter": "property",
+        "proof": "admitted",
+        "property": "small item",
+        "relationship": "neighbors",
+        "urgency": "low"
+      },
+      "id": "teach-woodpile",
+      "label": "propose-settlement",
+      "margins": {
+        "ability": 0.00854766,
+        "action": 0.00511593,
+        "harm": 0.00531697,
+        "intent": 0.00489724,
+        "matter": 0.00433087,
+        "proof": 0.00279582,
+        "property": 0.0171329,
+        "relationship": 0.00383222,
+        "urgency": 0.00520033
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "seek-small-reparation",
+        "harm": "moderate",
+        "intent": "careless",
+        "matter": "damage",
+        "proof": "witness",
+        "property": "goods",
+        "relationship": "trade",
+        "urgency": "ordinary"
+      },
+      "split": "teach"
+    },
+    {
+      "action": "seek-full-reparation",
+      "facts": {
+        "ability": "able",
+        "harm": "moderate",
+        "intent": "careless",
+        "matter": "damage",
+        "proof": "admitted",
+        "property": "goods",
+        "relationship": "trade",
+        "urgency": "ordinary"
+      },
+      "id": "teach-bad-shoe",
+      "label": "seek-full-reparation",
+      "margins": {
+        "ability": 0.00877297,
+        "action": 0.00707912,
+        "harm": 0.00341076,
+        "intent": 0.00352848,
+        "matter": 0.00468498,
+        "proof": 0.00312114,
+        "property": 0.00709856,
+        "relationship": 0.00503594,
+        "urgency": 0.00285649
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "seek-small-reparation",
+        "harm": "high",
+        "intent": "unclear",
+        "matter": "debt",
+        "proof": "document",
+        "property": "payment",
+        "relationship": "official",
+        "urgency": "high"
+      },
+      "split": "teach"
+    },
+    {
+      "action": "find-witness",
+      "facts": {
+        "ability": "able",
+        "harm": "low",
+        "intent": "unclear",
+        "matter": "debt",
+        "proof": "unclear",
+        "property": "payment",
+        "relationship": "trade",
+        "urgency": "ordinary"
+      },
+      "id": "teach-silent-buyer",
+      "label": "find-witness",
+      "margins": {
+        "ability": 0.00740278,
+        "action": 0.00354415,
+        "harm": 0.00416398,
+        "intent": 0.00205708,
+        "matter": 0.00534278,
+        "proof": 0.00053376,
+        "property": 0.0071575,
+        "relationship": 0.0046767,
+        "urgency": 0.00542742
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "seek-full-reparation",
+        "harm": "moderate",
+        "intent": "careless",
+        "matter": "property",
+        "proof": "admitted",
+        "property": "goods",
+        "relationship": "neighbors",
+        "urgency": "low"
+      },
+      "split": "teach"
+    },
+    {
+      "action": "seek-full-reparation",
+      "facts": {
+        "ability": "able",
+        "harm": "high",
+        "intent": "careless",
+        "matter": "damage",
+        "proof": "witness",
+        "property": "public place",
+        "relationship": "neighbors",
+        "urgency": "high"
+      },
+      "id": "teach-shared-well",
+      "label": "seek-full-reparation",
+      "margins": {
+        "ability": 0.0116633,
+        "action": 0.00457048,
+        "harm": 0.00579417,
+        "intent": 0.00494277,
+        "matter": 0.00891,
+        "proof": 0.00528651,
+        "property": 0.0145069,
+        "relationship": 0.00368571,
+        "urgency": 0.00649428
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "seek-small-reparation",
+        "harm": "moderate",
+        "intent": "deliberate",
+        "matter": "insult",
+        "proof": "admitted",
+        "property": "goods",
+        "relationship": "trade",
+        "urgency": "ordinary"
+      },
+      "split": "teach"
+    },
+    {
+      "action": "let-rest",
+      "facts": {
+        "ability": "able",
+        "harm": "none",
+        "intent": "unclear",
+        "matter": "insult",
+        "proof": "witness",
+        "property": "none",
+        "relationship": "neighbors",
+        "urgency": "low"
+      },
+      "id": "teach-festival-seat",
+      "label": "let-rest",
+      "margins": {
+        "ability": 0.0118443,
+        "action": 0.00613654,
+        "harm": 0.0140229,
+        "intent": 0.00564551,
+        "matter": 0.00501651,
+        "proof": 0.000822663,
+        "property": 0.0053314,
+        "relationship": 0.00467986,
+        "urgency": 0.00677222
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "find-witness",
+        "harm": "moderate",
+        "intent": "careless",
+        "matter": "property",
+        "proof": "unclear",
+        "property": "animal",
+        "relationship": "trade",
+        "urgency": "ordinary"
+      },
+      "split": "teach"
+    },
+    {
+      "action": "find-witness",
+      "facts": {
+        "ability": "able",
+        "harm": "moderate",
+        "intent": "unclear",
+        "matter": "property",
+        "proof": "unclear",
+        "property": "animal",
+        "relationship": "neighbors",
+        "urgency": "ordinary"
+      },
+      "id": "teach-lamb-mark",
+      "label": "find-witness",
+      "margins": {
+        "ability": 0.00946397,
+        "action": 0.00690889,
+        "harm": 0.00358564,
+        "intent": 0.00343519,
+        "matter": 0.00590652,
+        "proof": 0.00268221,
+        "property": 0.00949627,
+        "relationship": 0.00195873,
+        "urgency": 0.00581861
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "sworn-account",
+        "harm": "low",
+        "intent": "deliberate",
+        "matter": "damage",
+        "proof": "document",
+        "property": "goods",
+        "relationship": "trade",
+        "urgency": "high"
+      },
+      "split": "teach"
+    },
+    {
+      "action": "seek-full-reparation",
+      "facts": {
+        "ability": "able",
+        "harm": "low",
+        "intent": "careless",
+        "matter": "debt",
+        "proof": "document",
+        "property": "service",
+        "relationship": "trade",
+        "urgency": "ordinary"
+      },
+      "id": "teach-ferry-delay",
+      "label": "seek-full-reparation",
+      "margins": {
+        "ability": 0.00783992,
+        "action": 0.00141305,
+        "harm": 0.000186563,
+        "intent": 0.00209177,
+        "matter": 0.0020498,
+        "proof": 0.00240934,
+        "property": 0.0144997,
+        "relationship": 0.000332177,
+        "urgency": 0.00302714
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "seek-small-reparation",
+        "harm": "moderate",
+        "intent": "unclear",
+        "matter": "property",
+        "proof": "admitted",
+        "property": "goods",
+        "relationship": "neighbors",
+        "urgency": "low"
+      },
+      "split": "teach"
+    },
+    {
+      "action": "propose-settlement",
+      "facts": {
+        "ability": "unable",
+        "harm": "moderate",
+        "intent": "unable",
+        "matter": "debt",
+        "proof": "admitted",
+        "property": "money",
+        "relationship": "neighbors",
+        "urgency": "ordinary"
+      },
+      "id": "teach-ill-debtor",
+      "label": "propose-settlement",
+      "margins": {
+        "ability": 0.0064193,
+        "action": 0.00566673,
+        "harm": 0.00231314,
+        "intent": 0.00516707,
+        "matter": 0.00733697,
+        "proof": 0.00383157,
+        "property": 0.00705445,
+        "relationship": 0.00202519,
+        "urgency": 0.00374609
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "able",
+        "action": "refer-higher",
+        "harm": "high",
+        "intent": "deliberate",
+        "matter": "insult",
+        "proof": "document",
+        "property": "none",
+        "relationship": "trade",
+        "urgency": "high"
+      },
+      "split": "teach"
+    },
+    {
+      "action": "seek-small-reparation",
+      "facts": {
+        "ability": "able",
+        "harm": "moderate",
+        "intent": "careless",
+        "matter": "property",
+        "proof": "unclear",
+        "property": "goods",
+        "relationship": "neighbors",
+        "urgency": "ordinary"
+      },
+      "id": "holdout-duck-pond",
+      "label": "seek-small-reparation",
+      "margins": {
+        "ability": 0.0128043,
+        "action": 0.00102484,
+        "harm": 0.00242233,
+        "intent": 1.7345e-05,
+        "matter": 0.000529051,
+        "proof": 0.000951827,
+        "property": 0.00159532,
+        "relationship": 0.00229388,
+        "urgency": 0.00232309
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "find-witness",
+        "harm": "low",
+        "intent": "unclear",
+        "matter": "damage",
+        "proof": "witness",
+        "property": "land",
+        "relationship": "trade",
+        "urgency": "low"
+      },
+      "split": "holdout"
+    },
+    {
+      "action": "seek-full-reparation",
+      "facts": {
+        "ability": "able",
+        "harm": "low",
+        "intent": "unclear",
+        "matter": "debt",
+        "proof": "admitted",
+        "property": "payment",
+        "relationship": "trade",
+        "urgency": "ordinary"
+      },
+      "id": "holdout-two-eggs",
+      "label": "seek-full-reparation",
+      "margins": {
+        "ability": 0.0086711,
+        "action": 0.000367582,
+        "harm": 0.00119907,
+        "intent": 0.00188923,
+        "matter": 0.000463068,
+        "proof": 3.29018e-05,
+        "property": 0.00203836,
+        "relationship": 0.0017429,
+        "urgency": 0.00410432
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "find-witness",
+        "harm": "moderate",
+        "intent": "careless",
+        "matter": "property",
+        "proof": "unclear",
+        "property": "goods",
+        "relationship": "neighbors",
+        "urgency": "low"
+      },
+      "split": "holdout"
+    },
+    {
+      "action": "seek-full-reparation",
+      "facts": {
+        "ability": "able",
+        "harm": "moderate",
+        "intent": "careless",
+        "matter": "damage",
+        "proof": "admitted",
+        "property": "goods",
+        "relationship": "neighbors",
+        "urgency": "ordinary"
+      },
+      "id": "holdout-ladder",
+      "label": "request-return",
+      "margins": {
+        "ability": 0.00703973,
+        "action": 0.000440896,
+        "harm": 0.000561237,
+        "intent": 0.00219804,
+        "matter": 0.00129241,
+        "proof": 0.00119865,
+        "property": 0.000762165,
+        "relationship": 0.00235856,
+        "urgency": 0.00187552
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "seek-small-reparation",
+        "harm": "low",
+        "intent": "unclear",
+        "matter": "property",
+        "proof": "witness",
+        "property": "land",
+        "relationship": "trade",
+        "urgency": "high"
+      },
+      "split": "holdout"
+    },
+    {
+      "action": "find-witness",
+      "facts": {
+        "ability": "able",
+        "harm": "moderate",
+        "intent": "unclear",
+        "matter": "property",
+        "proof": "unclear",
+        "property": "animal",
+        "relationship": "neighbors",
+        "urgency": "high"
+      },
+      "id": "holdout-rooster",
+      "label": "find-witness",
+      "margins": {
+        "ability": 0.0121576,
+        "action": 0.00364411,
+        "harm": 0.0014776,
+        "intent": 0.000742853,
+        "matter": 0.000437915,
+        "proof": 0.000645697,
+        "property": 0.00465357,
+        "relationship": 0.000680089,
+        "urgency": 3.61204e-05
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "seek-small-reparation",
+        "harm": "high",
+        "intent": "careless",
+        "matter": "damage",
+        "proof": "witness",
+        "property": "public place",
+        "relationship": "official",
+        "urgency": "ordinary"
+      },
+      "split": "holdout"
+    },
+    {
+      "action": "seek-small-reparation",
+      "facts": {
+        "ability": "able",
+        "harm": "moderate",
+        "intent": "careless",
+        "matter": "damage",
+        "proof": "witness",
+        "property": "land",
+        "relationship": "neighbors",
+        "urgency": "ordinary"
+      },
+      "id": "holdout-cracked-jars",
+      "label": "seek-full-reparation",
+      "margins": {
+        "ability": 0.0136908,
+        "action": 0.00261915,
+        "harm": 0.000666142,
+        "intent": 0.00150508,
+        "matter": 0.00255692,
+        "proof": 0.00144929,
+        "property": 0.000262201,
+        "relationship": 0.00122643,
+        "urgency": 0.00118351
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "seek-full-reparation",
+        "harm": "high",
+        "intent": "unclear",
+        "matter": "boundary",
+        "proof": "unclear",
+        "property": "goods",
+        "relationship": "trade",
+        "urgency": "high"
+      },
+      "split": "holdout"
+    },
+    {
+      "action": "find-witness",
+      "facts": {
+        "ability": "able",
+        "harm": "moderate",
+        "intent": "unclear",
+        "matter": "damage",
+        "proof": "unclear",
+        "property": "goods",
+        "relationship": "neighbors",
+        "urgency": "ordinary"
+      },
+      "id": "holdout-bell-insult",
+      "label": "propose-settlement",
+      "margins": {
+        "ability": 0.00978619,
+        "action": 7.50422e-05,
+        "harm": 0.00318432,
+        "intent": 0.000522435,
+        "matter": 0.00169241,
+        "proof": 0.000463307,
+        "property": 0.000879765,
+        "relationship": 0.000282049,
+        "urgency": 0.000772595
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "seek-full-reparation",
+        "harm": "high",
+        "intent": "deliberate",
+        "matter": "property",
+        "proof": "witness",
+        "property": "none",
+        "relationship": "trade",
+        "urgency": "high"
+      },
+      "split": "holdout"
+    },
+    {
+      "action": "seek-full-reparation",
+      "facts": {
+        "ability": "able",
+        "harm": "moderate",
+        "intent": "careless",
+        "matter": "damage",
+        "proof": "unclear",
+        "property": "goods",
+        "relationship": "trade",
+        "urgency": "ordinary"
+      },
+      "id": "holdout-ditch-line",
+      "label": "sworn-account",
+      "margins": {
+        "ability": 0.00839269,
+        "action": 0.000592113,
+        "harm": 0.000523388,
+        "intent": 0.000411272,
+        "matter": 0.00199574,
+        "proof": 0.000681579,
+        "property": 0.00250763,
+        "relationship": 0.00140816,
+        "urgency": 0.00302541
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "sworn-account",
+        "harm": "high",
+        "intent": "unclear",
+        "matter": "debt",
+        "proof": "document",
+        "property": "land",
+        "relationship": "neighbors",
+        "urgency": "high"
+      },
+      "split": "holdout"
+    },
+    {
+      "action": "refer-higher",
+      "facts": {
+        "ability": "unable",
+        "harm": "moderate",
+        "intent": "deliberate",
+        "matter": "debt",
+        "proof": "admitted",
+        "property": "money",
+        "relationship": "trade",
+        "urgency": "ordinary"
+      },
+      "id": "holdout-winter-debt",
+      "label": "propose-settlement",
+      "margins": {
+        "ability": 4.01735e-05,
+        "action": 0.00146395,
+        "harm": 0.0020262,
+        "intent": 0.000931263,
+        "matter": 0.00441086,
+        "proof": 0.000817299,
+        "property": 0.000705838,
+        "relationship": 0.00188118,
+        "urgency": 0.00263596
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "able",
+        "action": "seek-full-reparation",
+        "harm": "high",
+        "intent": "unclear",
+        "matter": "damage",
+        "proof": "document",
+        "property": "goods",
+        "relationship": "neighbors",
+        "urgency": "high"
+      },
+      "split": "holdout"
+    },
+    {
+      "action": "sworn-account",
+      "facts": {
+        "ability": "able",
+        "harm": "low",
+        "intent": "unclear",
+        "matter": "insult",
+        "proof": "unclear",
+        "property": "goods",
+        "relationship": "neighbors",
+        "urgency": "ordinary"
+      },
+      "id": "holdout-hat-feud",
+      "label": "let-rest",
+      "margins": {
+        "ability": 0.00676173,
+        "action": 0.000248015,
+        "harm": 0.000577271,
+        "intent": 0.000840485,
+        "matter": 0.000175595,
+        "proof": 0.000754178,
+        "property": 0.000596881,
+        "relationship": 9.42349e-05,
+        "urgency": 0.00248092
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "find-witness",
+        "harm": "moderate",
+        "intent": "deliberate",
+        "matter": "debt",
+        "proof": "document",
+        "property": "none",
+        "relationship": "trade",
+        "urgency": "low"
+      },
+      "split": "holdout"
+    },
+    {
+      "action": "request-return",
+      "facts": {
+        "ability": "able",
+        "harm": "low",
+        "intent": "unclear",
+        "matter": "property",
+        "proof": "admitted",
+        "property": "tool",
+        "relationship": "neighbors",
+        "urgency": "ordinary"
+      },
+      "id": "holdout-net-return",
+      "label": "request-return",
+      "margins": {
+        "ability": 0.00485921,
+        "action": 1.66893e-06,
+        "harm": 1.43051e-06,
+        "intent": 0.000467122,
+        "matter": 0.0012939,
+        "proof": 6.93798e-05,
+        "property": 0.0015462,
+        "relationship": 0.00263888,
+        "urgency": 0.00365019
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "seek-small-reparation",
+        "harm": "moderate",
+        "intent": "careless",
+        "matter": "debt",
+        "proof": "document",
+        "property": "goods",
+        "relationship": "trade",
+        "urgency": "low"
+      },
+      "split": "holdout"
+    },
+    {
+      "action": "seek-full-reparation",
+      "facts": {
+        "ability": "able",
+        "harm": "moderate",
+        "intent": "careless",
+        "matter": "damage",
+        "proof": "unclear",
+        "property": "goods",
+        "relationship": "trade",
+        "urgency": "ordinary"
+      },
+      "id": "holdout-cart-axle",
+      "label": "seek-full-reparation",
+      "margins": {
+        "ability": 0.0123668,
+        "action": 0.00238729,
+        "harm": 0.00171381,
+        "intent": 0.00218636,
+        "matter": 0.00532782,
+        "proof": 6.18696e-05,
+        "property": 0.00431192,
+        "relationship": 0.00245768,
+        "urgency": 0.00200313
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "seek-small-reparation",
+        "harm": "high",
+        "intent": "unclear",
+        "matter": "property",
+        "proof": "witness",
+        "property": "payment",
+        "relationship": "neighbors",
+        "urgency": "high"
+      },
+      "split": "holdout"
+    },
+    {
+      "action": "refer-higher",
+      "facts": {
+        "ability": "able",
+        "harm": "moderate",
+        "intent": "deliberate",
+        "matter": "charter",
+        "proof": "witness",
+        "property": "goods",
+        "relationship": "official",
+        "urgency": "high"
+      },
+      "id": "holdout-secret-order",
+      "label": "refer-higher",
+      "margins": {
+        "ability": 0.00584531,
+        "action": 0.000989318,
+        "harm": 8.04663e-06,
+        "intent": 0.000522614,
+        "matter": 0.000368237,
+        "proof": 0.000763059,
+        "property": 0.000706017,
+        "relationship": 0.000553429,
+        "urgency": 0.000753641
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "seek-full-reparation",
+        "harm": "high",
+        "intent": "unclear",
+        "matter": "damage",
+        "proof": "unclear",
+        "property": "none",
+        "relationship": "trade",
+        "urgency": "ordinary"
+      },
+      "split": "holdout"
+    },
+    {
+      "action": "seek-small-reparation",
+      "facts": {
+        "ability": "able",
+        "harm": "low",
+        "intent": "careless",
+        "matter": "damage",
+        "proof": "admitted",
+        "property": "small item",
+        "relationship": "neighbors",
+        "urgency": "ordinary"
+      },
+      "id": "holdout-soup-pot",
+      "label": "propose-settlement",
+      "margins": {
+        "ability": 0.0118406,
+        "action": 0.00146329,
+        "harm": 0.00386536,
+        "intent": 0.00245309,
+        "matter": 0.0014168,
+        "proof": 0.000379264,
+        "property": 0.0024333,
+        "relationship": 0.000743568,
+        "urgency": 8.41022e-05
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "seek-full-reparation",
+        "harm": "high",
+        "intent": "unclear",
+        "matter": "property",
+        "proof": "witness",
+        "property": "public place",
+        "relationship": "trade",
+        "urgency": "low"
+      },
+      "split": "holdout"
+    },
+    {
+      "action": "seek-full-reparation",
+      "facts": {
+        "ability": "able",
+        "harm": "moderate",
+        "intent": "deliberate",
+        "matter": "debt",
+        "proof": "unclear",
+        "property": "goods",
+        "relationship": "trade",
+        "urgency": "ordinary"
+      },
+      "id": "holdout-false-weight",
+      "label": "seek-full-reparation",
+      "margins": {
+        "ability": 0.0056954,
+        "action": 0.000480771,
+        "harm": 0.00242037,
+        "intent": 4.3273e-05,
+        "matter": 0.00128949,
+        "proof": 0.00032866,
+        "property": 0.00344795,
+        "relationship": 0.00159347,
+        "urgency": 0.00438398
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "find-witness",
+        "harm": "high",
+        "intent": "unclear",
+        "matter": "property",
+        "proof": "admitted",
+        "property": "land",
+        "relationship": "neighbors",
+        "urgency": "high"
+      },
+      "split": "holdout"
+    },
+    {
+      "action": "seek-small-reparation",
+      "facts": {
+        "ability": "able",
+        "harm": "moderate",
+        "intent": "deliberate",
+        "matter": "damage",
+        "proof": "witness",
+        "property": "none",
+        "relationship": "neighbors",
+        "urgency": "high"
+      },
+      "id": "holdout-bridge-brawl",
+      "label": "refer-higher",
+      "margins": {
+        "ability": 0.00858009,
+        "action": 0.000163496,
+        "harm": 0.000293732,
+        "intent": 0.00142419,
+        "matter": 0.000518024,
+        "proof": 0.00190091,
+        "property": 0.00203133,
+        "relationship": 0.0042628,
+        "urgency": 0.000766993
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "propose-settlement",
+        "harm": "high",
+        "intent": "careless",
+        "matter": "property",
+        "proof": "unclear",
+        "property": "land",
+        "relationship": "official",
+        "urgency": "ordinary"
+      },
+      "split": "holdout"
+    },
+    {
+      "action": "seek-full-reparation",
+      "facts": {
+        "ability": "able",
+        "harm": "moderate",
+        "intent": "deliberate",
+        "matter": "debt",
+        "proof": "admitted",
+        "property": "none",
+        "relationship": "neighbors",
+        "urgency": "ordinary"
+      },
+      "id": "holdout-lost-pin",
+      "label": "let-rest",
+      "margins": {
+        "ability": 0.00680935,
+        "action": 0.00114697,
+        "harm": 0.000954092,
+        "intent": 0.00155979,
+        "matter": 0.000560462,
+        "proof": 0.000549555,
+        "property": 0.000239551,
+        "relationship": 0.000457585,
+        "urgency": 0.00189358
+      },
+      "notes": {
+        "find-witness": [0, 1],
+        "let-rest": [0, 1],
+        "propose-settlement": [0, 1],
+        "refer-higher": [0, 1],
+        "request-return": [0, 1],
+        "seek-full-reparation": [0, 1],
+        "seek-small-reparation": [1, 0],
+        "sworn-account": [0, 1]
+      },
+      "runners_up": {
+        "ability": "unable",
+        "action": "refer-higher",
+        "harm": "low",
+        "intent": "unclear",
+        "matter": "property",
+        "proof": "witness",
+        "property": "goods",
+        "relationship": "trade",
+        "urgency": "high"
+      },
+      "split": "holdout"
+    }
+  ],
+  "cases_sha256": "adccb8db9a0c935a9b5fd38551bafcb26b224b846747f4275a2ae15812d276b9",
+  "confidence_band": "medium",
+  "fields": [
+    "matter",
+    "property",
+    "harm",
+    "proof",
+    "intent",
+    "relationship",
+    "urgency",
+    "ability"
+  ],
+  "margin_floor": 0.0005,
+  "margin_floor_rationale": "Measured PyTorch-versus-ONNX-Runtime embedding noise reaches about 3e-4 per component and about 1.3e-4 in cosine score, so reference decisions closer than 5e-4 are knife edges that a different float32 backend may flip without being wrong.",
+  "model": "jingyaogong/minimind-3",
+  "note_actions": [
+    "let-rest",
+    "seek-small-reparation",
+    "seek-full-reparation",
+    "request-return",
+    "find-witness",
+    "sworn-account",
+    "propose-settlement",
+    "refer-higher"
+  ],
+  "note_subject": {
+    "field": "property",
+    "none": "the matter",
+    "placeholder": "{subject}"
+  },
+  "note_templates": {
+    "find-witness": [
+      "Find a witness before pressing the petition further.",
+      "Write down the disputed account and seek someone who observed it."
+    ],
+    "let-rest": [
+      "Let the matter rest unless the facts change.",
+      "No further step is advised on the present account."
+    ],
+    "propose-settlement": [
+      "Put a practical settlement to both parties and record what each accepts.",
+      "Propose terms both parties can keep, then write them into the ledger."
+    ],
+    "refer-higher": [
+      "Refer the petition to a higher authority. The fly offers no final judgment.",
+      "Place the matter before a higher authority under the fictional charter."
+    ],
+    "request-return": [
+      "Ask for the return of {subject}. Record the request and any reply.",
+      "Request that {subject} be returned before taking a further step."
+    ],
+    "seek-full-reparation": [
+      "Preserve the account of harm to {subject}. Seek full reparation under the fictional charter.",
+      "Record the loss involving {subject} and request full reparation."
+    ],
+    "seek-small-reparation": [
+      "First speak with the other party. Record the harm to {subject}. Seek modest reparation if it continues.",
+      "Document the harm to {subject}, then ask for a small reparation."
+    ],
+    "sworn-account": [
+      "Request a sworn account under the fictional village charter.",
+      "Ask each party for a sworn account within the fictional charter."
+    ]
+  },
+  "readouts_sha256": "752ef179d18c0987db877e969f473048fc3489254308745dcd311be4d76c5b42",
+  "reference": "pytorch-float32-cpu",
+  "revision": "f92512d4cd6142fa9acc0d6022375049a8974bf6",
+  "schema": "legalfly-minimind-expectations/1",
+  "source_sha256": "3adf69402b5d22e693151cabadc12528f923c4ba6bf343738aaf13f0892162e8",
+  "sub_floor_count": 38,
+  "sub_floor_decisions": [
+    {
+      "case": "teach-same-goose",
+      "decision": "harm",
+      "labels": [
+        "moderate",
+        "none"
+      ],
+      "margin": 0.000356793
+    },
+    {
+      "case": "teach-orphan-rent",
+      "decision": "intent",
+      "labels": [
+        "deliberate",
+        "unclear"
+      ],
+      "margin": 0.000194192
+    },
+    {
+      "case": "teach-milk-watered",
+      "decision": "intent",
+      "labels": [
+        "deliberate",
+        "unclear"
+      ],
+      "margin": 5.47171e-05
+    },
+    {
+      "case": "teach-loan-cloak",
+      "decision": "harm",
+      "labels": [
+        "low",
+        "moderate"
+      ],
+      "margin": 0.000325322
+    },
+    {
+      "case": "teach-ferry-delay",
+      "decision": "harm",
+      "labels": [
+        "low",
+        "moderate"
+      ],
+      "margin": 0.000186563
+    },
+    {
+      "case": "teach-ferry-delay",
+      "decision": "relationship",
+      "labels": [
+        "trade",
+        "neighbors"
+      ],
+      "margin": 0.000332177
+    },
+    {
+      "case": "holdout-duck-pond",
+      "decision": "intent",
+      "labels": [
+        "careless",
+        "unclear"
+      ],
+      "margin": 1.7345e-05
+    },
+    {
+      "case": "holdout-two-eggs",
+      "decision": "matter",
+      "labels": [
+        "debt",
+        "property"
+      ],
+      "margin": 0.000463068
+    },
+    {
+      "case": "holdout-two-eggs",
+      "decision": "proof",
+      "labels": [
+        "admitted",
+        "unclear"
+      ],
+      "margin": 3.29018e-05
+    },
+    {
+      "case": "holdout-two-eggs",
+      "decision": "action",
+      "labels": [
+        "seek-full-reparation",
+        "find-witness"
+      ],
+      "margin": 0.000367582
+    },
+    {
+      "case": "holdout-ladder",
+      "decision": "action",
+      "labels": [
+        "seek-full-reparation",
+        "seek-small-reparation"
+      ],
+      "margin": 0.000440896
+    },
+    {
+      "case": "holdout-rooster",
+      "decision": "matter",
+      "labels": [
+        "property",
+        "damage"
+      ],
+      "margin": 0.000437915
+    },
+    {
+      "case": "holdout-rooster",
+      "decision": "urgency",
+      "labels": [
+        "high",
+        "ordinary"
+      ],
+      "margin": 3.61204e-05
+    },
+    {
+      "case": "holdout-cracked-jars",
+      "decision": "property",
+      "labels": [
+        "land",
+        "goods"
+      ],
+      "margin": 0.000262201
+    },
+    {
+      "case": "holdout-bell-insult",
+      "decision": "proof",
+      "labels": [
+        "unclear",
+        "witness"
+      ],
+      "margin": 0.000463307
+    },
+    {
+      "case": "holdout-bell-insult",
+      "decision": "relationship",
+      "labels": [
+        "neighbors",
+        "trade"
+      ],
+      "margin": 0.000282049
+    },
+    {
+      "case": "holdout-bell-insult",
+      "decision": "action",
+      "labels": [
+        "find-witness",
+        "seek-full-reparation"
+      ],
+      "margin": 7.50422e-05
+    },
+    {
+      "case": "holdout-ditch-line",
+      "decision": "intent",
+      "labels": [
+        "careless",
+        "unclear"
+      ],
+      "margin": 0.000411272
+    },
+    {
+      "case": "holdout-winter-debt",
+      "decision": "ability",
+      "labels": [
+        "unable",
+        "able"
+      ],
+      "margin": 4.01735e-05
+    },
+    {
+      "case": "holdout-hat-feud",
+      "decision": "matter",
+      "labels": [
+        "insult",
+        "debt"
+      ],
+      "margin": 0.000175595
+    },
+    {
+      "case": "holdout-hat-feud",
+      "decision": "relationship",
+      "labels": [
+        "neighbors",
+        "trade"
+      ],
+      "margin": 9.42349e-05
+    },
+    {
+      "case": "holdout-hat-feud",
+      "decision": "action",
+      "labels": [
+        "sworn-account",
+        "find-witness"
+      ],
+      "margin": 0.000248015
+    },
+    {
+      "case": "holdout-net-return",
+      "decision": "harm",
+      "labels": [
+        "low",
+        "moderate"
+      ],
+      "margin": 1.43051e-06
+    },
+    {
+      "case": "holdout-net-return",
+      "decision": "proof",
+      "labels": [
+        "admitted",
+        "document"
+      ],
+      "margin": 6.93798e-05
+    },
+    {
+      "case": "holdout-net-return",
+      "decision": "intent",
+      "labels": [
+        "unclear",
+        "careless"
+      ],
+      "margin": 0.000467122
+    },
+    {
+      "case": "holdout-net-return",
+      "decision": "action",
+      "labels": [
+        "request-return",
+        "seek-small-reparation"
+      ],
+      "margin": 1.66893e-06
+    },
+    {
+      "case": "holdout-cart-axle",
+      "decision": "proof",
+      "labels": [
+        "unclear",
+        "witness"
+      ],
+      "margin": 6.18696e-05
+    },
+    {
+      "case": "holdout-secret-order",
+      "decision": "matter",
+      "labels": [
+        "charter",
+        "damage"
+      ],
+      "margin": 0.000368237
+    },
+    {
+      "case": "holdout-secret-order",
+      "decision": "harm",
+      "labels": [
+        "moderate",
+        "high"
+      ],
+      "margin": 8.04663e-06
+    },
+    {
+      "case": "holdout-soup-pot",
+      "decision": "proof",
+      "labels": [
+        "admitted",
+        "witness"
+      ],
+      "margin": 0.000379264
+    },
+    {
+      "case": "holdout-soup-pot",
+      "decision": "urgency",
+      "labels": [
+        "ordinary",
+        "low"
+      ],
+      "margin": 8.41022e-05
+    },
+    {
+      "case": "holdout-false-weight",
+      "decision": "proof",
+      "labels": [
+        "unclear",
+        "admitted"
+      ],
+      "margin": 0.00032866
+    },
+    {
+      "case": "holdout-false-weight",
+      "decision": "intent",
+      "labels": [
+        "deliberate",
+        "unclear"
+      ],
+      "margin": 4.3273e-05
+    },
+    {
+      "case": "holdout-false-weight",
+      "decision": "action",
+      "labels": [
+        "seek-full-reparation",
+        "find-witness"
+      ],
+      "margin": 0.000480771
+    },
+    {
+      "case": "holdout-bridge-brawl",
+      "decision": "harm",
+      "labels": [
+        "moderate",
+        "high"
+      ],
+      "margin": 0.000293732
+    },
+    {
+      "case": "holdout-bridge-brawl",
+      "decision": "action",
+      "labels": [
+        "seek-small-reparation",
+        "propose-settlement"
+      ],
+      "margin": 0.000163496
+    },
+    {
+      "case": "holdout-lost-pin",
+      "decision": "property",
+      "labels": [
+        "none",
+        "goods"
+      ],
+      "margin": 0.000239551
+    },
+    {
+      "case": "holdout-lost-pin",
+      "decision": "relationship",
+      "labels": [
+        "neighbors",
+        "trade"
+      ],
+      "margin": 0.000457585
+    }
+  ],
+  "teaching_cases_sha256": "12c50fa700f5ad7720b9af4ca2efafc651110e4266a142ff07bc0a9a63a4acf2"
+}

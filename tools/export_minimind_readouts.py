@@ -6,6 +6,7 @@ import argparse
 import hashlib
 import json
 import os
+import sys
 import tempfile
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -13,11 +14,16 @@ from typing import Any, Protocol
 
 import numpy as np
 
-from apps.minimind_adapter.service import ACTIONS, FIELD_OPTIONS, Adapter, Facts, MiniMindScorer
+if not __package__:  # Support ``python tools/export_minimind_readouts.py`` from any directory.
+    _REPOSITORY_ROOT = str(Path(__file__).resolve().parents[1])
+    if _REPOSITORY_ROOT not in sys.path:
+        sys.path.insert(0, _REPOSITORY_ROOT)
+
+from apps.minimind_adapter.service import ACTIONS, FIELD_OPTIONS, Adapter, Facts, MiniMindScorer  # noqa: E402
 
 if __package__:
     from tools import prepare_minimind as source_contract
-else:  # Support ``python tools/export_minimind_readouts.py``.
+else:
     import prepare_minimind as source_contract
 
 
@@ -25,6 +31,10 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 CASES_PATH = REPOSITORY_ROOT / "apps" / "web" / "public" / "legalfly" / "cases.json"
 READOUT_SCHEMA = "legalfly-minimind-readouts/1"
 TEMPERATURE_MULTIPLIER = 4.0
+# Reference decisions closer than this (top-1 minus top-2 cosine score) are knife edges:
+# measured cross-backend embedding noise is up to about 3e-4 per component and about
+# 1.3e-4 in cosine score, so another float32 backend may flip them without being wrong.
+KNIFE_EDGE_MARGIN = 5e-4
 
 
 class EmbeddingScorer(Protocol):
@@ -56,6 +66,9 @@ class BackendComparison:
     max_cosine_delta: float
     max_embedding_component_delta: float
     max_candidate_score_delta: float
+    min_field_margin: float
+    min_action_margin: float
+    knife_edge_decisions: list[dict[str, Any]]
 
     @property
     def discrete_parity(self) -> bool:
@@ -360,6 +373,14 @@ def _note_selection_input(
     return prompt, templates
 
 
+def _margin(scores: np.ndarray, labels: list[str]) -> tuple[float, list[str]]:
+    """Top-1 minus top-2 score and the two labels involved (index breaks ties)."""
+    order = sorted(range(len(labels)), key=lambda index: (-float(scores[index]), index))
+    if len(order) < 2:
+        raise ValueError("Readout groups must offer at least two labels")
+    return float(scores[order[0]] - scores[order[1]]), [labels[order[0]], labels[order[1]]]
+
+
 def _ranking(scores: list[float]) -> list[int]:
     return sorted(range(len(scores)), key=lambda index: (-scores[index], index))
 
@@ -403,6 +424,17 @@ def compare_backends(
     note_mismatches: list[dict[str, Any]] = []
     max_cosine_delta = 0.0
     max_candidate_score_delta = 0.0
+    min_field_margin = float("inf")
+    min_action_margin = float("inf")
+    knife_edges: list[dict[str, Any]] = []
+
+    def record_margin(case_id: str, decision: str, scores: np.ndarray, labels: list[str]) -> float:
+        margin, top_two = _margin(scores, labels)
+        if margin < KNIFE_EDGE_MARGIN:
+            knife_edges.append(
+                {"case": case_id, "decision": decision, "margin": margin, "labels": top_two}
+            )
+        return margin
 
     for row, case in enumerate(cases):
         python_result = python_adapter.encode(case["petition"])
@@ -424,6 +456,10 @@ def compare_backends(
             if list(labels) != list(readouts["fields"][field]["labels"]):
                 raise ValueError(f"Browser readout label ordering differs for {field}")
             python_scores = np.asarray(python_centroids, dtype=np.float32) @ python_vectors[row]
+            min_field_margin = min(
+                min_field_margin,
+                record_margin(str(case["id"]), field, python_scores, list(labels)),
+            )
             max_cosine_delta = max(
                 max_cosine_delta,
                 float(np.max(np.abs(python_scores - browser_scores))),
@@ -444,6 +480,10 @@ def compare_backends(
             raise ValueError("Browser action-readout label ordering differs")
         python_action_scores = (
             np.asarray(python_action_centroids, dtype=np.float32) @ python_vectors[row]
+        )
+        min_action_margin = min(
+            min_action_margin,
+            record_margin(str(case["id"]), "action", python_action_scores, list(action_labels)),
         )
         max_cosine_delta = max(
             max_cosine_delta,
@@ -487,6 +527,9 @@ def compare_backends(
         max_cosine_delta=max_cosine_delta,
         max_embedding_component_delta=float(np.max(np.abs(python_vectors - browser_vectors))),
         max_candidate_score_delta=max_candidate_score_delta,
+        min_field_margin=min_field_margin,
+        min_action_margin=min_action_margin,
+        knife_edge_decisions=knife_edges,
     )
 
 
