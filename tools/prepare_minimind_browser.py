@@ -26,6 +26,7 @@ WEB_TARGET = REPOSITORY_ROOT / "apps" / "web" / "public" / "minimind"
 SCHEMA = "legalfly-minimind-browser/1"
 OUTPUT_NAMES = ["logits", "last_hidden_state"]
 QUANTIZATIONS = ("q4", "q8")
+Q8_PARITY_MODULES = ("causal_lm.model.layers.1.mlp.gate_proj",)
 
 Quantization = Literal["q4", "q8"]
 
@@ -43,6 +44,7 @@ class BrowserManifest(TypedDict):
     source_sha256: str
     files: list[BrowserFile]
     quantization: Quantization
+    quantization_config: dict[str, object]
     outputs: list[str]
 
 
@@ -61,6 +63,22 @@ def _validated_quantization(quantization: str) -> Quantization:
     if quantization not in QUANTIZATIONS:
         raise ValueError("quantization must be q4 or q8")
     return cast(Quantization, quantization)
+
+
+def _quantization_config(quantization: Quantization) -> dict[str, object]:
+    if quantization == "q8":
+        return {
+            "method": "weight-only",
+            "bits": 8,
+            "block_size": 32,
+            "modules": list(Q8_PARITY_MODULES),
+        }
+    return {
+        "method": "weight-only",
+        "bits": 4,
+        "block_size": 128,
+        "modules": ["*"],
+    }
 
 
 def download_source(source: Path) -> None:
@@ -103,6 +121,21 @@ def verify_source(source: Path) -> str:
     return weights_digest
 
 
+def export_fixed_readouts(source: Path, output: Path, source_sha256: str) -> Path:
+    """Fit and export the immutable browser readouts from the locked teaching cases."""
+    if __package__:
+        from tools.export_minimind_readouts import export_readouts, locked_cases
+    else:  # Support ``python tools/prepare_minimind_browser.py --convert``.
+        from export_minimind_readouts import export_readouts, locked_cases
+
+    return export_readouts(
+        source,
+        locked_cases(),
+        output,
+        source_sha256=source_sha256,
+    )
+
+
 def _onnx_output_names(path: Path) -> list[str]:
     try:
         import onnx
@@ -122,6 +155,29 @@ def validate_onnx_outputs(path: Path) -> None:
         )
 
 
+def export_torch_onnx(module, inputs: tuple, destination: Path) -> None:
+    """Export through PyTorch's Qwen3-compatible dynamo path as one ONNX file."""
+    import torch
+
+    torch.onnx.export(
+        module,
+        inputs,
+        destination,
+        input_names=["input_ids", "attention_mask"],
+        output_names=OUTPUT_NAMES,
+        dynamic_axes={
+            "input_ids": {0: "batch", 1: "sequence"},
+            "attention_mask": {0: "batch", 1: "sequence"},
+            "logits": {0: "batch", 1: "sequence"},
+            "last_hidden_state": {0: "batch", 1: "sequence"},
+        },
+        opset_version=18,
+        do_constant_folding=True,
+        dynamo=True,
+        external_data=False,
+    )
+
+
 def export_qwen3_onnx(source: Path, destination: Path) -> None:
     """Export Qwen3 logits and the final hidden state as a single ONNX graph."""
     try:
@@ -137,7 +193,7 @@ def export_qwen3_onnx(source: Path, destination: Path) -> None:
         local_files_only=True,
         trust_remote_code=False,
         attn_implementation="eager",
-        dtype="auto",
+        dtype=torch.float32,
     )
     model.config.use_cache = False
     model.eval()
@@ -158,24 +214,11 @@ def export_qwen3_onnx(source: Path, destination: Path) -> None:
             return result.logits, result.hidden_states[-1]
 
     wrapper = BrowserQwen3(model)
+    wrapper.eval()
     input_ids = torch.ones((1, 8), dtype=torch.long)
     attention_mask = torch.ones_like(input_ids)
     destination.parent.mkdir(parents=True, exist_ok=True)
-    torch.onnx.export(
-        wrapper,
-        (input_ids, attention_mask),
-        destination,
-        input_names=["input_ids", "attention_mask"],
-        output_names=OUTPUT_NAMES,
-        dynamic_axes={
-            "input_ids": {0: "batch", 1: "sequence"},
-            "attention_mask": {0: "batch", 1: "sequence"},
-            "logits": {0: "batch", 1: "sequence"},
-            "last_hidden_state": {0: "batch", 1: "sequence"},
-        },
-        opset_version=17,
-        do_constant_folding=True,
-    )
+    export_torch_onnx(wrapper, (input_ids, attention_mask), destination)
 
     validate_onnx_outputs(destination)
 
@@ -184,36 +227,55 @@ def quantize_onnx(source: Path, destination: Path, quantization: str) -> None:
     """Apply the selected ONNX Runtime weight quantization."""
     selected = _validated_quantization(quantization)
     try:
-        from onnxruntime.quantization import QuantType, quantize_dynamic
+        from onnxruntime.quantization import quant_utils
     except ImportError as exc:  # pragma: no cover - depends on optional conversion extras
         raise RuntimeError(
             "Browser conversion requires the 'browser' optional dependencies"
         ) from exc
 
-    if selected == "q8":
-        quantize_dynamic(
-            str(source),
-            str(destination),
-            weight_type=QuantType.QInt8,
-            per_channel=True,
-        )
-        return
+    try:
+        from onnxruntime.quantization import matmul_nbits_quantizer as nbits_quantizer
+    except ImportError:
+        if selected == "q8":  # pragma: no cover - incompatible optional dependency
+            raise RuntimeError(
+                "q8 browser conversion requires ONNX Runtime's MatMulNBits quantizer"
+            )
+        from onnxruntime.quantization import matmul_4bits_quantizer as nbits_quantizer
 
-    from onnxruntime.quantization import matmul_4bits_quantizer, quant_utils
-
-    configuration = matmul_4bits_quantizer.DefaultWeightOnlyQuantConfig(
-        block_size=128,
+    configuration = nbits_quantizer.DefaultWeightOnlyQuantConfig(
+        block_size=32 if selected == "q8" else 128,
         is_symmetric=True,
         accuracy_level=4,
         quant_format=quant_utils.QuantFormat.QOperator,
-        op_types_to_quantize=("MatMul", "Gather"),
-        quant_axes=(("MatMul", 0), ("Gather", 1)),
+        op_types_to_quantize=("MatMul",) if selected == "q8" else ("MatMul", "Gather"),
+        quant_axes=(("MatMul", 0),) if selected == "q8" else (("MatMul", 0), ("Gather", 1)),
+        **({"bits": 8} if selected == "q8" else {}),
     )
     model = quant_utils.load_model_with_shape_infer(source)
-    quantizer = matmul_4bits_quantizer.MatMul4BitsQuantizer(
+    nodes_to_include = None
+    if selected == "q8":
+        nodes_to_include = []
+        for node in model.graph.node:
+            metadata = {entry.key: entry.value for entry in node.metadata_props}
+            namespace = metadata.get("namespace", "")
+            if any(f"/{module}:" in namespace for module in Q8_PARITY_MODULES):
+                nodes_to_include.append(node.name)
+        if len(nodes_to_include) != len(Q8_PARITY_MODULES):
+            raise ValueError("Exported ONNX graph does not contain every parity-proven q8 module")
+        # ONNX Runtime treats an empty op-type set as the MatMul default, so clear
+        # the constructed set explicitly and select only the semantic nodes above.
+        configuration.op_types_to_quantize.clear()
+    quantizer_type = getattr(
+        nbits_quantizer,
+        "MatMulNBitsQuantizer",
+        getattr(nbits_quantizer, "MatMul4BitsQuantizer", None),
+    )
+    if quantizer_type is None:  # pragma: no cover - incompatible optional dependency
+        raise RuntimeError("Installed ONNX Runtime does not provide weight-only q4 quantization")
+    quantizer = quantizer_type(
         model,
         nodes_to_exclude=None,
-        nodes_to_include=None,
+        nodes_to_include=nodes_to_include,
         algo_config=configuration,
     )
     quantizer.process()
@@ -276,6 +338,7 @@ def build_manifest(
         "source_sha256": source_sha256,
         "files": files,
         "quantization": selected,
+        "quantization_config": _quantization_config(selected),
         "outputs": list(OUTPUT_NAMES),
     }
 
@@ -349,6 +412,9 @@ def verify_browser_export(output: Path) -> BrowserManifest:
             raise ValueError(f"Browser manifest has invalid {field}")
     if manifest.get("quantization") not in QUANTIZATIONS:
         raise ValueError("Browser manifest has invalid quantization")
+    selected = _validated_quantization(cast(str, manifest["quantization"]))
+    if manifest.get("quantization_config") != _quantization_config(selected):
+        raise ValueError("Browser manifest has invalid quantization_config")
 
     files = manifest.get("files")
     if not isinstance(files, list) or not files:
@@ -417,6 +483,7 @@ def convert_model(source: Path, output: Path, quantization: str) -> BrowserManif
         quantize_onnx(unquantized, quantized, selected)
         validate_onnx_outputs(quantized)
         unquantized.unlink(missing_ok=True)
+        export_fixed_readouts(source, staging, source_digest)
         for name in REQUIRED_FILES[1:]:
             shutil.copy2(source / name, staging / name)
 

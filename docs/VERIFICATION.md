@@ -85,9 +85,42 @@ Measured on the same CPU with all 63.9M MiniMind parameters frozen:
 
 An earlier zero-shot candidate-likelihood encoder scored only 21.1% per field and 0/16 exact parses. It was replaced by frozen embeddings with teaching-only field readouts. Confirmation remains mandatory because the improved encoder is still wrong on most complete parses.
 
+### Browser MiniMind parity gate
+
+The real browser parity run on 2026-09-15 used the pinned checkpoint above and all 48 locked teaching/holdout cases. The unquantized float32 ONNX graph first established that the export and ONNX Runtime execution path itself has exact discrete parity: 0/384 field-label mismatches, 0/48 action-label mismatches, and 0/48 authored-note ranking mismatches. Its maximum readout cosine-score delta was `3.5762786865234375e-07`, maximum embedding-component delta was `1.7299316823482513e-07`, and maximum candidate-score delta was `4.291534423828125e-06`.
+
+Quantization was evaluated in the required q4-then-q8 order:
+
+| Candidate | ONNX bytes | Field mismatches | Action mismatches | Note-ranking mismatches | Maximum cosine-score delta | Result |
+|---|---:|---:|---:|---:|---:|---|
+| q4, weight-only block 128 over supported MatMul/Gather weights | 54,972,589 | 50/384 | 9/48 | 3/48 | 0.071780264377594 | rejected |
+| q8, weight-only block 32 over all supported MatMul weights | 87,409,139 | 2/384 | 2/48 | 0/48 | 0.002124786376953125 | rejected |
+| q8, weight-only block 32 over the parity-proven module allowlist | 251,710,377 | 0/384 | 0/48 | 0/48 | 0.00012540817260742188 | selected |
+
+The selected q8 allowlist contains only `causal_lm.model.layers.1.mlp.gate_proj`; all other weights remain float32. This limited scope is recorded explicitly in `manifest.json` under `quantization_config` and is necessary because broader q8 transforms changed locked discrete outputs. The selected bundle is 253,441,900 bytes (241.70 MiB) including its readouts and tokenizer files. Its maximum embedding-component delta is `0.0003248246503062546`, maximum candidate-score delta is `0.010023117065429688`, and every candidate ranking is identical to the Python adapter.
+
+Selected content-addressed artifacts:
+
+| File | Bytes | SHA-256 |
+|---|---:|---|
+| `model.q8.d9e7fd8f89dbf4139637caeb7cb1ecc89c8010050a61a152c50ff446568929a5.onnx` | 251,710,377 | `d9e7fd8f89dbf4139637caeb7cb1ecc89c8010050a61a152c50ff446568929a5` |
+| `readouts.f9754426a25e42ecb6fad0c81c1631e1b075463be4c5573e4e6523f019217fed.json` | 1,271,933 | `f9754426a25e42ecb6fad0c81c1631e1b075463be4c5573e4e6523f019217fed` |
+| `config.efcfa39ede9bbb5b64ded2bb90969e4b840f0f9e1e36725d386acb7eca1c6d05.json` | 863 | `efcfa39ede9bbb5b64ded2bb90969e4b840f0f9e1e36725d386acb7eca1c6d05` |
+| `tokenizer.71f32c68cf63a15355a8fc171b7594b3d41870fe0ddb54fc6aefa55f73a4a668.json` | 451,182 | `71f32c68cf63a15355a8fc171b7594b3d41870fe0ddb54fc6aefa55f73a4a668` |
+| `tokenizer_config.04ae7620b9cf93fd2d6fbf94936b0c3c4be65f30cd6ef6fa8741baac986525d1.json` | 7,545 | `04ae7620b9cf93fd2d6fbf94936b0c3c4be65f30cd6ef6fa8741baac986525d1` |
+
+The fixed readout has 768 dimensions, temperature multiplier 4.0, and teaching-case SHA-256 `12c50fa700f5ad7720b9af4ca2efafc651110e4266a142ff07bc0a9a63a4acf2`. The measured backend was Python 3.14.7 with PyTorch 2.14.0+cpu, Transformers 4.57.6, safetensors 0.8.0, huggingface-hub 0.36.2, NumPy 2.3.3, ONNX 1.22.0, ONNX Runtime 1.30.0, ONNX Script 0.7.2, and pytest 9.1.1. `onnxscript` and ONNX Runtime 1.30 or newer are declared in the `browser` optional dependency group because the current PyTorch Qwen3 exporter and MatMulNBits quantizer require them.
+
+The release gate was reproduced with:
+
+```sh
+python tools/export_minimind_readouts.py --model-path models/minimind-3 --output models/minimind-3-browser/q8-selected --compare
+LEGALFLY_TEST_MINIMIND_PATH=models/minimind-3 LEGALFLY_TEST_BROWSER_ARTIFACTS=models/minimind-3-browser/q8-selected python -m pytest tests/test_minimind_browser_parity.py -q
+```
+
 ## Tests Executed
 
-- `python -m pytest -q`: 44 passed, with two upstream dependency deprecation warnings.
+- `python -m pytest -q` with the real MiniMind parity environment variables set: 88 passed and 1 pre-existing skip, with seven warnings (two upstream dependency deprecations and five PyTorch ONNX-export warnings from the tiny graph regression test).
 - `npm run test:legalfly`: 14 passed.
 - `npm test`: 20 passed.
 - `npm run build`: passed.

@@ -3,11 +3,12 @@ import json
 import subprocess
 import sys
 from pathlib import Path
+from types import SimpleNamespace
 
+import numpy as np
 import pytest
 
 from tools import prepare_minimind_browser as prepare
-
 
 REVISION = "f92512d4cd6142fa9acc0d6022375049a8974bf6"
 
@@ -57,6 +58,12 @@ def test_manifest_uses_content_addressed_files(tmp_path):
     assert manifest["model"] == "jingyaogong/minimind-3"
     assert manifest["revision"] == REVISION
     assert manifest["source_sha256"] == prepare.WEIGHTS_SHA256
+    assert manifest["quantization_config"] == {
+        "method": "weight-only",
+        "bits": 8,
+        "block_size": 32,
+        "modules": ["causal_lm.model.layers.1.mlp.gate_proj"],
+    }
     assert all(entry["sha256"] in entry["file"] for entry in manifest["files"])
     assert manifest["outputs"] == ["logits", "last_hidden_state"]
     assert sorted(path.name for path in fixture_export.iterdir()) == sorted(
@@ -94,6 +101,136 @@ def test_script_help_works_when_invoked_by_file_path():
 
     assert result.returncode == 0, result.stderr
     assert "--quantization {q4,q8}" in result.stdout
+
+
+def test_torch_export_writes_expected_graph_outputs(tmp_path):
+    torch = pytest.importorskip("torch")
+
+    class TinyBrowserModel(torch.nn.Module):
+        def forward(self, input_ids, attention_mask):
+            hidden = torch.stack((input_ids.float(), attention_mask.float()), dim=-1)
+            return hidden * 2, hidden
+
+    destination = tmp_path / "tiny.onnx"
+    ids = torch.ones((1, 3), dtype=torch.long)
+
+    prepare.export_torch_onnx(TinyBrowserModel(), (ids, ids), destination)
+
+    assert destination.is_file()
+    assert prepare._onnx_output_names(destination) == ["logits", "last_hidden_state"]
+
+
+def test_torch_export_uses_qwen3_compatible_dynamo_path(tmp_path, monkeypatch):
+    torch = pytest.importorskip("torch")
+    calls = []
+
+    def capture_export(module, inputs, destination, **options):
+        calls.append(options)
+
+    monkeypatch.setattr(torch.onnx, "export", capture_export)
+    prepare.export_torch_onnx(object(), (object(), object()), tmp_path / "model.onnx")
+
+    assert calls[0]["dynamo"] is True
+    assert calls[0]["external_data"] is False
+    assert calls[0]["opset_version"] == 18
+
+
+def test_q4_quantization_uses_current_onnxruntime_nbits_api(tmp_path):
+    onnx = pytest.importorskip("onnx")
+    pytest.importorskip("onnxruntime")
+    source = tmp_path / "matmul.onnx"
+    destination = tmp_path / "matmul.q4.onnx"
+    tensor = onnx.helper.make_tensor_value_info
+    graph = onnx.helper.make_graph(
+        [onnx.helper.make_node("MatMul", ["input", "weight"], ["output"], name="projection")],
+        "q4-fixture",
+        [tensor("input", onnx.TensorProto.FLOAT, [1, 128])],
+        [tensor("output", onnx.TensorProto.FLOAT, [1, 4])],
+        [
+            onnx.numpy_helper.from_array(
+                np.linspace(-1.0, 1.0, 512, dtype=np.float32).reshape(128, 4),
+                name="weight",
+            )
+        ],
+    )
+    onnx.save(
+        onnx.helper.make_model(graph, opset_imports=[onnx.helper.make_opsetid("", 18)]), source
+    )
+
+    prepare.quantize_onnx(source, destination, "q4")
+
+    quantized = onnx.load(destination)
+    assert destination.is_file()
+    assert not destination.with_name(destination.name + ".data").exists()
+    assert "MatMulNBits" in {node.op_type for node in quantized.graph.node}
+
+
+def test_q8_quantization_only_compresses_the_parity_proven_module(tmp_path):
+    onnx = pytest.importorskip("onnx")
+    pytest.importorskip("onnxruntime")
+    source = tmp_path / "two-matmuls.onnx"
+    destination = tmp_path / "two-matmuls.q8.onnx"
+    tensor = onnx.helper.make_tensor_value_info
+    nodes = [
+        onnx.helper.make_node("MatMul", ["input", "weight_0"], ["output_0"], name="other"),
+        onnx.helper.make_node("MatMul", ["input", "weight_1"], ["output_1"], name="gate"),
+    ]
+    nodes[0].metadata_props.add(
+        key="namespace",
+        value="/causal_lm.model.layers.0.mlp.gate_proj: torch.nn.modules.linear.Linear",
+    )
+    nodes[1].metadata_props.add(
+        key="namespace",
+        value="/causal_lm.model.layers.1.mlp.gate_proj: torch.nn.modules.linear.Linear",
+    )
+    weights = np.linspace(-1.0, 1.0, 512, dtype=np.float32).reshape(128, 4)
+    graph = onnx.helper.make_graph(
+        nodes,
+        "q8-fixture",
+        [tensor("input", onnx.TensorProto.FLOAT, [1, 128])],
+        [
+            tensor("output_0", onnx.TensorProto.FLOAT, [1, 4]),
+            tensor("output_1", onnx.TensorProto.FLOAT, [1, 4]),
+        ],
+        [
+            onnx.numpy_helper.from_array(weights, name="weight_0"),
+            onnx.numpy_helper.from_array(weights, name="weight_1"),
+        ],
+    )
+    onnx.save(
+        onnx.helper.make_model(graph, opset_imports=[onnx.helper.make_opsetid("", 18)]), source
+    )
+
+    prepare.quantize_onnx(source, destination, "q8")
+
+    quantized = onnx.load(destination)
+    assert [node.name for node in quantized.graph.node if node.op_type == "MatMulNBits"] == [
+        "gate_Q8"
+    ]
+    assert [node.name for node in quantized.graph.node if node.op_type == "MatMul"] == ["other"]
+
+
+def test_qwen3_export_loads_the_python_adapters_float32_weights(tmp_path, monkeypatch):
+    torch = pytest.importorskip("torch")
+    transformers = pytest.importorskip("transformers")
+    calls = []
+
+    class FakeCausalLm(torch.nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.config = SimpleNamespace(use_cache=True)
+
+    def from_pretrained(source, **options):
+        calls.append(options)
+        return FakeCausalLm()
+
+    monkeypatch.setattr(transformers.AutoModelForCausalLM, "from_pretrained", from_pretrained)
+    monkeypatch.setattr(prepare, "export_torch_onnx", lambda *args: None)
+    monkeypatch.setattr(prepare, "validate_onnx_outputs", lambda path: None)
+
+    prepare.export_qwen3_onnx(tmp_path, tmp_path / "model.onnx")
+
+    assert calls[0]["dtype"] is torch.float32
 
 
 @pytest.mark.parametrize(
@@ -163,6 +300,13 @@ def test_convert_model_packages_verified_quantized_export(tmp_path, monkeypatch)
 
     monkeypatch.setattr(prepare, "export_qwen3_onnx", export_qwen3)
     monkeypatch.setattr(prepare, "quantize_onnx", quantize)
+    monkeypatch.setattr(
+        prepare,
+        "export_fixed_readouts",
+        lambda checkpoint, destination, source_sha256: (
+            destination / "readouts.fixture.json"
+        ).write_text('{"fixture":true}\n', encoding="utf-8"),
+    )
     monkeypatch.setattr(
         prepare, "_onnx_output_names", read_fixture_onnx_outputs, raising=False
     )
