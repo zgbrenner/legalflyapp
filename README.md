@@ -122,44 +122,24 @@ The language model does not get to secretly choose the answer.
 
 The fruit fly connectome does not understand English.
 
-For that, The Legal Fly uses **MiniMind**, a small local language model that can translate a villager's petition into structured facts.
+For that, The Legal Fly uses **MiniMind**, a small language model that runs inside your browser and can translate a villager's petition into structured facts.
 
 MiniMind can:
 
 * extract candidate facts
 * translate natural language into the eight input dimensions
-* help render the fly's chosen recommendation into readable language
+* pick the wording of the fly's recommendation from a fixed set of authored notes
 
 MiniMind cannot:
 
 * override the fly's selected action
 * receive the correct legal answer during active inference
 * replace the connectome
-
-### Local MiniMind
-
-MiniMind can run as a local loopback service:
-
-```bash
-python -m pip install -e '.[linguistic]'
-
-python tools/prepare_minimind.py
-python tools/prepare_minimind.py --check
-
-CUDA_VISIBLE_DEVICES='' \
-python -m uvicorn \
-apps.minimind_adapter.service:app \
---host 127.0.0.1 \
---port 8123
-```
-
-Its **63.9M parameters remain frozen**.
+* send your petition off your device
 
 ### MiniMind in the Browser
 
-A browser-native MiniMind option is also planned.
-
-The goal is to let users run the linguistic layer **directly in the browser**, without installing Python or starting a local server.
+MiniMind runs **directly in your browser**. There is no Python to install, no local server to start, and no API key.
 
 ```text
 Petition
@@ -171,7 +151,22 @@ confirmed structured facts
 fruit fly nervous system
 ```
 
-That keeps the experiment close to its local-first philosophy and makes the complete pipeline accessible from a normal web page.
+Select **Enable MiniMind** on the petition panel. The browser downloads the model once, checks every file against its SHA-256 hash, and keeps the verified copy in the browser's own cache for later visits. Nothing is fetched until you ask.
+
+| Item | Value |
+| --- | --- |
+| One-time download | about 252 MB (240 MiB) in five files from the same origin as the page; exact sizes and hashes are in the served `/minimind/manifest.json` |
+| Tokenizer | Transformers.js 3.8.1 |
+| Inference | ONNX Runtime Web 1.30.0 in a Web Worker; WebGPU when the browser exposes it, otherwise WASM |
+| Parameters | 63.9M, all frozen |
+| Verified in | headless Chromium on the WASM path |
+| Not certified | the WebGPU path, Firefox, Safari |
+
+Your petition goes from the page to a Web Worker on the same origin and nowhere else. If the browser cannot run MiniMind, the page says so and you fill in the eight facts yourself. Manual facts work in every state.
+
+The Python adapter in `apps/minimind_adapter/` is kept only as the conversion and parity reference for the browser bundle. It is not part of the hosted site.
+
+See `docs/MINIMIND_SETUP.md` for cache behavior, troubleshooting, and how to build the bundle yourself.
 
 ---
 
@@ -184,7 +179,7 @@ Current held-out results:
 | Biological MaleCNS      | **13 / 16** |
 | Shuffled connectome     |     11 / 16 |
 | Facts-only centroid     | **14 / 16** |
-| Frozen MiniMind readout |      7 / 16 |
+| Frozen MiniMind readout |      7 / 16 (6 / 16 in the browser, one knife-edge case) |
 | Fictional charter rules |      9 / 16 |
 
 So no, this repository does **not** prove that fruit flies secretly understand law.
@@ -256,6 +251,29 @@ The application intentionally refuses to silently replace the MaleCNS dataset wi
 
 ---
 
+## Prepare MiniMind (optional)
+
+Without the bundle the app still runs. The MiniMind card appears, and **Enable MiniMind** fails with a plain message instead of pretending.
+
+To build the real browser bundle locally:
+
+```bash
+python -m pip install --require-hashes --only-binary=:all: \
+  -r tools/requirements/minimind-browser.txt
+
+python tools/prepare_minimind_browser.py \
+  --download \
+  --convert \
+  --quantization q8 \
+  --export-web
+```
+
+The hash-locked requirements target CPython 3.12 on Linux x86_64. On other platforms use `python -m pip install -e '.[browser]'` instead.
+
+The bundle lands in `apps/web/public/minimind/`, which git ignores. Restart the web app afterwards.
+
+---
+
 ## Architecture
 
 ```text
@@ -265,7 +283,7 @@ The application intentionally refuses to silently replace the MaleCNS dataset wi
            ↓
 ┌─────────────────────┐
 │      MiniMind       │
-│   local / browser   │
+│   in your browser   │
 └──────────┬──────────┘
            ↓
 ┌─────────────────────┐
@@ -298,11 +316,11 @@ The project is designed around **local-first computation**.
 
 Connectome inference, training, model inspection, benchmarks, and visualization run locally.
 
-Optional language processing uses MiniMind rather than a hosted general-purpose LLM.
+Optional language processing uses MiniMind inside your own browser rather than a hosted general-purpose LLM. Petition text is never sent to a server, placed in a URL, logged, or stored; it travels only from the page to a same-origin Web Worker. The hosting provider still sees ordinary static-asset requests and IP addresses.
 
-The planned browser-native MiniMind path is intended to make even that linguistic preprocessing possible entirely on-device.
+No API key is required to ask a fly about your fictional goat dispute.
 
-No API key should be required to ask a fly about your fictional goat dispute.
+See `docs/PRIVACY.md`.
 
 ---
 

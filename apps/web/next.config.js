@@ -1,4 +1,11 @@
 /** @type {import('next').NextConfig} */
+const path = require("node:path");
+
+const transformersWeb = path.join(
+  path.dirname(require.resolve("@huggingface/transformers")),
+  "transformers.web.js",
+);
+
 const binaryHeaders = [
   { key: "Accept-Ranges", value: "bytes" },
   { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
@@ -9,7 +16,17 @@ const binaryHeaders = [
 const nextConfig = {
   output: "standalone",
   reactStrictMode: true,
-  transpilePackages: ["three"],
+  transpilePackages: ["three", "@huggingface/transformers"],
+  webpack(config) {
+    // A module worker always needs the browser export. Next also analyzes client
+    // modules in its server compilation, whose default package condition would
+    // otherwise pull in Transformers.js' Node-only Sharp dependency.
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      "@huggingface/transformers$": transformersWeb,
+    };
+    return config;
+  },
   async headers() {
     return [
       {
@@ -24,6 +41,22 @@ const nextConfig = {
         source: `/legalfly/${asset}`,
         headers: binaryHeaders,
       })),
+      {
+        source: "/minimind/:artifact*",
+        headers: [
+          { key: "Accept-Ranges", value: "bytes" },
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+        ],
+      },
+      {
+        source: "/minimind/manifest.json",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
+          { key: "Content-Type", value: "application/json; charset=utf-8" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+        ],
+      },
     ];
   },
 };

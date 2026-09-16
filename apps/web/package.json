@@ -10,13 +10,16 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "predev": "node scripts/export-legalfly-graph.mjs",
-    "prebuild": "node scripts/export-legalfly-graph.mjs",
+    "prebuild": "node scripts/export-legalfly-graph.mjs && node scripts/verify-minimind-assets.mjs",
     "test:legalfly": "node scripts/export-legalfly-graph.mjs && node --test tests/legalfly/*.test.mjs",
-    "test:dream": "node scripts/export-dream-graph.mjs && node --test tests/dream/*.test.mjs"
+    "test:dream": "node scripts/export-dream-graph.mjs && node --test tests/dream/*.test.mjs",
+    "test:minimind-runtime": "vitest run tests/minimind-runtime-parity.test.ts"
   },
   "dependencies": {
+    "@huggingface/transformers": "3.8.1",
     "@react-three/fiber": "9.7.0",
     "next": "15.5.24",
+    "onnxruntime-web": "1.30.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "recharts": "2.15.4",

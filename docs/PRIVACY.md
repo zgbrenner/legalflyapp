@@ -6,6 +6,27 @@ Notebook and model downloads include your teaching passages and annotations. Kee
 
 Reading and replay can be cancelled or paused. The worker cooperatively yields during training and stops advancing after a pause; leaving the route terminates it. Hidden tabs trigger pause. Do not add analytics, error payload collection, or session replay that captures user text.
 
+## The browser-only MiniMind helper
+
+The Legal Fly village at `/` offers an optional language helper, MiniMind, that runs only in your browser. It is a 63.9M-parameter model executed by ONNX Runtime Web inside a dedicated Web Worker on the page's own origin. There is no language-model service, no inference API, and no server-side petition processing.
+
+What leaves your browser:
+
+- If you select **Enable MiniMind**, the worker downloads six same-origin static files once: `/minimind/manifest.json` and five content-addressed model files, about 252 MB in total (exact sizes are listed in the manifest). These are ordinary static-asset requests. The model graph itself ships without the exporter's per-node metadata, so it carries no build-host file paths. Nothing is downloaded before you select the button, except that a later visit re-checks a copy already stored in this browser.
+- The worker's own runtime files (ONNX Runtime Web glue and `.wasm` binaries) load from the page's origin as part of the application bundle; the Transformers.js CDN default is disabled.
+- Nothing else. Petition text goes from the page to the worker as a structured message and is not placed in a URL, a fetch body, a log, `localStorage`, a Cache Storage key, or exported metadata. Transformers.js remote model loading is disabled (`env.allowRemoteModels = false`), and the worker's own cache refuses writes. Petition inference after the model is ready produces no network request.
+
+What stays in your browser:
+
+- The verified model files are kept in Cache Storage under `legalfly-minimind-browser-v1` so later visits do not download them again. Clearing site data removes them.
+- Petition text is not persisted by the helper. Casebook and model exports contain user-entered material only when you explicitly export them.
+
+Limits on what the worker accepts: every message must carry exactly the declared fields, petitions are limited to 1000 characters, and failures are reported with a fixed message that cannot echo petition text.
+
+The helper only proposes the eight fact fields, which you must confirm, and afterwards selects the wording of the fly's already-fixed action from authored notes. It cannot choose or change the action.
+
+Hosting still records ordinary static-asset requests and IP addresses. Browser-local computation is not a promise of anonymity. Do not enter real client information, passwords, privileged communications, or documents you are not authorized to share.
+
 ## Different boundary: the earlier classifier
 
 The retained `/classification` feature uses a Python inference API and has the separate behavior below. The browser-only claim does not apply to that older route.
